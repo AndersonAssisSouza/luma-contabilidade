@@ -1,0 +1,91 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML files exist
+        run: |
+          echo "Validating HTML files..."
+          files=(
+            "index.html"
+            "login.html"
+            "dashboard.html"
+            "clientes.html"
+            "fornecedores.html"
+            "notas_fiscais.html"
+            "contas_pagar.html"
+            "contas_receber.html"
+            "lancamentos.html"
+            "apuracoes.html"
+            "calendario_fiscal.html"
+            "plano_contas.html"
+            "dre.html"
+            "fluxo_caixa.html"
+            "conciliacao.html"
+            "configuracoes.html"
+          )
+
+          missing_files=0
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing: $file"
+              ((missing_files++))
+            else
+              echo "✓ Found: $file"
+            fi
+          done
+
+          if [ $missing_files -gt 0 ]; then
+            echo "Error: $missing_files HTML files are missing"
+            exit 1
+          fi
+          echo "All HTML files validated successfully"
+
+      - name: Validate required assets exist
+        run: |
+          echo "Validating assets..."
+          if [ ! -f "scripts/supabase_client_contab.js" ]; then
+            echo "❌ Missing: scripts/supabase_client_contab.js"
+            exit 1
+          fi
+          echo "✓ All required assets found"
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

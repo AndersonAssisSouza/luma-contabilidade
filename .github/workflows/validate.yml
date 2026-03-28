@@ -1,0 +1,173 @@
+name: Validate PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-html:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check HTML files exist
+        run: |
+          echo "Checking HTML files..."
+          files=(
+            "index.html"
+            "login.html"
+            "dashboard.html"
+            "clientes.html"
+            "fornecedores.html"
+            "notas_fiscais.html"
+            "contas_pagar.html"
+            "contas_receber.html"
+            "lancamentos.html"
+            "apuracoes.html"
+            "calendario_fiscal.html"
+            "plano_contas.html"
+            "dre.html"
+            "fluxo_caixa.html"
+            "conciliacao.html"
+            "configuracoes.html"
+          )
+
+          missing_files=0
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing: $file"
+              ((missing_files++))
+            else
+              echo "✓ Found: $file"
+            fi
+          done
+
+          if [ $missing_files -gt 0 ]; then
+            echo "Error: $missing_files HTML files are missing"
+            exit 1
+          fi
+
+      - name: Validate HTML syntax
+        run: |
+          echo "Validating HTML syntax..."
+          
+          # Check for common HTML issues
+          for html_file in *.html; do
+            echo "Checking $html_file..."
+            
+            # Check if file is not empty
+            if [ ! -s "$html_file" ]; then
+              echo "❌ $html_file is empty"
+              exit 1
+            fi
+            
+            # Check for basic HTML structure
+            if ! grep -q "<!DOCTYPE\|<html" "$html_file"; then
+              echo "⚠️  $html_file may be missing DOCTYPE or html tag"
+            fi
+            
+            # Check for unclosed major tags (basic check)
+            open_html=$(grep -o "<html" "$html_file" | wc -l)
+            close_html=$(grep -o "</html>" "$html_file" | wc -l)
+            
+            if [ "$open_html" -ne "$close_html" ]; then
+              echo "⚠️  $html_file has mismatched html tags"
+            fi
+          done
+          
+          echo "HTML validation complete"
+
+  validate-sql:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check SQL migration files
+        run: |
+          echo "Validating SQL migrations..."
+          
+          if [ ! -d "supabase/migrations" ]; then
+            echo "⚠️  supabase/migrations directory not found"
+            exit 0
+          fi
+          
+          migration_count=$(find supabase/migrations -name "*.sql" | wc -l)
+          echo "Found $migration_count SQL migration files"
+          
+          if [ $migration_count -eq 0 ]; then
+            echo "⚠️  No SQL migrations found"
+            exit 0
+          fi
+
+      - name: Validate SQL syntax
+        run: |
+          echo "Checking SQL migration syntax..."
+          
+          # Basic SQL validation - check for common syntax issues
+          for sql_file in supabase/migrations/*.sql; do
+            if [ -f "$sql_file" ]; then
+              echo "Checking $sql_file..."
+              
+              # Check file is not empty
+              if [ ! -s "$sql_file" ]; then
+                echo "❌ $sql_file is empty"
+                exit 1
+              fi
+              
+              # Check for common issues
+              if ! grep -q ";" "$sql_file"; then
+                echo "⚠️  $sql_file may be missing statement terminators (;)"
+              fi
+              
+              # Check for mismatched quotes (basic)
+              single_quotes=$(grep -o "'" "$sql_file" | wc -l)
+              if [ $((single_quotes % 2)) -ne 0 ]; then
+                echo "⚠️  $sql_file may have mismatched single quotes"
+              fi
+            fi
+          done
+          
+          echo "SQL validation complete"
+
+  validate-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required JavaScript files
+        run: |
+          echo "Validating JavaScript files..."
+          
+          if [ ! -f "scripts/supabase_client_contab.js" ]; then
+            echo "❌ Missing: scripts/supabase_client_contab.js"
+            exit 1
+          fi
+          
+          echo "✓ All required JavaScript files found"
+
+      - name: Validate JavaScript syntax (basic)
+        run: |
+          echo "Performing basic JavaScript validation..."
+          
+          for js_file in scripts/*.js; do
+            if [ -f "$js_file" ]; then
+              echo "Checking $js_file..."
+              
+              # Check file is not empty
+              if [ ! -s "$js_file" ]; then
+                echo "❌ $js_file is empty"
+                exit 1
+              fi
+              
+              # Check for obvious syntax issues
+              if ! grep -q ";" "$js_file"; then
+                echo "⚠️  $js_file may have missing semicolons"
+              fi
+            fi
+          done
+          
+          echo "JavaScript validation complete"
