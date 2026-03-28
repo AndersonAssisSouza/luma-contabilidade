@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Fiscal - LUMA Contabilidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #1a237e;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+            padding-left: 16px;
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background-color: #1a237e;
+            color: white;
+            border-color: #1a237e;
+        }
+
+        /* Filters */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .alerts-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a237e;
+            margin-bottom: 15px;
+        }
+
+        .alert-item {
+            padding: 12px;
+            border-left: 4px solid #ff9800;
+            background-color: #fff8f0;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-info {
+            flex: 1;
+        }
+
+        .alert-obrigacao {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .alert-vencimento {
+            font-size: 13px;
+            color: #ff9800;
+            margin-top: 3px;
+        }
+
+        .alert-urgency {
+            padding: 4px 12px;
+            background-color: #ff9800;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Calendar View */
+        .calendar-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .calendar-month {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .calendar-nav button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .weekday-header {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            padding: 10px 0;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day.other-month {
+            background-color: #fafafa;
+            color: #ccc;
+        }
+
+        .calendar-day.today {
+            border-color: #1a237e;
+            background-color: #f0f0f9;
+        }
+
+        .calendar-day.has-obligations {
+            border-color: #1a237e;
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .day-indicator {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            margin-right: 2px;
+            margin-bottom: 2px;
+            display: inline-block;
+        }
+
+        .status-ok { background-color: #4caf50; }
+        .status-pending { background-color: #ff9800; }
+        .status-overdue { background-color: #f44336; }
+        .status-gray { background-color: #999; }
+
+        /* List View */
+        .list-container {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .list-container.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            color: #333;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #1a237e;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #fafafa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.entregue {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-badge.atrasado {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .status-badge.pendente {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+
+        .status-badge.futuro {
+            background-color: #e0e0e0;
+            color: #666;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #1a237e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0d1551;
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a237e;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            padding: 15px 0;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">LUMA</div>
+            </div>
+            <nav>
+                <div class="nav-item" onclick="navigateTo('dashboard.html')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('apuracoes.html')">
+                    <span class="nav-icon">📈</span>
+                    <span>Apurações Fiscais</span>
+                </div>
+                <div class="nav-item active" onclick="navigateTo('calendario_fiscal.html')">
+                    <span class="nav-icon">📅</span>
+                    <span>Calendário Fiscal</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('plano_contas.html')">
+                    <span class="nav-icon">📋</span>
+                    <span>Plano de Contas</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('empresas.html')">
+                    <span class="nav-icon">🏢</span>
+                    <span>Empresas</span>
+                </div>
+            </nav>
+            <button class="logout-btn" onclick="logout()">Sair</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Calendário Fiscal</h1>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchView('calendar')">Calendário</button>
+                    <button class="view-btn" onclick="switchView('list')">Lista</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label>Responsável</label>
+                    <select id="filterResponsavel">
+                        <option value="">Todos</option>
+                        <option value="agente_digital">Agente Digital</option>
+                        <option value="contador">Contador CRC</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterStatus">
+                        <option value="">Todos</option>
+                        <option value="entregue">Entregue</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="atrasado">Atrasado</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Período</label>
+                    <select id="filterPeriodo">
+                        <option value="">Todos</option>
+                        <option value="2026-03">Março 2026</option>
+                        <option value="2026-04">Abril 2026</option>
+                        <option value="2026-05">Maio 2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-section">
+                <h3 class="alerts-title">Próximos Vencimentos (Próximos 15 dias)</h3>
+                <div id="alertsContainer">
+                    <div class="loading">Carregando alertas...</div>
+                </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="calendar-container" id="calendarView">
+                <div class="calendar-header">
+                    <h2 class="calendar-month" id="calendarMonthYear">Março 2026</h2>
+                    <div class="calendar-nav">
+                        <button onclick="previousMonth()">← Anterior</button>
+                        <button onclick="currentMonth()">Hoje</button>
+                        <button onclick="nextMonth()">Próximo →</button>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot status-ok"></div>
+                        <span>Entregue</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot status-pending"></div>
+                        <span>Pendente Próximo</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot status-overdue"></div>
+                        <span>Atrasado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot status-gray"></div>
+                        <span>Pendente Futuro</span>
+                    </div>
+                </div>
+
+                <div class="calendar-weekdays">
+                    <div class="weekday-header">Dom</div>
+                    <div class="weekday-header">Seg</div>
+                    <div class="weekday-header">Ter</div>
+                    <div class="weekday-header">Qua</div>
+                    <div class="weekday-header">Qui</div>
+                    <div class="weekday-header">Sex</div>
+                    <div class="weekday-header">Sab</div>
+                </div>
+
+                <div class="calendar-days" id="calendarDays"></div>
+            </div>
+
+            <!-- List View -->
+            <div class="list-container" id="listView">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Obrigação</th>
+                            <th>Competência</th>
+                            <th>Vencimento</th>
+                            <th>Responsável</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listTableBody">
+                        <tr><td colspan="6" class="loading">Carregando dados...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Status Update Modal -->
+            <div class="modal" id="statusModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <span>Atualizar Status</span>
+                        <button class="close-btn" onclick="closeStatusModal()">&times;</button>
+                    </div>
+                    <form onsubmit="saveStatus(event)">
+                        <div class="form-group">
+                            <label>Obrigação</label>
+                            <input type="text" id="statusObrigacao" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Novo Status</label>
+                            <select id="statusSelect" required>
+                                <option value="pendente">Pendente</option>
+                                <option value="entregue">Entregue</option>
+                                <option value="atrasado">Atrasado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Conclusão</label>
+                            <input type="date" id="statusData">
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeStatusModal()">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./scripts/supabase_client_contab.js"></script>
+    <script>
+        let currentDate = new Date(2026, 2, 27); // March 27, 2026
+        let obligations = [];
+        let currentView = 'calendar';
+
+        async function initPage() {
+            await requireAuth();
+            loadObligations();
+            renderCalendar();
+        }
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (view === 'calendar') {
+                document.getElementById('calendarView').style.display = 'block';
+                document.getElementById('listView').classList.remove('active');
+            } else {
+                document.getElementById('calendarView').style.display = 'none';
+                document.getElementById('listView').classList.add('active');
+                renderListView();
+            }
+        }
+
+        async function loadObligations() {
+            // Mock data for obligations
+            obligations = [
+                {
+                    id: 1,
+                    obrigacao: 'ECF - Escrituração Fiscal Digital',
+                    competencia: 'Março 2026',
+                    vencimento: new Date(2026, 3, 15),
+                    responsavel: 'Contador CRC',
+                    status: 'entregue',
+                    data_conclusao: new Date(2026, 3, 14)
+                },
+                {
+                    id: 2,
+                    obrigacao: 'DARF IRPJ',
+                    competencia: 'Q1 2026',
+                    vencimento: new Date(2026, 3, 20),
+                    responsavel: 'Contador CRC',
+                    status: 'pendente',
+                    data_conclusao: null
+                },
+                {
+                    id: 3,
+                    obrigacao: 'Guia de Recolhimento PIS/COFINS',
+                    competencia: 'Março 2026',
+                    vencimento: new Date(2026, 3, 25),
+                    responsavel: 'Agente Digital',
+                    status: 'pendente',
+                    data_conclusao: null
+                },
+                {
+                    id: 4,
+                    obrigacao: 'GFIP - Guia de Recolhimento do FGTS',
+                    competencia: 'Março 2026',
+                    vencimento: new Date(2026, 3, 7),
+                    responsavel: 'Contador CRC',
+                    status: 'atrasado',
+                    data_conclusao: null
+                },
+                {
+                    id: 5,
+                    obrigacao: 'Informações ao Banco Central',
+                    competencia: 'Abril 2026',
+                    vencimento: new Date(2026, 4, 10),
+                    responsavel: 'Agente Digital',
+                    status: 'pendente',
+                    data_conclusao: null
+                },
+                {
+                    id: 6,
+                    obrigacao: 'Declaração de Débitos e Créditos',
+                    competencia: 'Abril 2026',
+                    vencimento: new Date(2026, 4, 15),
+                    responsavel: 'Contador CRC',
+                    status: 'pendente',
+                    data_conclusao: null
+                }
+            ];
+
+            renderAlerts();
+        }
+
+        function renderAlerts() {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const today = new Date();
+            const nextFifteen = new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000);
+
+            const upcomingAlerts = obligations.filter(o => {
+                return o.vencimento >= today && o.vencimento <= nextFifteen && o.status !== 'entregue';
+            }).sort((a, b) => a.vencimento - b.vencimento);
+
+            if (upcomingAlerts.length === 0) {
+                alertsContainer.innerHTML = '<p style="color: #999; text-align: center;">Nenhum alerta de vencimento próximo</p>';
+                return;
+            }
+
+            alertsContainer.innerHTML = upcomingAlerts.map(alert => `
+                <div class="alert-item">
+                    <div class="alert-info">
+                        <div class="alert-obrigacao">${alert.obrigacao}</div>
+                        <div class="alert-vencimento">Vencimento: ${alert.vencimento.toLocaleDateString('pt-BR')}</div>
+                    </div>
+                    <div class="alert-urgency">Próximo: ${daysUntil(alert.vencimento)} dias</div>
+                </div>
+            `).join('');
+        }
+
+        function daysUntil(date) {
+            const today = new Date();
+            const diff = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+            return Math.max(0, diff);
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            document.getElementById('calendarMonthYear').textContent =
+                currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^\w/, c => c.toUpperCase());
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const dayCell = createDayCell(day, true);
+                calendarDays.appendChild(dayCell);
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDate = new Date(year, month, day);
+                const isToday = isDateToday(dayDate);
+                const dayObs = obligations.filter(o => isSameDate(o.vencimento, dayDate));
+
+                const dayCell = createDayCell(day, false, isToday, dayObs);
+                calendarDays.appendChild(dayCell);
+            }
+
+            // Next month days
+            const remainingCells = 42 - (firstDay + daysInMonth);
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayCell = createDayCell(day, true);
+                calendarDays.appendChild(dayCell);
+            }
+        }
+
+        function createDayCell(day, isOtherMonth, isToday = false, observations = []) {
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day';
+
+            if (isOtherMonth) {
+                cell.classList.add('other-month');
+            }
+            if (isToday) {
+                cell.classList.add('today');
+            }
+            if (observations.length > 0) {
+                cell.classList.add('has-obligations');
+            }
+
+            let html = `<div class="day-number">${day}</div>`;
+
+            if (!isOtherMonth && observations.length > 0) {
+                observations.forEach(obs => {
+                    const statusClass = `status-${obs.status}`;
+                    html += `<div class="day-indicator ${statusClass}" title="${obs.obrigacao}"></div>`;
+                });
+            }
+
+            cell.innerHTML = html;
+            return cell;
+        }
+
+        function isDateToday(date) {
+            const today = new Date();
+            return date.getFullYear() === today.getFullYear() &&
+                date.getMonth() === today.getMonth() &&
+                date.getDate() === today.getDate();
+        }
+
+        function isSameDate(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate();
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function currentMonth() {
+            currentDate = new Date();
+            renderCalendar();
+        }
+
+        function renderListView() {
+            const tbody = document.getElementById('listTableBody');
+            tbody.innerHTML = '';
+
+            obligations.forEach(ob => {
+                const tr = document.createElement('tr');
+                const statusClass = `status-badge ${ob.status}`;
+                const statusText = ob.status === 'entregue' ? 'Entregue' : ob.status === 'atrasado' ? 'Atrasado' : 'Pendente';
+
+                tr.innerHTML = `
+                    <td>${ob.obrigacao}</td>
+                    <td>${ob.competencia}</td>
+                    <td>${ob.vencimento.toLocaleDateString('pt-BR')}</td>
+                    <td>${ob.responsavel}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td class="table-actions">
+                        <button class="btn btn-primary" onclick="openStatusModal(${ob.id})">Atualizar Status</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openStatusModal(id) {
+            const ob = obligations.find(o => o.id === id);
+            if (!ob) return;
+
+            document.getElementById('statusObrigacao').value = ob.obrigacao;
+            document.getElementById('statusSelect').value = ob.status;
+            document.getElementById('statusData').value = ob.data_conclusao
+                ? ob.data_conclusao.toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0];
+
+            document.getElementById('statusModal').dataset.obligacaoId = id;
+            document.getElementById('statusModal').classList.add('active');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').classList.remove('active');
+        }
+
+        function saveStatus(event) {
+            event.preventDefault();
+
+            const obligacaoId = parseInt(document.getElementById('statusModal').dataset.obligacaoId);
+            const ob = obligations.find(o => o.id === obligacaoId);
+
+            if (ob) {
+                ob.status = document.getElementById('statusSelect').value;
+                ob.data_conclusao = new Date(document.getElementById('statusData').value);
+
+                closeStatusModal();
+                renderListView();
+                renderCalendar();
+                renderAlerts();
+            }
+        }
+
+        document.getElementById('filterResponsavel').addEventListener('change', renderListView);
+        document.getElementById('filterStatus').addEventListener('change', renderListView);
+        document.getElementById('filterPeriodo').addEventListener('change', renderListView);
+
+        window.addEventListener('load', initPage);
+    </script>
+</body>
+</html>

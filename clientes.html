@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - LUMA Contabilidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #1a237e;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar .logo {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar a, .sidebar button {
+            display: block;
+            padding: 12px 16px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+        }
+
+        .sidebar a:hover, .sidebar button:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .main {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a237e;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #1a237e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d1653;
+        }
+
+        .btn-secondary {
+            background: #e8eaf6;
+            color: #1a237e;
+            border: 1px solid #1a237e;
+        }
+
+        .btn-secondary:hover {
+            background: #c5cae9;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .search-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-section input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f5f7fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-ativo {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-inativo {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 4px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: #1a237e;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .type-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .type-toggle label {
+            flex: 1;
+            margin: 0;
+        }
+
+        .type-toggle input[type="radio"] {
+            display: none;
+        }
+
+        .type-toggle input[type="radio"] + label {
+            padding: 10px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .type-toggle input[type="radio"]:checked + label {
+            border-color: #1a237e;
+            background: #e8eaf6;
+            color: #1a237e;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #323232;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            background: #2e7d32;
+        }
+
+        .toast.error {
+            background: #c62828;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a237e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .container {
+                flex-direction: column;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">📊 LUMA</div>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="clientes.html" class="active">Clientes</a>
+                <a href="fornecedores.html">Fornecedores</a>
+                <a href="notas_fiscais.html">Notas Fiscais</a>
+                <button id="logoutBtn">Sair</button>
+            </nav>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <h1>Clientes</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="exportBtn">📥 Exportar</button>
+                    <button class="btn btn-primary" id="newClientBtn">+ Novo Cliente</button>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <input type="text" id="searchInput" placeholder="Buscar por nome ou CPF/CNPJ...">
+            </div>
+
+            <div class="table-container">
+                <table id="clientesTable">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF/CNPJ</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Cidade/UF</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientesBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="clienteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Novo Cliente</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <h3>Tipo de Pessoa</h3>
+                    <div class="type-toggle">
+                        <input type="radio" id="tipoPF" name="tipoPessoa" value="PF" checked>
+                        <label for="tipoPF">Pessoa Física</label>
+                        <input type="radio" id="tipoPJ" name="tipoPessoa" value="PJ">
+                        <label for="tipoPJ">Pessoa Jurídica</label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Informações Básicas</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo *</label>
+                            <input type="text" id="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nomeFantasia">Nome Fantasia</label>
+                            <input type="text" id="nomeFantasia">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cpfCnpj">CPF/CNPJ *</label>
+                            <input type="text" id="cpfCnpj" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="inscricaoEst">Inscrição Estadual</label>
+                            <input type="text" id="inscricaoEst">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inscricaoMun">Inscrição Municipal</label>
+                        <input type="text" id="inscricaoMun">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Contato</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">Telefone *</label>
+                            <input type="tel" id="telefone" placeholder="(11) 99999-9999" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Endereço</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="logradouro">Logradouro *</label>
+                            <input type="text" id="logradouro" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero">Número *</label>
+                            <input type="text" id="numero" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento">
+                        </div>
+                        <div class="form-group">
+                            <label for="bairro">Bairro *</label>
+                            <input type="text" id="bairro" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cidade">Cidade *</label>
+                            <input type="text" id="cidade" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="uf">UF *</label>
+                            <select id="uf" required>
+                                <option value="">Selecione</option>
+                                <option value="AC">AC</option>
+                                <option value="AL">AL</option>
+                                <option value="AP">AP</option>
+                                <option value="AM">AM</option>
+                                <option value="BA">BA</option>
+                                <option value="CE">CE</option>
+                                <option value="DF">DF</option>
+                                <option value="ES">ES</option>
+                                <option value="GO">GO</option>
+                                <option value="MA">MA</option>
+                                <option value="MT">MT</option>
+                                <option value="MS">MS</option>
+                                <option value="MG">MG</option>
+                                <option value="PA">PA</option>
+                                <option value="PB">PB</option>
+                                <option value="PR">PR</option>
+                                <option value="PE">PE</option>
+                                <option value="PI">PI</option>
+                                <option value="RJ">RJ</option>
+                                <option value="RN">RN</option>
+                                <option value="RS">RS</option>
+                                <option value="RO">RO</option>
+                                <option value="RR">RR</option>
+                                <option value="SC">SC</option>
+                                <option value="SP">SP</option>
+                                <option value="SE">SE</option>
+                                <option value="TO">TO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cep">CEP *</label>
+                        <input type="text" id="cep" placeholder="00000-000" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Observações</h3>
+                    <div class="form-group">
+                        <label for="observacoes">Observações</label>
+                        <textarea id="observacoes" placeholder="Notas sobre o cliente..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveBtn">Salvar Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="./scripts/supabase_client_contab.js"></script>
+    <script>
+        let currentClienteId = null;
+
+        // CPF/CNPJ validation
+        function validateCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            if (cpf.length !== 11) return false;
+            let sum = 0;
+            let remainder;
+            for (let i = 1; i <= 9; i++) {
+                sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+            }
+            remainder = (sum * 10) % 11;
+            if (remainder === 10 || remainder === 11) remainder = 0;
+            if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+            sum = 0;
+            for (let i = 1; i <= 10; i++) {
+                sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+            }
+            remainder = (sum * 10) % 11;
+            if (remainder === 10 || remainder === 11) remainder = 0;
+            if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+            return true;
+        }
+
+        function validateCNPJ(cnpj) {
+            cnpj = cnpj.replace(/\D/g, '');
+            if (cnpj.length !== 14) return false;
+            let size = cnpj.length - 2;
+            let numbers = cnpj.substring(0, size);
+            let digits = cnpj.substring(size);
+            let sum = 0;
+            let pos = size - 7;
+            for (let i = size; i >= 1; i--) {
+                sum += numbers.charAt(size - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+            if (result !== parseInt(digits.charAt(0))) return false;
+            size = size + 1;
+            numbers = cnpj.substring(0, size);
+            sum = 0;
+            pos = size - 7;
+            for (let i = size; i >= 1; i--) {
+                sum += numbers.charAt(size - i) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+            if (result !== parseInt(digits.charAt(1))) return false;
+            return true;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function formatCPF(value) {
+            return value.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+
+        function formatCNPJ(value) {
+            return value.replace(/\D/g, '').replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+
+        function formatPhone(value) {
+            return value.replace(/\D/g, '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+
+        function formatCEP(value) {
+            return value.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2');
+        }
+
+        document.getElementById('cpfCnpj').addEventListener('input', (e) => {
+            const tipo = document.querySelector('input[name="tipoPessoa"]:checked').value;
+            const value = e.target.value;
+            if (tipo === 'PF') {
+                e.target.value = formatCPF(value);
+            } else {
+                e.target.value = formatCNPJ(value);
+            }
+        });
+
+        document.getElementById('telefone').addEventListener('input', (e) => {
+            e.target.value = formatPhone(e.target.value);
+        });
+
+        document.getElementById('cep').addEventListener('input', (e) => {
+            e.target.value = formatCEP(e.target.value);
+        });
+
+        document.querySelectorAll('input[name="tipoPessoa"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('cpfCnpj').value = '';
+                document.getElementById('inscricaoEst').parentElement.style.display =
+                    radio.value === 'PJ' ? 'block' : 'none';
+                document.getElementById('inscricaoMun').parentElement.style.display =
+                    radio.value === 'PJ' ? 'block' : 'none';
+            });
+        });
+
+        async function loadClientes() {
+            try {
+                showLoading(true);
+                const { data, error } = await window.supabaseClient
+                    .from('clientes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                renderClientes(data || []);
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+                showToast('Erro ao carregar clientes', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderClientes(clientes) {
+            const tbody = document.getElementById('clientesBody');
+            if (clientes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Nenhum cliente cadastrado</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = clientes.map(cliente => `
+                <tr>
+                    <td>${cliente.nome}</td>
+                    <td>${cliente.cpf_cnpj}</td>
+                    <td>${cliente.email}</td>
+                    <td>${cliente.telefone}</td>
+                    <td>${cliente.cidade}/${cliente.uf}</td>
+                    <td><span class="status ${cliente.ativo ? 'status-ativo' : 'status-inativo'}">
+                        ${cliente.ativo ? 'Ativo' : 'Inativo'}
+                    </span></td>
+                    <td>
+                        <div class="action-cell">
+                            <button class="btn btn-sm btn-secondary" onclick="editCliente(${cliente.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCliente(${cliente.id})">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#clientesBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('newClientBtn').addEventListener('click', () => {
+            currentClienteId = null;
+            document.getElementById('modalTitle').textContent = 'Novo Cliente';
+            document.getElementById('clienteModal').classList.add('active');
+            document.getElementById('tipoPF').checked = true;
+            document.getElementById('inscricaoEst').parentElement.style.display = 'none';
+            document.getElementById('inscricaoMun').parentElement.style.display = 'none';
+            resetForm();
+        });
+
+        function resetForm() {
+            document.getElementById('nome').value = '';
+            document.getElementById('nomeFantasia').value = '';
+            document.getElementById('cpfCnpj').value = '';
+            document.getElementById('inscricaoEst').value = '';
+            document.getElementById('inscricaoMun').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('telefone').value = '';
+            document.getElementById('logradouro').value = '';
+            document.getElementById('numero').value = '';
+            document.getElementById('complemento').value = '';
+            document.getElementById('bairro').value = '';
+            document.getElementById('cidade').value = '';
+            document.getElementById('uf').value = '';
+            document.getElementById('cep').value = '';
+            document.getElementById('observacoes').value = '';
+        }
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('clienteModal').classList.remove('active');
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('clienteModal').classList.remove('active');
+        });
+
+        document.getElementById('clienteModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('clienteModal')) {
+                document.getElementById('clienteModal').classList.remove('active');
+            }
+        });
+
+        async function editCliente(id) {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('clientes')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                currentClienteId = id;
+                document.getElementById('modalTitle').textContent = 'Editar Cliente';
+                document.getElementById('nome').value = data.nome;
+                document.getElementById('nomeFantasia').value = data.nome_fantasia || '';
+                document.getElementById('cpfCnpj').value = data.cpf_cnpj;
+                document.getElementById('inscricaoEst').value = data.inscricao_estadual || '';
+                document.getElementById('inscricaoMun').value = data.inscricao_municipal || '';
+                document.getElementById('email').value = data.email;
+                document.getElementById('telefone').value = data.telefone;
+                document.getElementById('logradouro').value = data.logradouro || '';
+                document.getElementById('numero').value = data.numero || '';
+                document.getElementById('complemento').value = data.complemento || '';
+                document.getElementById('bairro').value = data.bairro || '';
+                document.getElementById('cidade').value = data.cidade || '';
+                document.getElementById('uf').value = data.uf || '';
+                document.getElementById('cep').value = data.cep || '';
+                document.getElementById('observacoes').value = data.observacoes || '';
+
+                const tipo = data.tipo_pessoa || 'PF';
+                document.getElementById(tipo === 'PF' ? 'tipoPF' : 'tipoPJ').checked = true;
+                document.getElementById('inscricaoEst').parentElement.style.display =
+                    tipo === 'PJ' ? 'block' : 'none';
+                document.getElementById('inscricaoMun').parentElement.style.display =
+                    tipo === 'PJ' ? 'block' : 'none';
+
+                document.getElementById('clienteModal').classList.add('active');
+            } catch (error) {
+                console.error('Erro ao carregar cliente:', error);
+                showToast('Erro ao carregar cliente', 'error');
+            }
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const tipo = document.querySelector('input[name="tipoPessoa"]:checked').value;
+            const cpfCnpj = document.getElementById('cpfCnpj').value;
+
+            if (tipo === 'PF' && !validateCPF(cpfCnpj)) {
+                showToast('CPF inválido', 'error');
+                return;
+            }
+            if (tipo === 'PJ' && !validateCNPJ(cpfCnpj)) {
+                showToast('CNPJ inválido', 'error');
+                return;
+            }
+
+            const clienteData = {
+                tipo_pessoa: tipo,
+                nome: document.getElementById('nome').value,
+                nome_fantasia: document.getElementById('nomeFantasia').value,
+                cpf_cnpj: cpfCnpj,
+                inscricao_estadual: document.getElementById('inscricaoEst').value,
+                inscricao_municipal: document.getElementById('inscricaoMun').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                logradouro: document.getElementById('logradouro').value,
+                numero: document.getElementById('numero').value,
+                complemento: document.getElementById('complemento').value,
+                bairro: document.getElementById('bairro').value,
+                cidade: document.getElementById('cidade').value,
+                uf: document.getElementById('uf').value,
+                cep: document.getElementById('cep').value,
+                observacoes: document.getElementById('observacoes').value,
+                ativo: true
+            };
+
+            try {
+                showLoading(true);
+                if (currentClienteId) {
+                    const { error } = await window.supabaseClient
+                        .from('clientes')
+                        .update(clienteData)
+                        .eq('id', currentClienteId);
+                    if (error) throw error;
+                    showToast('Cliente atualizado com sucesso', 'success');
+                } else {
+                    const { error } = await window.supabaseClient
+                        .from('clientes')
+                        .insert([clienteData]);
+                    if (error) throw error;
+                    showToast('Cliente criado com sucesso', 'success');
+                }
+                document.getElementById('clienteModal').classList.remove('active');
+                resetForm();
+                await loadClientes();
+            } catch (error) {
+                console.error('Erro ao salvar cliente:', error);
+                showToast('Erro ao salvar cliente', 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        async function deleteCliente(id) {
+            if (!confirm('Tem certeza que deseja excluir este cliente?')) return;
+
+            try {
+                showLoading(true);
+                const { error } = await window.supabaseClient
+                    .from('clientes')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                showToast('Cliente excluído com sucesso', 'success');
+                await loadClientes();
+            } catch (error) {
+                console.error('Erro ao excluir cliente:', error);
+                showToast('Erro ao excluir cliente', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            showToast('Funcionalidade de exportação em desenvolvimento', 'success');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await window.requireAuth().logout();
+            window.location.href = 'login.html';
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await window.requireAuth();
+            await loadClientes();
+        });
+    </script>
+</body>
+</html>

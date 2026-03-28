@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo de Caixa - LUMA Contabilidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #1a237e;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .nav {
+            list-style: none;
+        }
+
+        .nav li {
+            margin: 0;
+        }
+
+        .nav a {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav a.active {
+            background-color: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+            color: white;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a237e;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        select, input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #1a237e;
+            box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .view-btn {
+            padding: 6px 12px;
+            background-color: transparent;
+            color: #555;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background-color: #1a237e;
+            color: white;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0d1850;
+        }
+
+        button.secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a237e;
+            font-family: 'Courier New', monospace;
+        }
+
+        .card.positive .card-value {
+            color: #2e7d32;
+        }
+
+        .card.negative .card-value {
+            color: #c62828;
+        }
+
+        /* Sections */
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            padding: 15px 20px;
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #1a237e;
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 15px;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .transaction-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .transaction-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .transaction-value {
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .transaction-value.positive {
+            color: #2e7d32;
+        }
+
+        .transaction-value.negative {
+            color: #c62828;
+        }
+
+        /* Chart */
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 20px;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+
+        /* Line chart using CSS */
+        .line-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 250px;
+            gap: 8px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background-color: #1a237e;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            min-height: 20px;
+        }
+
+        .chart-bar.positive {
+            background-color: #2e7d32;
+        }
+
+        .chart-bar.negative {
+            background-color: #c62828;
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .chart-value {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        /* Projection section */
+        .projection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .projection-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .projection-period {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .projection-balance {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            color: #1a237e;
+        }
+
+        .projection-balance.positive {
+            color: #2e7d32;
+        }
+
+        .projection-balance.negative {
+            color: #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            background-color: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            border: 1px solid #66bb6a;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">LUMA</div>
+            <ul class="nav">
+                <li><a href="./dashboard.html">Dashboard</a></li>
+                <li><a href="./dre.html">DRE</a></li>
+                <li><a href="./fluxo_caixa.html" class="active">Fluxo de Caixa</a></li>
+                <li><a href="./conciliacao.html">Conciliação</a></li>
+                <li><a href="./lancamentos.html">Lançamentos</a></li>
+                <li><a href="./clientes.html">Clientes</a></li>
+                <li><a href="./fornecedores.html">Fornecedores</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="header">
+                <h1>Fluxo de Caixa</h1>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label for="period-type">Período:</label>
+                    <select id="period-type">
+                        <option value="weekly">Semanal</option>
+                        <option value="monthly" selected>Mensal</option>
+                        <option value="custom">Customizado</option>
+                    </select>
+                </div>
+                <div class="control-group" id="date-range-group" style="display:none;">
+                    <label for="start-date">De:</label>
+                    <input type="date" id="start-date">
+                    <label for="end-date">Até:</label>
+                    <input type="date" id="end-date">
+                </div>
+                <button id="apply-filter">Aplicar</button>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="daily">Diário</button>
+                    <button class="view-btn" data-view="weekly">Semanal</button>
+                    <button class="view-btn" data-view="monthly">Mensal</button>
+                </div>
+            </div>
+
+            <div id="message-container"></div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="card">
+                    <div class="card-title">Saldo Atual</div>
+                    <div class="card-value" id="current-balance">R$ 0,00</div>
+                </div>
+                <div class="card positive">
+                    <div class="card-title">Entradas (Mês)</div>
+                    <div class="card-value" id="inflows">R$ 0,00</div>
+                </div>
+                <div class="card negative">
+                    <div class="card-title">Saídas (Mês)</div>
+                    <div class="card-value" id="outflows">R$ 0,00</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Saldo Projetado (30d)</div>
+                    <div class="card-value" id="projected-balance">R$ 0,00</div>
+                </div>
+            </div>
+
+            <!-- Cash Flow Chart -->
+            <div class="chart-container">
+                <div class="chart-title">Tendência de Caixa</div>
+                <div class="line-chart" id="trend-chart">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Operacional Section -->
+            <div class="section">
+                <div class="section-header">Fluxo Operacional</div>
+                <div class="section-content">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 13px; color: #2e7d32; margin-bottom: 10px;">Entradas de Clientes</h3>
+                        <div id="operacional-recebimentos"></div>
+                    </div>
+                    <div style="margin-bottom: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <h3 style="font-size: 13px; color: #c62828; margin-bottom: 10px;">Saídas de Fornecedores</h3>
+                        <div id="operacional-pagamentos"></div>
+                    </div>
+                    <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                        <h3 style="font-size: 13px; color: #c62828; margin-bottom: 10px;">Folha de Pagamento</h3>
+                        <div id="operacional-salarios"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investimentos Section -->
+            <div class="section">
+                <div class="section-header">Fluxo de Investimentos</div>
+                <div class="section-content">
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="font-size: 13px; color: #c62828; margin-bottom: 10px;">Aquisições</h3>
+                        <div id="investimentos-aquisicoes"></div>
+                    </div>
+                    <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                        <h3 style="font-size: 13px; color: #2e7d32; margin-bottom: 10px;">Vendas de Ativos</h3>
+                        <div id="investimentos-vendas"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financiamento Section -->
+            <div class="section">
+                <div class="section-header">Fluxo de Financiamento</div>
+                <div class="section-content">
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="font-size: 13px; color: #2e7d32; margin-bottom: 10px;">Empréstimos Recebidos</h3>
+                        <div id="financiamento-emprestimos"></div>
+                    </div>
+                    <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                        <h3 style="font-size: 13px; color: #c62828; margin-bottom: 10px;">Distribuição de Lucros</h3>
+                        <div id="financiamento-distribuicao"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projeção Section -->
+            <div class="section">
+                <div class="section-header">Projeção de Caixa</div>
+                <div class="section-content">
+                    <div class="projection-grid" id="projection-grid">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
+        let currentUser = null;
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // Generate mock cash flow data
+        function generateMockData() {
+            const today = new Date();
+            const data = {
+                current_balance: 85000,
+                operacional: {
+                    recebimentos: [
+                        { name: 'Cliente ABC Ltda', value: 25000, date: today },
+                        { name: 'Cliente XYZ SA', value: 18500, date: new Date(today.getTime() - 2*24*60*60*1000) },
+                        { name: 'Cliente 123', value: 12000, date: new Date(today.getTime() - 5*24*60*60*1000) }
+                    ],
+                    pagamentos: [
+                        { name: 'Fornecedor A', value: 8000, date: new Date(today.getTime() + 3*24*60*60*1000) },
+                        { name: 'Fornecedor B', value: 5500, date: new Date(today.getTime() + 7*24*60*60*1000) }
+                    ],
+                    salarios: [
+                        { name: 'Folha de Pessoal', value: 18000, date: new Date(today.getTime() + 4*24*60*60*1000) }
+                    ]
+                },
+                investimentos: {
+                    aquisicoes: [
+                        { name: 'Equipamento Servidor', value: 15000, date: new Date(today.getTime() + 15*24*60*60*1000) }
+                    ],
+                    vendas: [
+                        { name: 'Venda Equipamento Antigo', value: 3000, date: new Date(today.getTime() + 10*24*60*60*1000) }
+                    ]
+                },
+                financiamento: {
+                    emprestimos: [
+                        { name: 'Empréstimo Banco ABC', value: 30000, date: new Date(today.getTime() + 20*24*60*60*1000) }
+                    ],
+                    distribuicao: [
+                        { name: 'Distribuição Lucros Sócios', value: 12000, date: new Date(today.getTime() + 25*24*60*60*1000) }
+                    ]
+                },
+                monthly_inflows: 55500,
+                monthly_outflows: 43500
+            };
+            return data;
+        }
+
+        // Render transaction items
+        function renderTransactions(container, transactions) {
+            if (!transactions || transactions.length === 0) {
+                container.innerHTML = '<div style="color: #999; font-size: 13px;">Nenhuma transação</div>';
+                return;
+            }
+
+            let html = '';
+            transactions.forEach(tx => {
+                const isPositive = tx.value > 0;
+                const dateStr = new Date(tx.date).toLocaleDateString('pt-BR');
+                html += `
+                    <div class="transaction-item">
+                        <div class="transaction-label">
+                            <span class="transaction-name">${tx.name}</span>
+                            <span class="transaction-date">${dateStr}</span>
+                        </div>
+                        <div class="transaction-value ${isPositive ? 'positive' : 'negative'}">
+                            ${isPositive ? '+' : '-'} ${formatCurrency(Math.abs(tx.value))}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Update summary cards
+        function updateSummary(data) {
+            const inflows = data.monthly_inflows || 0;
+            const outflows = data.monthly_outflows || 0;
+            const currentBalance = data.current_balance || 0;
+            const projectedBalance = currentBalance + inflows - outflows;
+
+            document.getElementById('current-balance').textContent = formatCurrency(currentBalance);
+            document.getElementById('inflows').textContent = formatCurrency(inflows);
+            document.getElementById('outflows').textContent = formatCurrency(outflows);
+
+            const projectedCard = document.getElementById('projected-balance');
+            projectedCard.textContent = formatCurrency(projectedBalance);
+            projectedCard.parentElement.className = 'card-value ' + (projectedBalance >= 0 ? 'positive' : 'negative');
+        }
+
+        // Render trend chart
+        function renderTrendChart(data) {
+            const today = new Date();
+            const days = [];
+            const balances = [];
+            let balance = data.current_balance || 0;
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today.getTime() - (6-i) * 24 * 60 * 60 * 1000);
+                const day = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' });
+                days.push(day);
+                balance += Math.sin(i) * 5000 + (Math.random() * 3000 - 1500);
+                balances.push(balance);
+            }
+
+            const maxBalance = Math.max(...balances);
+            const minBalance = Math.min(...balances);
+            const range = maxBalance - minBalance || 1;
+
+            const chart = document.getElementById('trend-chart');
+            let html = '';
+
+            balances.forEach((bal, idx) => {
+                const height = ((bal - minBalance) / range) * 250;
+                const isPositive = bal >= 0;
+                html += `
+                    <div class="chart-bar ${isPositive ? 'positive' : 'negative'}" style="height: ${Math.max(height, 5)}px;">
+                        <div class="chart-value">${formatCurrency(bal)}</div>
+                        <div class="chart-label">${days[idx]}</div>
+                    </div>
+                `;
+            });
+
+            chart.innerHTML = html;
+        }
+
+        // Render projection
+        function renderProjection(data) {
+            const currentBalance = data.current_balance || 0;
+            const monthlyNet = (data.monthly_inflows || 0) - (data.monthly_outflows || 0);
+
+            const projections = [
+                { label: '30 dias', balance: currentBalance + monthlyNet },
+                { label: '60 dias', balance: currentBalance + (monthlyNet * 2) },
+                { label: '90 dias', balance: currentBalance + (monthlyNet * 3) }
+            ];
+
+            const grid = document.getElementById('projection-grid');
+            let html = '';
+
+            projections.forEach(proj => {
+                const isPositive = proj.balance >= 0;
+                html += `
+                    <div class="projection-item">
+                        <div class="projection-period">${proj.label}</div>
+                        <div class="projection-balance ${isPositive ? 'positive' : 'negative'}">
+                            ${formatCurrency(proj.balance)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Load and render data
+        async function loadData() {
+            try {
+                const data = generateMockData();
+
+                // Update summary
+                updateSummary(data);
+
+                // Render sections
+                renderTransactions(document.getElementById('operacional-recebimentos'), data.operacional.recebimentos);
+                renderTransactions(document.getElementById('operacional-pagamentos'), data.operacional.pagamentos);
+                renderTransactions(document.getElementById('operacional-salarios'), data.operacional.salarios);
+                renderTransactions(document.getElementById('investimentos-aquisicoes'), data.investimentos.aquisicoes);
+                renderTransactions(document.getElementById('investimentos-vendas'), data.investimentos.vendas);
+                renderTransactions(document.getElementById('financiamento-emprestimos'), data.financiamento.emprestimos);
+                renderTransactions(document.getElementById('financiamento-distribuicao'), data.financiamento.distribuicao);
+
+                // Render chart and projection
+                renderTrendChart(data);
+                renderProjection(data);
+            } catch (error) {
+                console.error(error);
+                showMessage('Erro ao carregar dados: ' + error.message, 'error');
+            }
+        }
+
+        // Show message
+        function showMessage(text, type = 'info') {
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = text;
+            container.innerHTML = '';
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        // Event listeners
+        document.getElementById('period-type').addEventListener('change', (e) => {
+            const customGroup = document.getElementById('date-range-group');
+            customGroup.style.display = e.target.value === 'custom' ? 'flex' : 'none';
+        });
+
+        document.getElementById('apply-filter').addEventListener('click', loadData);
+
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                showMessage('Visualização alterada para: ' + e.target.textContent, 'success');
+            });
+        });
+
+        // Initialize
+        async function init() {
+            try {
+                await requireAuth();
+                currentUser = (await supabase.auth.getUser()).data.user;
+                loadData();
+            } catch (error) {
+                showMessage('Erro de autenticação: ' + error.message, 'error');
+                window.location.href = './login.html';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMA Contabilidade - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8eaf6 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(26, 35, 126, 0.12);
+            padding: 40px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .login-box:hover {
+            box-shadow: 0 12px 48px rgba(26, 35, 126, 0.16);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f5f5f5;
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a237e;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            color: #0d47a1;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group:last-of-type {
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 8px;
+            transition: color 0.2s ease;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            color: #333;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #0d47a1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+        }
+
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder {
+            color: #999;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .forgot-password {
+            color: #0d47a1;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-password:hover {
+            color: #1a237e;
+            text-decoration: underline;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #0d47a1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 71, 161, 0.3);
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #66bb6a;
+        }
+
+        .message.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #42a5f5;
+        }
+
+        .reset-form {
+            display: none;
+        }
+
+        .reset-form.show {
+            display: block;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #0d47a1;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 0;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+            margin-bottom: 16px;
+        }
+
+        .back-button:hover {
+            color: #1a237e;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 30px 24px;
+                border-radius: 12px;
+            }
+
+            .logo-text {
+                font-size: 28px;
+            }
+
+            .submit-btn {
+                padding: 14px;
+                font-size: 16px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 16px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <div class="logo-section">
+                <div class="logo-text">LUMA</div>
+                <div class="tagline">Contabilidade</div>
+                <p style="font-size: 12px; color: #999; margin-top: 8px;">Gestão Contábil Inteligente</p>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="login-form">
+                <form id="authForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="seu@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="current-password"
+                        >
+                    </div>
+
+                    <div class="form-actions">
+                        <label class="remember-me">
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span>Lembrar-me</span>
+                        </label>
+                        <button
+                            type="button"
+                            class="forgot-password"
+                            onclick="showPasswordReset()"
+                        >
+                            Esqueceu a senha?
+                        </button>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span id="btnText">Entrar</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Password Reset Form -->
+            <div id="resetForm" class="reset-form">
+                <button type="button" class="back-button" onclick="showLoginForm()">
+                    ← Voltar ao Login
+                </button>
+
+                <form id="resetPasswordForm" onsubmit="handlePasswordReset(event)">
+                    <h3 style="font-size: 18px; color: #1a237e; margin-bottom: 12px;">Redefinir Senha</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.5;">
+                        Digite seu email e enviaremos um link para redefinir sua senha.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="resetEmail">Email</label>
+                        <input
+                            type="email"
+                            id="resetEmail"
+                            name="resetEmail"
+                            placeholder="seu@email.com"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="resetSubmitBtn">
+                        <span id="resetBtnText">Enviar Link de Redefinição</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <footer>
+            <p>LUMA Contabilidade © 2026 - Todos os direitos reservados</p>
+        </footer>
+    </div>
+
+    <!-- Modal Overlay for Additional Interaction -->
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h2 class="modal-title" id="modalTitle">Confirmação</h2>
+            <p class="modal-description" id="modalDescription"></p>
+            <div style="display: flex; gap: 12px;">
+                <button
+                    type="button"
+                    class="submit-btn"
+                    onclick="closeModal()"
+                    style="flex: 1;"
+                >
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { login, getSession, resetPassword } from './scripts/supabase_client_contab.js';
+
+        // Check if user is already authenticated
+        async function checkAuthStatus() {
+            try {
+                const session = await getSession();
+                if (session && session.user) {
+                    // User is already logged in, redirect to dashboard
+                    window.location.href = './dashboard.html';
+                }
+            } catch (error) {
+                console.log('No active session');
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
+            restoreRememberMe();
+        });
+
+        // Handle login form submission
+        window.handleLogin = async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+
+            // Clear previous messages
+            hideMessage();
+
+            // Validate inputs
+            if (!email || !password) {
+                showMessage('Por favor, preencha todos os campos', 'error');
+                return;
+            }
+
+            // Disable button and show loading spinner
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>Autenticando...';
+
+            try {
+                const result = await login(email, password);
+
+                if (result.success) {
+                    // Store remember me preference
+                    if (rememberMe) {
+                        localStorage.setItem('lumaRememberEmail', email);
+                    } else {
+                        localStorage.removeItem('lumaRememberEmail');
+                    }
+
+                    showMessage('Login realizado com sucesso! Redirecionando...', 'success');
+
+                    // Redirect to dashboard after brief delay
+                    setTimeout(() => {
+                        window.location.href = './dashboard.html';
+                    }, 1500);
+                } else {
+                    showMessage(result.error || 'Erro ao fazer login. Tente novamente.', 'error');
+                    submitBtn.disabled = false;
+                    btnText.innerHTML = 'Entrar';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage(
+                    'Email ou senha incorretos. Verifique e tente novamente.',
+                    'error'
+                );
+                submitBtn.disabled = false;
+                btnText.innerHTML = 'Entrar';
+            }
+        };
+
+        // Handle password reset form submission
+        window.handlePasswordReset = async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('resetEmail').value.trim();
+            const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+            const resetBtnText = document.getElementById('resetBtnText');
+
+            // Clear previous messages
+            hideMessage();
+
+            // Validate email
+            if (!email) {
+                showMessage('Por favor, digite seu email', 'error');
+                return;
+            }
+
+            // Disable button and show loading spinner
+            resetSubmitBtn.disabled = true;
+            resetBtnText.innerHTML = '<span class="spinner"></span>Enviando...';
+
+            try {
+                const result = await resetPassword(email);
+
+                if (result.success) {
+                    showMessage(
+                        'Link de redefinição de senha enviado para seu email. Verifique sua caixa de entrada.',
+                        'success'
+                    );
+                    document.getElementById('resetPasswordForm').reset();
+
+                    // Redirect back to login after delay
+                    setTimeout(() => {
+                        showLoginForm();
+                    }, 3000);
+                } else {
+                    showMessage(
+                        result.error || 'Erro ao enviar link de redefinição. Tente novamente.',
+                        'error'
+                    );
+                    resetSubmitBtn.disabled = false;
+                    resetBtnText.innerHTML = 'Enviar Link de Redefinição';
+                }
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showMessage(
+                    'Erro ao processar solicitação. Tente novamente mais tarde.',
+                    'error'
+                );
+                resetSubmitBtn.disabled = false;
+                resetBtnText.innerHTML = 'Enviar Link de Redefinição';
+            }
+        };
+
+        // Show password reset form
+        window.showPasswordReset = () => {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('resetForm').classList.add('show');
+            hideMessage();
+            document.getElementById('resetEmail').focus();
+        };
+
+        // Show login form
+        window.showLoginForm = () => {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('resetForm').classList.remove('show');
+            hideMessage();
+            document.getElementById('email').focus();
+        };
+
+        // Show message
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message show ${type}`;
+            messageEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Hide message
+        function hideMessage() {
+            const messageEl = document.getElementById('message');
+            messageEl.classList.remove('show');
+        }
+
+        // Modal functions
+        window.closeModal = () => {
+            document.getElementById('modalOverlay').classList.remove('show');
+        };
+
+        window.closeModalOnBackdrop = (event) => {
+            if (event.target === document.getElementById('modalOverlay')) {
+                closeModal();
+            }
+        };
+
+        // Restore "remember me" email
+        function restoreRememberMe() {
+            const savedEmail = localStorage.getItem('lumaRememberEmail');
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+                document.getElementById('rememberMe').checked = true;
+                document.getElementById('password').focus();
+            }
+        }
+
+        // Expose functions to global scope for inline event handlers
+        window.restoreRememberMe = restoreRememberMe;
+    </script>
+</body>
+</html>

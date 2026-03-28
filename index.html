@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUMA Contabilidade - Carregando...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .loader-container {
+      text-align: center;
+      background: white;
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      max-width: 300px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .error {
+      color: #e74c3c;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-container">
+    <div class="spinner"></div>
+    <h1>LUMA Contabilidade</h1>
+    <p id="status">Carregando...</p>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script type="module">
+    import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
+    async function handleRedirect() {
+      const status = document.getElementById('status');
+      const errorDiv = document.getElementById('error');
+
+      try {
+        // Check authentication status
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+          // User is authenticated, redirect to dashboard
+          status.textContent = 'Redirecionando para o painel...';
+          setTimeout(() => {
+            window.location.href = './dashboard.html';
+          }, 500);
+        } else {
+          // User is not authenticated, redirect to login
+          status.textContent = 'Redirecionando para login...';
+          setTimeout(() => {
+            window.location.href = './login.html';
+          }, 500);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        errorDiv.textContent = `Erro ao carregar: ${error.message}`;
+        errorDiv.classList.add('show');
+        status.textContent = 'Falha ao carregar';
+      }
+    }
+
+    // Start redirect process
+    handleRedirect();
+  </script>
+</body>
+</html>

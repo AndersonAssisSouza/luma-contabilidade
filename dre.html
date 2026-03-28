@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRE - LUMA Contabilidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #1a237e;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .nav {
+            list-style: none;
+        }
+
+        .nav li {
+            margin: 0;
+        }
+
+        .nav a {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 12px 20px;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav a.active {
+            background-color: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+            color: white;
+        }
+
+        /* Main content */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a237e;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        select, input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #1a237e;
+            box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0d1850;
+        }
+
+        button.secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        button.secondary:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* DRE Table */
+        .dre-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .dre-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .dre-table thead {
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #1a237e;
+        }
+
+        .dre-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1a237e;
+        }
+
+        .dre-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dre-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .dre-table tr.section-header {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #333;
+            border-top: 2px solid #ddd;
+        }
+
+        .dre-table tr.total-line {
+            background-color: #1a237e;
+            color: white;
+            font-weight: 600;
+        }
+
+        .dre-table tr.subtotal-line {
+            background-color: #e8eaf6;
+            font-weight: 600;
+            color: #1a237e;
+        }
+
+        .dre-table .line-item {
+            padding-left: 40px;
+            color: #555;
+        }
+
+        .dre-table .line-item.indented {
+            padding-left: 60px;
+        }
+
+        .amount-cell {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .positive {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
+        .negative {
+            color: #c62828;
+            font-weight: 500;
+        }
+
+        /* Chart */
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a237e;
+            margin-bottom: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 30px;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar {
+            width: 80px;
+            background-color: #1a237e;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .bar-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+            text-align: center;
+            max-width: 100px;
+        }
+
+        .bar-receita {
+            background-color: #2e7d32;
+        }
+
+        .bar-despesas {
+            background-color: #c62828;
+        }
+
+        .bar-lucro {
+            background-color: #1565c0;
+        }
+
+        /* Export and Print */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .controls, .action-buttons, .chart-container {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .dre-container {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+
+            .dre-table tr {
+                page-break-inside: avoid;
+            }
+
+            .header {
+                margin-bottom: 20px;
+            }
+
+            body {
+                background-color: white;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            background-color: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            border: 1px solid #66bb6a;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .responsive-table {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">LUMA</div>
+            <ul class="nav">
+                <li><a href="./dashboard.html">Dashboard</a></li>
+                <li><a href="./dre.html" class="active">DRE</a></li>
+                <li><a href="./fluxo_caixa.html">Fluxo de Caixa</a></li>
+                <li><a href="./conciliacao.html">Conciliação</a></li>
+                <li><a href="./lancamentos.html">Lançamentos</a></li>
+                <li><a href="./clientes.html">Clientes</a></li>
+                <li><a href="./fornecedores.html">Fornecedores</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="header">
+                <h1>DRE - Demonstração do Resultado do Exercício</h1>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label for="period-type">Período:</label>
+                    <select id="period-type">
+                        <option value="month">Mês</option>
+                        <option value="quarter">Trimestre</option>
+                        <option value="year">Ano</option>
+                        <option value="custom">Customizado</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="period-month">Mês:</label>
+                    <select id="period-month">
+                        <option value="01">Janeiro</option>
+                        <option value="02">Fevereiro</option>
+                        <option value="03">Março</option>
+                        <option value="04">Abril</option>
+                        <option value="05">Maio</option>
+                        <option value="06">Junho</option>
+                        <option value="07">Julho</option>
+                        <option value="08">Agosto</option>
+                        <option value="09">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="period-year">Ano:</label>
+                    <select id="period-year"></select>
+                </div>
+                <button id="apply-filter">Aplicar</button>
+                <button id="export-pdf" class="secondary">Exportar PDF</button>
+                <button id="print-btn" class="secondary">Imprimir</button>
+            </div>
+
+            <div id="message-container"></div>
+
+            <!-- DRE Table -->
+            <div class="dre-container">
+                <div class="responsive-table">
+                    <table class="dre-table">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th class="amount-cell">Período Atual</th>
+                                <th class="amount-cell">% Receita Bruta</th>
+                                <th class="amount-cell">Período Anterior</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dre-tbody">
+                            <tr class="loading">
+                                <td colspan="4">Carregando dados...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+                <div class="chart-title">Comparativo: Receita vs Despesas vs Lucro</div>
+                <div class="bar-chart" id="bar-chart">
+                    <div class="bar-item">
+                        <div class="bar bar-receita" style="height: 0px;">
+                            <div class="bar-value">R$ 0</div>
+                        </div>
+                        <div class="bar-label">Receita Bruta</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar bar-despesas" style="height: 0px;">
+                            <div class="bar-value">R$ 0</div>
+                        </div>
+                        <div class="bar-label">Despesas</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar bar-lucro" style="height: 0px;">
+                            <div class="bar-value">R$ 0</div>
+                        </div>
+                        <div class="bar-label">Lucro Líquido</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
+        // Initialize
+        let currentUser = null;
+        let dre_data = null;
+
+        // Initialize date pickers and year selector
+        function initializeDateControls() {
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('period-year');
+            const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+
+            // Populate years (previous 3 years, current, next 2 years)
+            for (let i = currentYear - 3; i <= currentYear + 2; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            document.getElementById('period-month').value = currentMonth;
+        }
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        // Create DRE structure
+        function createDREStructure() {
+            const structure = [
+                { id: 'receita_bruta', label: '(+) Receita Bruta de Serviços', type: 'section-header', value: 0 },
+                { id: 'deducoes', label: '(-) Deduções (Impostos sobre Receita)', type: 'section-header', value: 0 },
+                { id: 'deducoes_pis', label: 'PIS', type: 'line-item', parent: 'deducoes', value: 0 },
+                { id: 'deducoes_cofins', label: 'COFINS', type: 'line-item', parent: 'deducoes', value: 0 },
+                { id: 'deducoes_iss', label: 'ISS', type: 'line-item', parent: 'deducoes', value: 0 },
+                { id: 'receita_liquida', label: '(=) Receita Líquida', type: 'subtotal', value: 0 },
+                { id: 'custos', label: '(-) Custos dos Serviços Prestados', type: 'section-header', value: 0 },
+                { id: 'lucro_bruto', label: '(=) Lucro Bruto', type: 'subtotal', value: 0 },
+                { id: 'despesas', label: '(-) Despesas Operacionais', type: 'section-header', value: 0 },
+                { id: 'despesas_admin', label: 'Despesas Administrativas', type: 'line-item', parent: 'despesas', value: 0 },
+                { id: 'despesas_pessoal', label: 'Despesas com Pessoal', type: 'line-item', parent: 'despesas', value: 0 },
+                { id: 'despesas_fin', label: 'Despesas Financeiras', type: 'line-item', parent: 'despesas', value: 0 },
+                { id: 'despesas_outras', label: 'Outras Despesas', type: 'line-item', parent: 'despesas', value: 0 },
+                { id: 'resultado_op', label: '(=) Resultado Operacional (EBITDA)', type: 'subtotal', value: 0 },
+                { id: 'depr_amort', label: '(-) Depreciação e Amortização', type: 'section-header', value: 0 },
+                { id: 'ebit', label: '(=) EBIT', type: 'subtotal', value: 0 },
+                { id: 'resultado_fin', label: '(+/-) Resultado Financeiro', type: 'section-header', value: 0 },
+                { id: 'resultado_antes_ir', label: '(=) Resultado Antes dos Impostos', type: 'subtotal', value: 0 },
+                { id: 'ir_csll', label: '(-) IRPJ + CSLL', type: 'section-header', value: 0 },
+                { id: 'lucro_liquido', label: '(=) Lucro Líquido', type: 'total', value: 0 }
+            ];
+            return structure;
+        }
+
+        // Load DRE data
+        async function loadDREData() {
+            try {
+                const periodType = document.getElementById('period-type').value;
+                const month = document.getElementById('period-month').value;
+                const year = document.getElementById('period-year').value;
+
+                // For now, we'll use mock data
+                // In production, this would fetch from Supabase
+                const mockData = createMockDREData(month, year);
+                renderDRETable(mockData);
+                updateChart(mockData);
+            } catch (error) {
+                showMessage('Erro ao carregar dados: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Create mock DRE data
+        function createMockDREData(month, year) {
+            const receita_bruta = 150000;
+            const deducoes_total = 22500; // 15% impostos sobre receita
+            const receita_liquida = receita_bruta - deducoes_total;
+            const custos = 45000;
+            const lucro_bruto = receita_liquida - custos;
+            const despesas_total = 30000;
+            const resultado_op = lucro_bruto - despesas_total;
+            const depr_amort = 3000;
+            const ebit = resultado_op - depr_amort;
+            const resultado_fin = -2000;
+            const resultado_antes_ir = ebit + resultado_fin;
+            const ir_csll = resultado_antes_ir * 0.34;
+            const lucro_liquido = resultado_antes_ir - ir_csll;
+
+            return {
+                receita_bruta: receita_bruta,
+                deducoes_pis: receita_bruta * 0.0165,
+                deducoes_cofins: receita_bruta * 0.076,
+                deducoes_iss: receita_bruta * 0.05,
+                receita_liquida: receita_liquida,
+                custos: custos,
+                lucro_bruto: lucro_bruto,
+                despesas_admin: 12000,
+                despesas_pessoal: 15000,
+                despesas_fin: 2000,
+                despesas_outras: 1000,
+                resultado_op: resultado_op,
+                depr_amort: depr_amort,
+                ebit: ebit,
+                resultado_fin: resultado_fin,
+                resultado_antes_ir: resultado_antes_ir,
+                ir_csll: ir_csll,
+                lucro_liquido: lucro_liquido,
+                previous_period: {
+                    receita_bruta: receita_bruta * 0.95,
+                    lucro_liquido: lucro_liquido * 0.90
+                }
+            };
+        }
+
+        // Render DRE table
+        function renderDRETable(data) {
+            const tbody = document.getElementById('dre-tbody');
+            const structure = createDREStructure();
+            const receita_bruta = data.receita_bruta || 1; // Avoid division by zero
+
+            let html = '';
+
+            structure.forEach(item => {
+                const value = data[item.id] || 0;
+                const percentage = ((value / receita_bruta) * 100).toFixed(2);
+                const previousValue = (data.previous_period && data.previous_period[item.id]) || 0;
+
+                let rowClass = '';
+                let cellClass = 'amount-cell';
+                let valueDisplay = formatCurrency(value);
+
+                if (item.type === 'section-header') {
+                    rowClass = 'section-header';
+                } else if (item.type === 'subtotal') {
+                    rowClass = 'subtotal-line';
+                } else if (item.type === 'total') {
+                    rowClass = 'total-line';
+                } else if (item.type === 'line-item') {
+                    rowClass = '';
+                    cellClass += ' line-item';
+                }
+
+                if (value > 0 && item.id.includes('receita')) {
+                    valueDisplay = `<span class="positive">${valueDisplay}</span>`;
+                } else if (value > 0 && item.id.includes('despesa')) {
+                    valueDisplay = `<span class="negative">${valueDisplay}</span>`;
+                }
+
+                html += `
+                    <tr class="${rowClass}">
+                        <td class="${cellClass}">${item.label}</td>
+                        <td class="amount-cell">${valueDisplay}</td>
+                        <td class="amount-cell">${percentage}%</td>
+                        <td class="amount-cell">${formatCurrency(previousValue)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Update chart
+        function updateChart(data) {
+            const receita = data.receita_bruta || 0;
+            const despesas = (data.custos || 0) +
+                            (data.despesas_admin || 0) +
+                            (data.despesas_pessoal || 0) +
+                            (data.despesas_fin || 0) +
+                            (data.despesas_outras || 0) +
+                            (data.depr_amort || 0);
+            const lucro = data.lucro_liquido || 0;
+
+            const maxValue = Math.max(receita, despesas, lucro) || 1;
+            const scale = 280 / maxValue; // Max height is 280px
+
+            const bars = document.querySelectorAll('.bar');
+
+            bars[0].style.height = (receita * scale) + 'px';
+            bars[0].querySelector('.bar-value').textContent = formatCurrency(receita);
+
+            bars[1].style.height = (despesas * scale) + 'px';
+            bars[1].querySelector('.bar-value').textContent = formatCurrency(despesas);
+
+            bars[2].style.height = (lucro * scale) + 'px';
+            bars[2].querySelector('.bar-value').textContent = formatCurrency(lucro);
+        }
+
+        // Show message
+        function showMessage(text, type = 'info') {
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = text;
+            container.innerHTML = '';
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        // Event listeners
+        document.getElementById('apply-filter').addEventListener('click', loadDREData);
+        document.getElementById('print-btn').addEventListener('click', () => window.print());
+        document.getElementById('export-pdf').addEventListener('click', () => {
+            showMessage('Exportação para PDF será implementada em breve.', 'info');
+        });
+
+        // Initialize
+        async function init() {
+            try {
+                await requireAuth();
+                currentUser = (await supabase.auth.getUser()).data.user;
+                initializeDateControls();
+                loadDREData();
+            } catch (error) {
+                showMessage('Erro de autenticação: ' + error.message, 'error');
+                window.location.href = './login.html';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
