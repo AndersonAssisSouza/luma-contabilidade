@@ -595,8 +595,9 @@
         </div>
     </div>
 
-    <script src="./scripts/supabase_client_contab.js"></script>
-    <script>
+    <script type="module">
+        import { supabase, requireAuth, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo } from './scripts/supabase_client_contab.js';
+
         let accounts = [];
         let expandedRows = new Set();
         let currentEditId = null;
@@ -611,7 +612,7 @@
         }
 
         async function logout() {
-            await supabaseClient.auth.signOut();
+            await supabase.auth.signOut();
             window.location.href = 'index.html';
         }
 
@@ -911,7 +912,7 @@
 
                 // Render children if expanded
                 if (hasChildren && expandedRows.has(account.id)) {
-                    children.forEach(child => renderChildRow(child, tbody));
+                             children.forEach(child => renderChildRow(child, tbody));
                 }
             });
         }
