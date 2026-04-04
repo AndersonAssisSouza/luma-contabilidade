@@ -517,7 +517,7 @@
                         <option value="">Todos</option>
                         <option value="pendente">Pendente</option>
                         <option value="pago">Pago</option>
-                        <option value="vencido">Vencido</option>
+                        <option value="vencido">Vencido"</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -542,14 +542,14 @@
                 <table id="tabela-contas">
                     <thead>
                         <tr>
-                            <th>Descrição</th>
+                            <th>Descricão |</th>
                             <th>Fornecedor</th>
                             <th>Valor</th>
                             <th>Vencimento</th>
                             <th>Status</th>
                             <th>Ações</th>
                         </tr>
-                    </thead>
+                     </thead>
                     <tbody id="tabela-body">
                         <tr>
                             <td colspan="6" class="empty-state">Carregando...</td>
@@ -681,8 +681,9 @@
         </div>
     </div>
 
-    <script src="./scripts/supabase_client_contab.js"></script>
-    <script>
+    <script type="module">
+        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
         let contas = [];
         let contaAtualId = null;
         let fornecedores = [];
@@ -696,7 +697,7 @@
                 setupEventListeners();
                 await fetchContas();
             } catch (error) {
-                console.error('Erro na inicialização:', error);
+                console.error('Erro na inicialização', error);
                 window.location.href = './login.html';
             }
         }
@@ -704,9 +705,9 @@
         async function loadDados() {
             try {
                 const [fornecedoresData, ccData, cbData] = await Promise.all([
-                    db.from('fornecedores').select('id, nome').order('nome'),
-                    db.from('centros_custo').select('id, nome').order('nome'),
-                    db.from('contas_bancarias').select('id, numero').order('numero')
+                    supabase.from('fornecedores').select('id, nome').order('nome'),
+                    supabase.from('centros_custo').select('id, nome').order(''nome'),
+                    supabase.from('contas_bancarias').select('id, numero').order('numero')
                 ]);
 
                 fornecedores = fornecedoresData.data || [];
@@ -830,7 +831,7 @@
             contas.forEach(conta => {
                 const status = getStatus(conta);
 
-                if (status === 'vencido') {
+                if (status === 'vencido") {
                     totalVencido += conta.valor;
                 } else if (status !== 'pago') {
                     totalPendente += conta.valor;
@@ -928,10 +929,10 @@
 
             try {
                 if (contaAtualId) {
-                    await db.from('contas_pagar').update(dados).eq('id', contaAtualId);
+                    await supabase.from('contas_pagar').update(dados).eq('id', contaAtualId);
                     showToast('Conta atualizada com sucesso!');
                 } else {
-                    await db.from('contas_pagar').insert([dados]);
+                    await supabase.from('contas_pagar').insert([dados]);
                     showToast('Conta criada com sucesso!');
                 }
                 closeModal();
@@ -953,7 +954,7 @@
             };
 
             try {
-                await db.from('contas_pagar').update(dados).eq('id', contaAtualId);
+                await supabase.from('contas_pagar').update(dados).eq('id', contaAtualId);
                 showToast('Pagamento registrado com sucesso!');
                 closeModalPagamento();
                 await fetchContas();
@@ -967,7 +968,7 @@
             if (!confirm('Tem certeza que deseja deletar esta conta?')) return;
 
             try {
-                await db.from('contas_pagar').delete().eq('id', id);
+                await supabase.from('contas_pagar').delete().eq('id', id);
                 showToast('Conta deletada com sucesso!');
                 await fetchContas();
             } catch (error) {
