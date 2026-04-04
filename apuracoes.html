@@ -498,8 +498,9 @@
         </div>
     </div>
 
-    <script src="./scripts/supabase_client_contab.js"></script>
-    <script>
+    <script type="module">
+        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
         let currentTaxCards = {};
 
         async function initPage() {
@@ -512,7 +513,7 @@
         }
 
         async function logout() {
-            await supabaseClient.auth.signOut();
+            await supabase.auth.signOut();
             window.location.href = 'index.html';
         }
 
