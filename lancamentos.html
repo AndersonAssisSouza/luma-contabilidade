@@ -1,1 +1,1035 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançamentos Contábeis - LUMA Contabilidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary: #1a237e;
+            --primary-light: #3949ab;
+            --primary-lighter: #5c6bc0;
+            --danger: #d32f2f;
+            --warning: #f57c00;
+            --success: #388e3c;
+            --gray-light: #f5f5f5;
+            --gray-medium: #e0e0e0;
+            --gray-dark: #424242;
+            --text: #212121;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: var(--text);
+        }
+
+        .container-app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--primary);
+            color: white;
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-logo {
+            padding: 0 24px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 24px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: white;
+        }
+
+        .sidebar-menu a.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border-left-color: white;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 32px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2e7d32;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c62828;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .summary-card.success {
+            border-left-color: var(--success);
+        }
+
+        .summary-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .summary-card-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .summary-card-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary-card.success .summary-card-value {
+            color: var(--success);
+        }
+
+        .summary-card.danger .summary-card-value {
+            color: var(--danger);
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid var(--gray-medium);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        }
+
+        .filters-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gray-light);
+            border-bottom: 2px solid var(--gray-medium);
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-dark);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-medium);
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: var(--gray-light);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-ativo {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-estornado {
+            background: #ffcdd2;
+            color: #d32f2f;
+        }
+
+        .status-pendente {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .tipo-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .tipo-badge.automatico {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .tipo-badge.folha {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .tipo-badge.fiscal {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .text-debit {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .text-credit {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 8px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--gray-medium);
+            padding-bottom: 16px;
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .modal-body .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .account-group {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .account-group-title {
+            font-weight: 600;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .account-group .form-group {
+            margin-bottom: 12px;
+        }
+
+        .account-group .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .validation-error {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid var(--gray-medium);
+            padding-top: 20px;
+        }
+
+        .close-btn {
+            background: var(--gray-medium);
+            color: var(--text);
+        }
+
+        .close-btn:hover {
+            background: #bdbdbd;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: var(--success);
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                max-width: 90vw;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-app">
+        <aside class="sidebar">
+            <div class="sidebar-logo">LUMA</div>
+            <ul class="sidebar-menu">
+                <li><a href="./dashboard.html">Dashboard</a></li>
+                <li><a href="./contas_pagar.html">Contas a Pagar</a></li>
+                <li><a href="./contas_receber.html">Contas a Receber</a></li>
+                <li><a href="./lancamentos.html" class="active">Lançamentos</a></li>
+                <li><a href="./plano_contas.html">Plano de Contas</a></li>
+                <li><a href="./centros_custo.html">Centros de Custo</a></li>
+                <li><a href="./relatorios.html">Relatórios</a></li>
+                <li><a href="#" id="logout-link">Sair</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1>Lançamentos Contábeis</h1>
+                <button class="btn btn-primary" id="novo-btn">+ Novo Lançamento</button>
+            </div>
+
+            <div class="summary">
+                <div class="summary-card">
+                    <div class="summary-card-label">Total de Lançamentos</div>
+                    <div class="summary-card-value" id="total-lancamentos">0</div>
+                </div>
+                <div class="summary-card success">
+                    <div class="summary-card-label">Total Débitos</div>
+                    <div class="summary-card-value" id="total-debitos">R$ 0,00</div>
+                </div>
+                <div class="summary-card danger">
+                    <div class="summary-card-label">Total Créditos</div>
+                    <div class="summary-card-value" id="total-creditos">R$ 0,00</div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="filter-tipo">
+                        <option value="">Todos</option>
+                        <option value="manual">Manual</option>
+                        <option value="automatico">Automático</option>
+                        <option value="folha">Folha</option>
+                        <option value="fiscal">Fiscal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Conta</label>
+                    <select id="filter-conta">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data Inicial</label>
+                    <input type="date" id="filter-data-inicio">
+                </div>
+                <div class="form-group">
+                    <label>Data Final</label>
+                    <input type="date" id="filter-data-fim">
+                </div>
+                <div class="filters-actions">
+                    <button class="btn btn-primary btn-small" id="filtrar-btn">Filtrar</button>
+                    <button class="btn close-btn btn-small" id="limpar-btn">Limpar</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="tabela-lancamentos">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Nº</th>
+                            <th>Conta Débito</th>
+                            <th>Débito</th>
+                            <th>Conta Crédito</th>
+                            <th>Crédito</th>
+                            <th>Histórico</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-body">
+                        <tr>
+                            <td colspan="10" class="empty-state">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="modal-lancamento">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-titulo">Novo Lançamento Contábil</div>
+            <form id="form-lancamento">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="data-lancamento">Data do Lançamento *</label>
+                        <input type="date" id="data-lancamento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="data-competencia">Data da Competência *</label>
+                        <input type="date" id="data-competencia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo-lancamento">Tipo *</label>
+                        <select id="tipo-lancamento" required>
+                            <option value="">Selecione...</option>
+                            <option value="manual">Manual</option>
+                            <option value="automatico">Automático</option>
+                            <option value="folha">Folha</option>
+                            <option value="fiscal">Fiscal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria">
+                            <option value="">Selecione...</option>
+                            <option value="operacional">Operacional</option>
+                            <option value="financeiro">Financeiro</option>
+                            <option value="patrimonial">Patrimonial</option>
+                            <option value="resultado">Resultado</option>
+                        </select>
+                    </div>
+
+                    <div class="account-group full">
+                        <div class="account-group-title">Débito (Conta que recebe)</div>
+                        <div class="form-group">
+                            <label for="conta-debito">Conta Débito *</label>
+                            <select id="conta-debito" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div id="debito-error" class="validation-error"></div>
+                    </div>
+
+                    <div class="account-group full">
+                        <div class="account-group-title">Crédito (Conta que fornece)</div>
+                        <div class="form-group">
+                            <label for="conta-credito">Conta Crédito *</label>
+                            <select id="conta-credito" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div id="credito-error" class="validation-error"></div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="valor-lancamento">Valor (R$) *</label>
+                        <input type="number" id="valor-lancamento" required step="0.01" min="0" placeholder="0,00">
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="historico">Histórico / Descrição *</label>
+                        <input type="text" id="historico" required placeholder="Descreva o lançamento...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="centro-custo">Centro de Custo</label>
+                        <select id="centro-custo">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn close-btn" id="modal-fechar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Lançamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase, requireAuth, getLancamentos, createLancamento, estornarLancamento, getPlanoContas, getContasAnaliticas } from './scripts/supabase_client_contab.js';
+
+        let lancamentos = [];
+        let lancamentosOriginal = [];
+        let lancamentoAtualId = null;
+        let planoContas = [];
+        let centrosCusto = [];
+        let numeroSequencia = 1;
+
+        async function init() {
+            try {
+                await requireAuth();
+                await loadDados();
+                setupEventListeners();
+                await fetchLancamentos();
+            } catch (error) {
+                console.error('Erro na inicialização:', error);
+                window.location.href = './login.html';
+            }
+        }
+
+        async function loadDados() {
+            try {
+                const [contasData, ccData] = await Promise.all([
+                    supabase.from('plano_contas').select('id, codigo, nome, tipo').order('codigo'),
+                    supabase.from('centros_custo').select('id, nome').order('nome')
+                ]);
+
+                planoContas = contasData.data || [];
+                centrosCusto = ccData.data || [];
+
+                populateSelects();
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                showToast('Erro ao carregar dados', 'error');
+            }
+        }
+
+        function populateSelects() {
+            const debitoSelect = document.getElementById('conta-debito');
+            const creditoSelect = document.getElementById('conta-credito');
+            const filterConta = document.getElementById('filter-conta');
+
+            let optionsHtml = '<option value="">Selecione...</option>';
+            planoContas.forEach(c => {
+                optionsHtml += `<option value="${c.id}">${c.codigo} - ${c.nome}</option>`;
+            });
+
+            debitoSelect.innerHTML = optionsHtml;
+            creditoSelect.innerHTML = optionsHtml;
+            filterConta.innerHTML = '<option value="">Todas</option>' + optionsHtml.substring(26);
+
+            const ccSelect = document.getElementById('centro-custo');
+            ccSelect.innerHTML = '<option value="">Selecione...</option>';
+            centrosCusto.forEach(cc => {
+                ccSelect.innerHTML += `<option value="${cc.id}">${cc.nome}</option>`;
+            });
+        }
+
+        async function fetchLancamentos() {
+            try {
+                const response = await supabase
+                    .from('lancamentos_contabeis')
+                    .select(`
+                        *,
+                        conta_debito:plano_contas!conta_debito_id(codigo, nome),
+                        conta_credito:plano_contas!conta_credito_id(codigo, nome)
+                    `)
+                    .order('data_lancamento', { ascending: false });
+
+                lancamentos = response.data || [];
+                lancamentosOriginal = JSON.parse(JSON.stringify(lancamentos));
+                renderTabela();
+                updateSummary();
+            } catch (error) {
+                console.error('Erro ao buscar lançamentos:', error);
+                showToast('Erro ao carregar lançamentos', 'error');
+            }
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'estornado') {
+                return '<span class="status-badge status-estornado">Estornado</span>';
+            }
+            return '<span class="status-badge status-ativo">Ativo</span>';
+        }
+
+        function getTipoBadge(tipo) {
+            const tipoMap = {
+                'manual': 'Manual',
+                'automatico': 'Automático',
+                'folha': 'Folha',
+                'fiscal': 'Fiscal'
+            };
+            return `<span class="tipo-badge ${tipo}">${tipoMap[tipo] || tipo}</span>`;
+        }
+
+        function formatValor(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
+        }
+
+        function formatData(data) {
+            return new Date(data).toLocaleDateString('pt-BR');
+        }
+
+        function renderTabela() {
+            const tbody = document.getElementById('tabela-body');
+
+            if (lancamentos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><div class="empty-state-icon">📭</div>Nenhum lançamento encontrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = lancamentos.map((lance, index) => {
+                return `
+                    <tr>
+                        <td>${formatData(lance.data_lancamento)}</td>
+                        <td>${lance.numero || index + 1}</td>
+                        <td>${lance.conta_debito?.codigo} - ${lance.conta_debito?.nome}</td>
+                        <td class="text-debit">${formatValor(lance.valor)}</td>
+                        <td>${lance.conta_credito?.codigo} - ${lance.conta_credito?.nome}</td>
+                        <td class="text-credit">${formatValor(lance.valor)}</td>
+                        <td>${lance.historico}</td>
+                        <td>${getTipoBadge(lance.tipo)}</td>
+                        <td>${getStatusBadge(lance.status)}</td>
+                        <td>
+                            <div class="actions">
+                                ${lance.status !== 'estornado' ? `<button class="btn btn-danger btn-small" onclick="estornarLancamento(${lance.id})">Estornar</button>` : ''}
+                                <button class="btn btn-primary btn-small" onclick="openModalEditar(${lance.id})">Editar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateSummary() {
+            let totalDebitos = 0;
+            let totalCreditos = 0;
+
+            lancamentos.forEach(lance => {
+                if (lance.status !== 'estornado') {
+                    totalDebitos += lance.valor;
+                    totalCreditos += lance.valor;
+                }
+            });
+
+            document.getElementById('total-lancamentos').textContent = lancamentos.length;
+            document.getElementById('total-debitos').textContent = formatValor(totalDebitos);
+            document.getElementById('total-creditos').textContent = formatValor(totalCreditos);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('novo-btn').addEventListener('click', openModalNova);
+            document.getElementById('filtrar-btn').addEventListener('click', applyFilters);
+            document.getElementById('limpar-btn').addEventListener('click', clearFilters);
+            document.getElementById('modal-fechar').addEventListener('click', closeModal);
+            document.getElementById('form-lancamento').addEventListener('submit', saveLancamento);
+            document.getElementById('logout-link').addEventListener('click', logout);
+
+            document.getElementById('conta-debito').addEventListener('change', validarPartidaDobrada);
+            document.getElementById('conta-credito').addEventListener('change', validarPartidaDobrada);
+
+            document.getElementById('modal-lancamento').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-lancamento') closeModal();
+            });
+        }
+
+        function validarPartidaDobrada() {
+            const debitoId = document.getElementById('conta-debito').value;
+            const creditoId = document.getElementById('conta-credito').value;
+
+            const debitoError = document.getElementById('debito-error');
+            const creditoError = document.getElementById('credito-error');
+
+            debitoError.textContent = '';
+            creditoError.textContent = '';
+
+            if (debitoId && creditoId && debitoId === creditoId) {
+                debitoError.textContent = 'Débito e crédito devem ser em contas diferentes';
+                creditoError.textContent = 'Débito e crédito devem ser em contas diferentes';
+            }
+        }
+
+        function openModalNova() {
+            lancamentoAtualId = null;
+            document.getElementById('modal-titulo').textContent = 'Novo Lançamento Contábil';
+            document.getElementById('form-lancamento').reset();
+            document.getElementById('modal-lancamento').classList.add('active');
+            document.getElementById('data-lancamento').valueAsDate = new Date();
+            document.getElementById('data-competencia').valueAsDate = new Date();
+            document.getElementById('debito-error').textContent = '';
+            document.getElementById('credito-error').textContent = '';
+        }
+
+        async function openModalEditar(id) {
+            const lance = lancamentos.find(l => l.id === id);
+            if (!lance) return;
+
+            lancamentoAtualId = id;
+            document.getElementById('modal-titulo').textContent = 'Editar Lançamento Contábil';
+            document.getElementById('data-lancamento').value = lance.data_lancamento;
+            document.getElementById('data-competencia').value = lance.data_competencia;
+            document.getElementById('tipo-lancamento').value = lance.tipo;
+            document.getElementById('categoria').value = lance.categoria || '';
+            document.getElementById('conta-debito').value = lance.conta_debito_id || '';
+            document.getElementById('conta-credito').value = lance.conta_credito_id || '';
+            document.getElementById('valor-lancamento').value = lance.valor;
+            document.getElementById('historico').value = lance.historico;
+            document.getElementById('centro-custo').value = lance.centro_custo_id || '';
+
+            document.getElementById('modal-lancamento').classList.add('active');
+        }
+
+        async function saveLancamento(e) {
+            e.preventDefault();
+
+            const debitoId = document.getElementById('conta-debito').value;
+            const creditoId = document.getElementById('conta-credito').value;
+
+            if (debitoId === creditoId) {
+                showToast('Débito e crédito devem ser em contas diferentes', 'error');
+                return;
+            }
+
+            const dados = {
+                data_lancamento: document.getElementById('data-lancamento').value,
+                data_competencia: document.getElementById('data-competencia').value,
+                tipo: document.getElementById('tipo-lancamento').value,
+                categoria: document.getElementById('categoria').value || null,
+                conta_debito_id: debitoId,
+                conta_credito_id: creditoId,
+                valor: parseFloat(document.getElementById('valor-lancamento').value),
+                historico: document.getElementById('historico').value,
+                centro_custo_id: document.getElementById('centro-custo').value || null,
+                status: 'ativo'
+            };
+
+            try {
+                if (lancamentoAtualId) {
+                    await supabase.from('lancamentos_contabeis').update(dados).eq('id', lancamentoAtualId);
+                    showToast('Lançamento atualizado com sucesso!');
+                } else {
+                    dados.numero = numeroSequencia++;
+                    await supabase.from('lancamentos_contabeis').insert([dados]);
+                    showToast('Lançamento criado com sucesso!');
+                }
+                closeModal();
+                await fetchLancamentos();
+            } catch (error) {
+                console.error('Erro ao salvar lançamento:', error);
+                showToast('Erro ao salvar lançamento', 'error');
+            }
+        }
+
+        async function estornarLancamento(id) {
+            if (!confirm('Tem certeza que deseja estornar este lançamento? Esta ação criará um lançamento de reversão.')) return;
+
+            try {
+                const lance = lancamentos.find(l => l.id === id);
+                if (!lance) return;
+
+                await supabase.from('lancamentos_contabeis').update({ status: 'estornado' }).eq('id', id);
+
+                const reversao = {
+                    data_lancamento: new Date().toISOString().split('T')[0],
+                    data_competencia: new Date().toISOString().split('T')[0],
+                    tipo: 'manual',
+                    categoria: lance.categoria,
+                    conta_debito_id: lance.conta_credito_id,
+                    conta_credito_id: lance.conta_debito_id,
+                    valor: lance.valor,
+                    historico: `ESTORNO - ${lance.historico}`,
+                    centro_custo_id: lance.centro_custo_id,
+                    status: 'ativo',
+                    numero: numeroSequencia++
+                };
+
+                await supabase.from('lancamentos_contabeis').insert([reversao]);
+                showToast('Lançamento estornado e reversão criada com sucesso!');
+                await fetchLancamentos();
+            } catch (error) {
+                console.error('Erro ao estornar lançamento:', error);
+                showToast('Erro ao estornar lançamento', 'error');
+            }
+        }
+
+        function applyFilters() {
+            const tipo = document.getElementById('filter-tipo').value;
+            const conta = document.getElementById('filter-conta').value;
+            const dataInicio = document.getElementById('filter-data-inicio').value;
+            const dataFim = document.getElementById('filter-data-fim').value;
+
+            lancamentos = lancamentosOriginal.filter(lance => {
+                if (tipo && lance.tipo !== tipo) return false;
+                if (conta && lance.conta_debito_id !== parseInt(conta) && lance.conta_credito_id !== parseInt(conta)) return false;
+                if (dataInicio && new Date(lance.data_lancamento) < new Date(dataInicio)) return false;
+                if (dataFim && new Date(lance.data_lancamento) > new Date(dataFim)) return false;
+                return true;
+            });
+
+            renderTabela();
+        }
+
+        async function clearFilters() {
+            document.getElementById('filter-tipo').value = '';
+            document.getElementById('filter-conta').value = '';
+            document.getElementById('filter-data-inicio').value = '';
+            document.getElementById('filter-data-fim').value = '';
+            await fetchLancamentos();
+        }
+
+        function closeModal() {
+            document.getElementById('modal-lancamento').classList.remove('active');
+            lancamentoAtualId = null;
+            document.getElementById('debito-error').textContent = '';
+            document.getElementById('credito-error').textContent = '';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            window.location.href = './login.html';
+        }
+
+        init();
+    </script>
+</body>
+</html>
