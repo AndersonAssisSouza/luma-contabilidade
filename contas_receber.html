@@ -594,7 +594,7 @@
                         <label for="forma-recebimento">Forma de Recebimento</label>
                         <select id="forma-recebimento">
                             <option value="">Selecione...</option>
-                            <option value="dinheiro">Dinheiro</option>
+                            <option value="dinheiro">Dinheiro//option>
                             <option value="cheque">Cheque</option>
                             <option value="transferencia">Transferência</option>
                             <option value="cartao">Cartão</option>
@@ -659,8 +659,9 @@
         </div>
     </div>
 
-    <script src="./scripts/supabase_client_contab.js"></script>
-    <script>
+    <script type="module">
+        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
         let contas = [];
         let contaAtualId = null;
         let clientes = [];
@@ -681,8 +682,8 @@
         async function loadDados() {
             try {
                 const [clientesData, ccData] = await Promise.all([
-                    db.from('clientes').select('id, nome').order('nome'),
-                    db.from('centros_custo').select('id, nome').order('nome')
+                    supabase.from('clientes').select('id, nome').order('nome'),
+                    supabase.from('centros_custo').select('id, nome').order('nome')
                 ]);
 
                 clientes = clientesData.data || [];
@@ -894,10 +895,10 @@
 
             try {
                 if (contaAtualId) {
-                    await db.from('contas_receber').update(dados).eq('id', contaAtualId);
+                    await supabase.from('contas_receber').update(dados).eq('id', contaAtualId);
                     showToast('Conta atualizada com sucesso!');
                 } else {
-                    await db.from('contas_receber').insert([dados]);
+                    await supabase.from('contas_receber').insert([dados]);
                     showToast('Conta criada com sucesso!');
                 }
                 closeModal();
@@ -919,7 +920,7 @@
             };
 
             try {
-                await db.from('contas_receber').update(dados).eq('id', contaAtualId);
+                await supabase.from('contas_receber').update(dados).eq('id', contaAtualId);
                 showToast('Recebimento registrado com sucesso!');
                 closeModalRecebimento();
                 await fetchContas();
@@ -933,7 +934,7 @@
             if (!confirm('Tem certeza que deseja deletar esta conta?')) return;
 
             try {
-                await db.from('contas_receber').delete().eq('id', id);
+                await supabase.from('contas_receber').delete().eq('id', id);
                 showToast('Conta deletada com sucesso!');
                 await fetchContas();
             } catch (error) {
