@@ -647,8 +647,9 @@
         <div class="spinner"></div>
     </div>
 
-    <script src="./scripts/supabase_client_contab.js"></script>
-    <script>
+    <script type="module">
+        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+
         let currentFornecedorId = null;
 
         // CPF/CNPJ validation
@@ -757,7 +758,7 @@
         async function loadFornecedores() {
             try {
                 showLoading(true);
-                const { data, error } = await window.supabaseClient
+                const { data, error } = await supabase
                     .from('fornecedores')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -857,7 +858,7 @@
 
         async function editFornecedor(id) {
             try {
-                const { data, error } = await window.supabaseClient
+                const { data, error } = await supabase
                     .from('fornecedores')
                     .select('*')
                     .eq('id', id)
@@ -902,7 +903,7 @@
             const cpfCnpj = document.getElementById('cpfCnpj').value;
 
             if (tipo === 'PF' && !validateCPF(cpfCnpj)) {
-                showToast('CPF inválido', 'error');
+                showToast('CPF in{álido', 'error');
                 return;
             }
             if (tipo === 'PJ' && !validateCNPJ(cpfCnpj)) {
@@ -933,14 +934,14 @@
             try {
                 showLoading(true);
                 if (currentFornecedorId) {
-                    const { error } = await window.supabaseClient
+                    const { error } = await supabase
                         .from('fornecedores')
                         .update(fornecedorData)
                         .eq('id', currentFornecedorId);
                     if (error) throw error;
                     showToast('Fornecedor atualizado com sucesso', 'success');
                 } else {
-                    const { error } = await window.supabaseClient
+                    const { error } = await supabase
                         .from('fornecedores')
                         .insert([fornecedorData]);
                     if (error) throw error;
@@ -962,7 +963,7 @@
 
             try {
                 showLoading(true);
-                const { error } = await window.supabaseClient
+                const { error } = await supabase
                     .from('fornecedores')
                     .delete()
                     .eq('id', id);
@@ -983,13 +984,14 @@
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await window.requireAuth().logout();
+            const auth = await requireAuth();
+            await auth.logout();
             window.location.href = 'login.html';
         });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await window.requireAuth();
+            await requireAuth();
             await loadFornecedores();
         });
     </script>
