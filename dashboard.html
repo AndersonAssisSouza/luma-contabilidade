@@ -1234,7 +1234,7 @@
     </div>
 
     <script type="module">
-        import { requireAuth, getAuthUser, logoutUser, getTenantInfo } from './scripts/supabase_client_contab.js';
+        import { requireAuth, getSession, logout, getTenant } from './scripts/supabase_client_contab.js';
 
         // Application State
         let currentUser = null;
@@ -1245,8 +1245,12 @@
         async function initializeApp() {
             try {
                 // Check authentication
-                const user = await requireAuth();
-                currentUser = user;
+                const authResult = await requireAuth();
+                if (!authResult.authorized) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = authResult.profile;
 
                 // Load user info
                 updateUserInfo();
@@ -1355,7 +1359,7 @@
             // Logout Button
             document.getElementById('logoutBtn').addEventListener('click', async () => {
                 try {
-                    await logoutUser();
+                    await logout();
                     window.location.href = './login.html';
                 } catch (error) {
                     console.error('Erro ao fazer logout:', error);
