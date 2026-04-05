@@ -123,7 +123,7 @@ export async function requireAuth(rolesPermitidos = []) {
     const { data: profile, error: profileError } = await getProfile();
 
     if (profileError || !profile) {
-      window.location.href = '/login.html';
+      window.location.href = './login.html';
       return { authorized: false, profile: null, error: profileError };
     }
 
