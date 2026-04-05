@@ -498,7 +498,7 @@
             try {
                 const result = await login(email, password);
 
-                if (result.success) {
+                if (result.data && !result.error) {
                     // Store remember me preference
                     if (rememberMe) {
                         localStorage.setItem('lumaRememberEmail', email);
@@ -513,7 +513,7 @@
                         window.location.href = './dashboard.html';
                     }, 1500);
                 } else {
-                    showMessage(result.error || 'Erro ao fazer login. Tente novamente.', 'error');
+                    showMessage(result.error?.message || 'Erro ao fazer login. Tente novamente.', 'error');
                     submitBtn.disabled = false;
                     btnText.innerHTML = 'Entrar';
                 }
@@ -552,7 +552,7 @@
             try {
                 const result = await resetPassword(email);
 
-                if (result.success) {
+                if (!result.error) {
                     showMessage(
                         'Link de redefinição de senha enviado para seu email. Verifique sua caixa de entrada.',
                         'success'
@@ -565,7 +565,7 @@
                     }, 3000);
                 } else {
                     showMessage(
-                        result.error || 'Erro ao enviar link de redefinição. Tente novamente.',
+                        result.error?.message || 'Erro ao enviar link de redefinição. Tente novamente.',
                         'error'
                     );
                     resetSubmitBtn.disabled = false;
