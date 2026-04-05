@@ -48,7 +48,9 @@ export async function logout() {
  */
 export async function resetPassword(email) {
   try {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://andersonassissouza.github.io/luma-contabilidade/login.html',
+    });
     return { data, error };
   } catch (err) {
     return { data: null, error: err };
