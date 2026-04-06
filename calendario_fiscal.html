@@ -703,7 +703,7 @@
     </div>
 
     <script type="module">
-        import { supabase, getSession } from './scripts/supabase_client_contab.js';
+        import { supabase, logout, getSession } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
 
@@ -723,10 +723,6 @@
             window.location.href = page;
         }
 
-        async function logout() {
-            await supabase.auth.signOut();
-            window.location.href = 'index.html';
-        }
 
         function switchView(view) {
             currentView = view;
