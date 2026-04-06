@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CalendÃ¡rio Fiscal - LUMA Contabilidade</title>
+    <title>CalendÃÂ¡rio Fiscal - LUMA Contabilidade</title>
     <style>
         * {
             margin: 0;
@@ -536,23 +536,23 @@
             </div>
             <nav>
                 <div class="nav-item" onclick="navigateTo('dashboard.html')">
-                    <span class="nav-icon">ð</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
                     <span>Dashboard</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('apuracoes.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>ApuraÃ§Ãµes Fiscais</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
+                    <span>ApuraÃÂ§ÃÂµes Fiscais</span>
                 </div>
                 <div class="nav-item active" onclick="navigateTo('calendario_fiscal.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>CalendÃ¡rio Fiscal</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
+                    <span>CalendÃÂ¡rio Fiscal</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('plano_contas.html')">
-                    <span class="nav-icon">ð</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
                     <span>Plano de Contas</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('empresas.html')">
-                    <span class="nav-icon">ð¢</span>
+                    <span class="nav-icon">Ã°ÂÂÂ¢</span>
                     <span>Empresas</span>
                 </div>
             </nav>
@@ -562,16 +562,16 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
-                <h1 class="page-title">CalendÃ¡rio Fiscal</h1>
+                <h1 class="page-title">CalendÃÂ¡rio Fiscal</h1>
                 <div class="view-toggle">
-                    <button class="view-btn active" onclick="switchView('calendar')">CalendÃ¡rio</button>
+                    <button class="view-btn active" onclick="switchView('calendar')">CalendÃÂ¡rio</button>
                     <button class="view-btn" onclick="switchView('list')">Lista</button>
                 </div>
             </div>
 
             <div class="filter-section">
                 <div class="filter-group">
-                    <label>ResponsÃ¡vel</label>
+                    <label>ResponsÃÂ¡vel</label>
                     <select id="filterResponsavel">
                         <option value="">Todos</option>
                         <option value="agente_digital">Agente Digital</option>
@@ -588,10 +588,10 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>PerÃ­odo</label>
+                    <label>PerÃÂ­odo</label>
                     <select id="filterPeriodo">
                         <option value="">Todos</option>
-                        <option value="2026-03">MarÃ§o 2026</option>
+                        <option value="2026-03">MarÃÂ§o 2026</option>
                         <option value="2026-04">Abril 2026</option>
                         <option value="2026-05">Maio 2026</option>
                     </select>
@@ -600,7 +600,7 @@
 
             <!-- Alerts Section -->
             <div class="alerts-section">
-                <h3 class="alerts-title">PrÃ³ximos Vencimentos (PrÃ³ximos 15 dias)</h3>
+                <h3 class="alerts-title">PrÃÂ³ximos Vencimentos (PrÃÂ³ximos 15 dias)</h3>
                 <div id="alertsContainer">
                     <div class="loading">Carregando alertas...</div>
                 </div>
@@ -609,11 +609,11 @@
             <!-- Calendar View -->
             <div class="calendar-container" id="calendarView">
                 <div class="calendar-header">
-                    <h2 class="calendar-month" id="calendarMonthYear">MarÃ§o 2026</h2>
+                    <h2 class="calendar-month" id="calendarMonthYear">MarÃÂ§o 2026</h2>
                     <div class="calendar-nav">
-                        <button onclick="previousMonth()">â Anterior</button>
+                        <button onclick="previousMonth()">Ã¢ÂÂ Anterior</button>
                         <button onclick="currentMonth()">Hoje</button>
-                        <button onclick="nextMonth()">PrÃ³ximo â</button>
+                        <button onclick="nextMonth()">PrÃÂ³ximo Ã¢ÂÂ</button>
                     </div>
                 </div>
 
@@ -624,7 +624,7 @@
                     </div>
                     <div class="legend-item">
                         <div class="legend-dot status-pending"></div>
-                        <span>Pendente PrÃ³ximo</span>
+                        <span>Pendente PrÃÂ³ximo</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-dot status-overdue"></div>
@@ -654,12 +654,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ObrigaÃ§Ã£o</th>
-                            <th>CompetÃªncia</th>
+                            <th>ObrigaÃÂ§ÃÂ£o</th>
+                            <th>CompetÃÂªncia</th>
                             <th>Vencimento</th>
-                            <th>ResponsÃ¡vel</th>
+                            <th>ResponsÃÂ¡vel</th>
                             <th>Status</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>AÃÂ§ÃÂµes</th>
                         </tr>
                     </thead>
                     <tbody id="listTableBody">
@@ -677,7 +677,7 @@
                     </div>
                     <form onsubmit="saveStatus(event)">
                         <div class="form-group">
-                            <label>ObrigaÃ§Ã£o</label>
+                            <label>ObrigaÃÂ§ÃÂ£o</label>
                             <input type="text" id="statusObrigacao" readonly>
                         </div>
                         <div class="form-group">
@@ -689,7 +689,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Data de ConclusÃ£o</label>
+                            <label>Data de ConclusÃÂ£o</label>
                             <input type="date" id="statusData">
                         </div>
                         <div class="modal-actions">
@@ -703,7 +703,7 @@
     </div>
 
     <script type="module">
-        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
 
@@ -751,8 +751,8 @@
             obligations = [
                 {
                     id: 1,
-                    obrigacao: 'ECF - EscrituraÃ§Ã£o Fiscal Digital',
-                    competencia: 'MarÃ§o 2026',
+                    obrigacao: 'ECF - EscrituraÃÂ§ÃÂ£o Fiscal Digital',
+                    competencia: 'MarÃÂ§o 2026',
                     vencimento: new Date(2026, 3, 15),
                     responsavel: 'Contador CRC',
                     status: 'entregue',
@@ -770,7 +770,7 @@
                 {
                     id: 3,
                     obrigacao: 'Guia de Recolhimento PIS/COFINS',
-                    competencia: 'MarÃ§o 2026',
+                    competencia: 'MarÃÂ§o 2026',
                     vencimento: new Date(2026, 3, 25),
                     responsavel: 'Agente Digital',
                     status: 'pendente',
@@ -779,7 +779,7 @@
                 {
                     id: 4,
                     obrigacao: 'GFIP - Guia de Recolhimento do FGTS',
-                    competencia: 'MarÃ§o 2026',
+                    competencia: 'MarÃÂ§o 2026',
                     vencimento: new Date(2026, 3, 7),
                     responsavel: 'Contador CRC',
                     status: 'atrasado',
@@ -787,7 +787,7 @@
                 },
                 {
                     id: 5,
-                    obrigacao: 'InformaÃ§Ãµes ao Banco Central',
+                    obrigacao: 'InformaÃÂ§ÃÂµes ao Banco Central',
                     competencia: 'Abril 2026',
                     vencimento: new Date(2026, 4, 10),
                     responsavel: 'Agente Digital',
@@ -796,7 +796,7 @@
                 },
                 {
                     id: 6,
-                    obrigacao: 'DeclaraÃ§Ã£o de DÃ©bitos e CrÃ©ditos',
+                    obrigacao: 'DeclaraÃÂ§ÃÂ£o de DÃÂ©bitos e CrÃÂ©ditos',
                     competencia: 'Abril 2026',
                     vencimento: new Date(2026, 4, 15),
                     responsavel: 'Contador CRC',
@@ -818,7 +818,7 @@
             }).sort((a, b) => a.vencimento - b.vencimento);
 
             if (upcomingAlerts.length === 0) {
-                alertsContainer.innerHTML = '<p style="color: #999; text-align: center;">Nenhum alerta de vencimento prÃ³ximo</p>';
+                alertsContainer.innerHTML = '<p style="color: #999; text-align: center;">Nenhum alerta de vencimento prÃÂ³ximo</p>';
                 return;
             }
 
@@ -828,7 +828,7 @@
                         <div class="alert-obrigacao">${alert.obrigacao}</div>
                         <div class="alert-vencimento">Vencimento: ${alert.vencimento.toLocaleDateString('pt-BR')}</div>
                     </div>
-                    <div class="alert-urgency">PrÃ³ximo: ${daysUntil(alert.vencimento)} dias</div>
+                    <div class="alert-urgency">PrÃÂ³ximo: ${daysUntil(alert.vencimento)} dias</div>
                 </div>
             `).join('');
         }

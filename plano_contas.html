@@ -449,23 +449,23 @@
             </div>
             <nav>
                 <div class="nav-item" onclick="navigateTo('dashboard.html')">
-                    <span class="nav-icon">ð</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
                     <span>Dashboard</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('apuracoes.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>ApuraÃ§Ãµes Fiscais</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
+                    <span>ApuraÃÂ§ÃÂµes Fiscais</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('calendario_fiscal.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>CalendÃ¡rio Fiscal</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
+                    <span>CalendÃÂ¡rio Fiscal</span>
                 </div>
                 <div class="nav-item active" onclick="navigateTo('plano_contas.html')">
-                    <span class="nav-icon">ð</span>
+                    <span class="nav-icon">Ã°ÂÂÂ</span>
                     <span>Plano de Contas</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('empresas.html')">
-                    <span class="nav-icon">ð¢</span>
+                    <span class="nav-icon">Ã°ÂÂÂ¢</span>
                     <span>Empresas</span>
                 </div>
             </nav>
@@ -488,11 +488,11 @@
                         <option value="PASSIVO">Passivo</option>
                         <option value="RECEITA">Receita</option>
                         <option value="DESPESA">Despesa</option>
-                        <option value="PL">PatrimÃ´nio LÃ­quido</option>
+                        <option value="PL">PatrimÃÂ´nio LÃÂ­quido</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Buscar por DescriÃ§Ã£o</label>
+                    <label>Buscar por DescriÃÂ§ÃÂ£o</label>
                     <input type="text" id="filterDescricao" placeholder="Digite para filtrar...">
                 </div>
             </div>
@@ -504,14 +504,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 150px;">CÃ³digo</th>
-                            <th style="flex: 1;">DescriÃ§Ã£o</th>
+                            <th style="width: 150px;">CÃÂ³digo</th>
+                            <th style="flex: 1;">DescriÃÂ§ÃÂ£o</th>
                             <th style="width: 120px;">Tipo</th>
                             <th style="width: 100px;">Natureza</th>
-                            <th style="width: 80px;">NÃ­vel</th>
-                            <th style="width: 100px;">LanÃ§amento</th>
+                            <th style="width: 80px;">NÃÂ­vel</th>
+                            <th style="width: 100px;">LanÃÂ§amento</th>
                             <th style="width: 80px;">Status</th>
-                            <th style="width: 120px;">AÃ§Ãµes</th>
+                            <th style="width: 120px;">AÃÂ§ÃÂµes</th>
                         </tr>
                     </thead>
                     <tbody id="accountsTableBody">
@@ -530,7 +530,7 @@
                     <form onsubmit="saveAccount(event)">
                         <div class="form-group-inline">
                             <div class="form-group">
-                                <label>CÃ³digo da Conta *</label>
+                                <label>CÃÂ³digo da Conta *</label>
                                 <input type="text" id="accountCodigo" placeholder="Ex: 1.1.1.01" required>
                             </div>
                             <div class="form-group">
@@ -541,13 +541,13 @@
                                     <option value="PASSIVO">Passivo</option>
                                     <option value="RECEITA">Receita</option>
                                     <option value="DESPESA">Despesa</option>
-                                    <option value="PL">PatrimÃ´nio LÃ­quido</option>
+                                    <option value="PL">PatrimÃÂ´nio LÃÂ­quido</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>DescriÃ§Ã£o da Conta *</label>
+                            <label>DescriÃÂ§ÃÂ£o da Conta *</label>
                             <input type="text" id="accountDescricao" placeholder="Ex: Caixa Geral" required>
                         </div>
 
@@ -560,7 +560,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>NÃ­vel *</label>
+                                <label>NÃÂ­vel *</label>
                                 <select id="accountNivel" required>
                                     <option value="">Selecione...</option>
                                     <option value="1">Grupo</option>
@@ -581,7 +581,7 @@
                         <div class="form-group">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="accountAceitaLancamento" checked>
-                                <label for="accountAceitaLancamento" style="margin: 0; font-weight: 400;">Aceita LanÃ§amento Direto</label>
+                                <label for="accountAceitaLancamento" style="margin: 0; font-weight: 400;">Aceita LanÃÂ§amento Direto</label>
                             </div>
                         </div>
 
@@ -596,7 +596,7 @@
     </div>
 
     <script type="module">
-        import { supabase, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo, getSession, logout } from './scripts/supabase_client_contab.js';
+        import { supabase, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo, getSession } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
 
@@ -686,7 +686,7 @@
                     {
                         id: 6,
                         codigo: '1.1.2',
-                        descricao: 'CrÃ©ditos',
+                        descricao: 'CrÃÂ©ditos',
                         tipo: 'ATIVO',
                         natureza: 'DEVEDORA',
                         nivel: 3,
@@ -731,7 +731,7 @@
                     {
                         id: 10,
                         codigo: '2.1.1',
-                        descricao: 'ObrigaÃ§Ãµes com Pessoal',
+                        descricao: 'ObrigaÃÂ§ÃÂµes com Pessoal',
                         tipo: 'PASSIVO',
                         natureza: 'CREDORA',
                         nivel: 3,
@@ -742,7 +742,7 @@
                     {
                         id: 11,
                         codigo: '2.1.1.01',
-                        descricao: 'SalÃ¡rios a Pagar',
+                        descricao: 'SalÃÂ¡rios a Pagar',
                         tipo: 'PASSIVO',
                         natureza: 'CREDORA',
                         nivel: 4,
@@ -821,7 +821,7 @@
                     {
                         id: 18,
                         codigo: '4.1.1.01',
-                        descricao: 'SalÃ¡rios',
+                        descricao: 'SalÃÂ¡rios',
                         tipo: 'DESPESA',
                         natureza: 'DEVEDORA',
                         nivel: 4,
@@ -829,11 +829,11 @@
                         aceita_lancamento: true,
                         status: 'ativo'
                     },
-                    // PATRIMÃNIO LÃQUIDO
+                    // PATRIMÃÂNIO LÃÂQUIDO
                     {
                         id: 19,
                         codigo: '5',
-                        descricao: 'PATRIMÃNIO LÃQUIDO',
+                        descricao: 'PATRIMÃÂNIO LÃÂQUIDO',
                         tipo: 'PL',
                         natureza: 'CREDORA',
                         nivel: 1,
@@ -888,7 +888,7 @@
                 let toggleHtml = '';
                 if (hasChildren) {
                     const isExpanded = expandedRows.has(account.id);
-                    toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'â¼' : 'â¶'}</div>`;
+                    toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'Ã¢ÂÂ¼' : 'Ã¢ÂÂ¶'}</div>`;
                 } else {
                     toggleHtml = '<div class="tree-toggle empty"></div>';
                 }
@@ -908,7 +908,7 @@
                     </td>
                     <td>${account.natureza}</td>
                     <td>${account.nivel}</td>
-                    <td>${account.aceita_lancamento ? 'â Sim' : 'NÃ£o'}</td>
+                    <td>${account.aceita_lancamento ? 'Ã¢ÂÂ Sim' : 'NÃÂ£o'}</td>
                     <td><span class="${statusClass}">${account.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
                     <td class="row-actions">
                         <button class="btn btn-small btn-secondary" onclick="openEditAccountModal(${account.id})">Editar</button>
@@ -938,7 +938,7 @@
             let toggleHtml = '';
             if (hasChildren) {
                 const isExpanded = expandedRows.has(account.id);
-                toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'â¼' : 'â¶'}</div>`;
+                toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'Ã¢ÂÂ¼' : 'Ã¢ÂÂ¶'}</div>`;
             } else {
                 toggleHtml = '<div class="tree-toggle empty"></div>';
             }
@@ -958,7 +958,7 @@
                 </td>
                 <td>${account.natureza}</td>
                 <td>${account.nivel}</td>
-                <td>${account.aceita_lancamento ? 'â Sim' : 'NÃ£o'}</td>
+                <td>${account.aceita_lancamento ? 'Ã¢ÂÂ Sim' : 'NÃÂ£o'}</td>
                 <td><span class="${statusClass}">${account.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
                 <td class="row-actions">
                     <button class="btn btn-small btn-secondary" onclick="openEditAccountModal(${account.id})">Editar</button>
