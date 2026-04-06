@@ -467,10 +467,10 @@
                 <li><a href="./dashboard.html">Dashboard</a></li>
                 <li><a href="./contas_pagar.html">Contas a Pagar</a></li>
                 <li><a href="./contas_receber.html" class="active">Contas a Receber</a></li>
-                <li><a href="./lancamentos.html">LanÃ§amentos</a></li>
+                <li><a href="./lancamentos.html">Lançamentos</a></li>
                 <li><a href="./plano_contas.html">Plano de Contas</a></li>
                 <li><a href="./centros_custo.html">Centros de Custo</a></li>
-                <li><a href="./relatorios.html">RelatÃ³rios</a></li>
+                <li><a href="./relatorios.html">Relatórios</a></li>
                 <li><a href="#" id="logout-link">Sair</a></li>
             </ul>
         </aside>
@@ -491,7 +491,7 @@
                     <div class="summary-card-value" id="total-vencido">R$ 0,00</div>
                 </div>
                 <div class="summary-card success">
-                    <div class="summary-card-label">Total Recebido (MÃªs)</div>
+                    <div class="summary-card-label">Total Recebido (Mês)</div>
                     <div class="summary-card-value" id="total-recebido">R$ 0,00</div>
                 </div>
             </div>
@@ -528,12 +528,12 @@
                 <table id="tabela-contas">
                     <thead>
                         <tr>
-                            <th>DescriÃ§Ã£o</th>
+                            <th>Descrição</th>
                             <th>Cliente</th>
                             <th>Valor</th>
                             <th>Vencimento</th>
                             <th>Status</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-body">
@@ -558,7 +558,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="descricao">DescriÃ§Ã£o *</label>
+                        <label for="descricao">Descrição *</label>
                         <input type="text" id="descricao" required placeholder="Descreva a conta...">
                     </div>
                     <div class="form-group">
@@ -566,7 +566,7 @@
                         <input type="number" id="valor" required step="0.01" min="0" placeholder="0,00">
                     </div>
                     <div class="form-group">
-                        <label for="data-emissao">Data de EmissÃ£o *</label>
+                        <label for="data-emissao">Data de Emissão *</label>
                         <input type="date" id="data-emissao" required>
                     </div>
                     <div class="form-group">
@@ -578,7 +578,7 @@
                         <select id="categoria" required>
                             <option value="">Selecione...</option>
                             <option value="vendas">Vendas</option>
-                            <option value="servicos">ServiÃ§os</option>
+                            <option value="servicos">Serviços</option>
                             <option value="aluguel">Aluguel</option>
                             <option value="consultoria">Consultoria</option>
                             <option value="outro">Outro</option>
@@ -596,14 +596,14 @@
                             <option value="">Selecione...</option>
                             <option value="dinheiro">Dinheiro//option>
                             <option value="cheque">Cheque</option>
-                            <option value="transferencia">TransferÃªncia</option>
-                            <option value="cartao">CartÃ£o</option>
+                            <option value="transferencia">Transferência</option>
+                            <option value="cartao">Cartão</option>
                             <option value="boleto">Boleto</option>
                         </select>
                     </div>
                     <div class="form-group full">
-                        <label for="observacoes">ObservaÃ§Ãµes</label>
-                        <input type="text" id="observacoes" placeholder="ObservaÃ§Ãµes adicionais...">
+                        <label for="observacoes">Observações</label>
+                        <input type="text" id="observacoes" placeholder="Observações adicionais...">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -641,14 +641,14 @@
                             <option value="">Selecione...</option>
                             <option value="dinheiro">Dinheiro</option>
                             <option value="cheque">Cheque</option>
-                            <option value="transferencia">TransferÃªncia</option>
-                            <option value="cartao">CartÃ£o</option>
+                            <option value="transferencia">Transferência</option>
+                            <option value="cartao">Cartão</option>
                             <option value="boleto">Boleto</option>
                         </select>
                     </div>
                     <div class="form-group full">
-                        <label for="rec-observacoes">ObservaÃ§Ãµes</label>
-                        <input type="text" id="rec-observacoes" placeholder="ObservaÃ§Ãµes do recebimento...">
+                        <label for="rec-observacoes">Observações</label>
+                        <input type="text" id="rec-observacoes" placeholder="Observações do recebimento...">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -660,7 +660,7 @@
     </div>
 
     <script type="module">
-        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
 
@@ -672,16 +672,13 @@
         async function init() {
             try {
                 const session = await getSession();
-                if (!session || !session.user) {
-                    window.location.href = './login.html';
-                    return;
-                }
+                if (!session || !session.user) { window.location.href = './login.html'; return; }
                 currentUser = session.user;
                 await loadDados();
                 setupEventListeners();
                 await fetchContas();
             } catch (error) {
-                console.error('Erro na inicializaÃ§Ã£o:', error);
+                console.error('Erro na inicialização:', error);
                 window.location.href = './login.html';
             }
         }
@@ -768,7 +765,7 @@
             const tbody = document.getElementById('tabela-body');
 
             if (contas.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">ð­</div>Nenhuma conta encontrada</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📭</div>Nenhuma conta encontrada</td></tr>';
                 return;
             }
 
@@ -995,11 +992,9 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
-
-        // Expose functions to inline onclick handlers
-        window.deleteConta = deleteConta;
-        window.openModalEditar = openModalEditar;
         window.openModalRecebimento = openModalRecebimento;
+        window.openModalEditar = openModalEditar;
+        window.deleteConta = deleteConta;
 
         init();
     </script>

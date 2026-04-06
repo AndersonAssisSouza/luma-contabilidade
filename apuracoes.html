@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ApuraÃÂ§ÃÂµes Fiscais - LUMA Contabilidade</title>
+    <title>Apurações Fiscais - LUMA Contabilidade</title>
     <style>
         * {
             margin: 0;
@@ -395,23 +395,23 @@
             </div>
             <nav>
                 <div class="nav-item" onclick="navigateTo('dashboard.html')">
-                    <span class="nav-icon">Ã°ÂÂÂ</span>
+                    <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
                 </div>
                 <div class="nav-item active" onclick="navigateTo('apuracoes.html')">
-                    <span class="nav-icon">Ã°ÂÂÂ</span>
-                    <span>ApuraÃÂ§ÃÂµes Fiscais</span>
+                    <span class="nav-icon">📈</span>
+                    <span>Apurações Fiscais</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('calendario_fiscal.html')">
-                    <span class="nav-icon">Ã°ÂÂÂ</span>
-                    <span>CalendÃÂ¡rio Fiscal</span>
+                    <span class="nav-icon">📅</span>
+                    <span>Calendário Fiscal</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('plano_contas.html')">
-                    <span class="nav-icon">Ã°ÂÂÂ</span>
+                    <span class="nav-icon">📋</span>
                     <span>Plano de Contas</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('empresas.html')">
-                    <span class="nav-icon">Ã°ÂÂÂ¢</span>
+                    <span class="nav-icon">🏢</span>
                     <span>Empresas</span>
                 </div>
             </nav>
@@ -421,12 +421,12 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
-                <h1 class="page-title">ApuraÃÂ§ÃÂµes Fiscais</h1>
+                <h1 class="page-title">Apurações Fiscais</h1>
             </div>
 
             <div class="filter-section">
                 <div class="filter-group">
-                    <label>PerÃÂ­odo</label>
+                    <label>Período</label>
                     <select id="filterPeriodo">
                         <option value="">Todos</option>
                         <option value="2026-01">Jan-Mar 2026</option>
@@ -457,23 +457,23 @@
 
             <!-- Historical Table -->
             <div class="table-section">
-                <h2 class="table-title">HistÃÂ³rico de ApuraÃÂ§ÃÂµes</h2>
+                <h2 class="table-title">Histórico de Apurações</h2>
                 <table id="apuracoesTable">
                     <thead>
                         <tr>
-                            <th>PerÃÂ­odo</th>
+                            <th>Período</th>
                             <th>Imposto</th>
                             <th>Receita Bruta</th>
-                            <th>Base de CÃÂ¡lculo</th>
-                            <th>AlÃÂ­quota</th>
+                            <th>Base de Cálculo</th>
+                            <th>Alíquota</th>
                             <th>Valor Imposto</th>
-                            <th>RetenÃÂ§ÃÂµes</th>
+                            <th>Retenções</th>
                             <th>Valor Devido</th>
                             <th>Status DARF</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="9" class="text-center loading">Carregando histÃÂ³rico...</td></tr>
+                        <tr><td colspan="9" class="text-center loading">Carregando histórico...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -486,11 +486,11 @@
                         <button class="close-btn" onclick="closeDarfModal()">&times;</button>
                     </div>
                     <div id="darfContent" style="font-size: 14px; line-height: 1.6;">
-                        <p><strong>CÃÂ³digo de Receita:</strong> <span id="darfCodigo"></span></p>
+                        <p><strong>Código de Receita:</strong> <span id="darfCodigo"></span></p>
                         <p><strong>Valor:</strong> R$ <span id="darfValor"></span></p>
                         <p><strong>Vencimento:</strong> <span id="darfVencimento"></span></p>
                         <p style="color: #999; font-size: 12px; margin-top: 15px;">
-                            Ã¢ÂÂ¹Ã¯Â¸Â Funcionalidade de download de DARF integrada com Receita Federal disponÃÂ­vel em breve.
+                            ℹ️ Funcionalidade de download de DARF integrada com Receita Federal disponível em breve.
                         </p>
                     </div>
                 </div>
@@ -507,10 +507,7 @@
 
         async function initPage() {
             const session = await getSession();
-                if (!session || !session.user) {
-                    window.location.href = './login.html';
-                    return;
-                }
+                if (!session || !session.user) { window.location.href = './login.html'; return; }
                 currentUser = session.user;
             loadApuracoes();
         }
@@ -536,7 +533,7 @@
                         receita_bruta: 500000,
                         base_calculo: 160000, // 32% de Lucro Presumido
                         aliquota: 0.15,
-                        retenÃÂ§ÃÂµes: 5000,
+                        retenções: 5000,
                         status: 'Pendente'
                     },
                     csll: {
@@ -544,7 +541,7 @@
                         receita_bruta: 500000,
                         base_calculo: 120000, // 24% de Lucro Presumido
                         aliquota: 0.09,
-                        retenÃÂ§ÃÂµes: 3000,
+                        retenções: 3000,
                         status: 'Pendente'
                     },
                     pis: {
@@ -552,7 +549,7 @@
                         receita_bruta: 500000,
                         base_calculo: 500000,
                         aliquota: 0.0065,
-                        retenÃÂ§ÃÂµes: 1000,
+                        retenções: 1000,
                         status: 'Entregue'
                     },
                     cofins: {
@@ -560,7 +557,7 @@
                         receita_bruta: 500000,
                         base_calculo: 500000,
                         aliquota: 0.03,
-                        retenÃÂ§ÃÂµes: 2000,
+                        retenções: 2000,
                         status: 'Pendente'
                     },
                     iss: {
@@ -568,7 +565,7 @@
                         receita_bruta: 150000,
                         base_calculo: 150000,
                         aliquota: 0.05,
-                        retenÃÂ§ÃÂµes: 0,
+                        retenções: 0,
                         status: 'Entregue'
                     }
                 };
@@ -576,7 +573,7 @@
                 renderTaxCards();
                 loadHistoricalApuracoes();
             } catch (error) {
-                showMessage('Erro ao carregar apuraÃÂ§ÃÂµes: ' + error.message, 'error');
+                showMessage('Erro ao carregar apurações: ' + error.message, 'error');
             }
         }
 
@@ -586,7 +583,7 @@
 
             Object.entries(currentTaxCards).forEach(([key, tax]) => {
                 const valor_imposto = (tax.base_calculo * tax.aliquota).toFixed(2);
-                const valor_devido = (valor_imposto - tax.retenÃÂ§ÃÂµes).toFixed(2);
+                const valor_devido = (valor_imposto - tax.retenções).toFixed(2);
 
                 const statusClass = tax.status === 'Entregue'
                     ? 'status-ok'
@@ -614,11 +611,11 @@
                         <span class="tax-value">R$ ${tax.receita_bruta.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
                     </div>
                     <div class="tax-row">
-                        <span class="tax-label">Base de CÃÂ¡lculo</span>
+                        <span class="tax-label">Base de Cálculo</span>
                         <span class="tax-value">R$ ${tax.base_calculo.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
                     </div>
                     <div class="tax-row">
-                        <span class="tax-label">AlÃÂ­quota</span>
+                        <span class="tax-label">Alíquota</span>
                         <span class="tax-value">${(tax.aliquota * 100).toFixed(2)}%</span>
                     </div>
                     <div class="tax-row">
@@ -627,8 +624,8 @@
                     </div>
                     ${adicionalInfo}
                     <div class="tax-row">
-                        <span class="tax-label">RetenÃÂ§ÃÂµes</span>
-                        <span class="tax-value">R$ ${tax.retenÃÂ§ÃÂµes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                        <span class="tax-label">Retenções</span>
+                        <span class="tax-value">R$ ${tax.retenções.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
                     </div>
                     <div class="tax-row" style="border-bottom: none; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px;">
                         <span class="tax-label" style="font-weight: bold;">Valor Devido</span>
@@ -646,12 +643,12 @@
         async function calcularApuracao(taxKey) {
             const tax = currentTaxCards[taxKey];
             const valor = (tax.base_calculo * tax.aliquota).toFixed(2);
-            showMessage(`ApuraÃÂ§ÃÂ£o de ${tax.nome} calculada: R$ ${valor}`, 'success');
+            showMessage(`Apuração de ${tax.nome} calculada: R$ ${valor}`, 'success');
         }
 
         function gerarDarf(taxKey) {
             const tax = currentTaxCards[taxKey];
-            const valor = (tax.base_calculo * tax.aliquota - tax.retenÃÂ§ÃÂµes).toFixed(2);
+            const valor = (tax.base_calculo * tax.aliquota - tax.retenções).toFixed(2);
 
             // Map tax key to DARF receipt code
             const codigoMap = {
@@ -686,7 +683,7 @@
                     base_calculo: 153600,
                     aliquota: 0.15,
                     valor_imposto: 23040,
-                    retenÃÂ§ÃÂµes: 4500,
+                    retenções: 4500,
                     valor_devido: 18540,
                     status_darf: 'Entregue'
                 },
@@ -697,7 +694,7 @@
                     base_calculo: 115200,
                     aliquota: 0.09,
                     valor_imposto: 10368,
-                    retenÃÂ§ÃÂµes: 2000,
+                    retenções: 2000,
                     valor_devido: 8368,
                     status_darf: 'Entregue'
                 },
@@ -708,7 +705,7 @@
                     base_calculo: 450000,
                     aliquota: 0.0065,
                     valor_imposto: 2925,
-                    retenÃÂ§ÃÂµes: 500,
+                    retenções: 500,
                     valor_devido: 2425,
                     status_darf: 'Entregue'
                 }
@@ -723,7 +720,7 @@
                     <td>R$ ${row.base_calculo.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                     <td>${(row.aliquota * 100).toFixed(2)}%</td>
                     <td>R$ ${row.valor_imposto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td>R$ ${row.retenÃÂ§ÃÂµes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td>R$ ${row.retenções.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                     <td><strong>R$ ${row.valor_devido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</strong></td>
                     <td><span class="tax-status status-ok">${row.status_darf}</span></td>
                 `;

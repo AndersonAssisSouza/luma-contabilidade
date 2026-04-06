@@ -697,10 +697,7 @@
         async function init() {
             try {
                 const session = await getSession();
-                if (!session || !session.user) {
-                    window.location.href = './login.html';
-                    return;
-                }
+                if (!session || !session.user) { window.location.href = './login.html'; return; }
                 currentUser = session.user;
                 initializeDateControls();
                 loadDREData();
