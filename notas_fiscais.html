@@ -579,15 +579,15 @@
 
             <div class="summary-cards">
                 <div class="card">
-                    <div class="card-title">Total Entradas (MÃªs)</div>
+                    <div class="card-title">Total Entradas (Mês)</div>
                     <div class="card-value" id="totalEntradas">R$ 0,00</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">Total SaÃ­das (Mpì®às)</div>
+                    <div class="card-title">Total Saídas (Mpì®às)</div>
                     <div class="card-value" id="totalSaidas">R$ 0,00</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">RetenÃ§Ãµes do MÃªs</div>
+                    <div class="card-title">Retenções do Mês</div>
                     <div class="card-value" id="totalRetencoes">R$ 0,00</div>
                 </div>
             </div>
@@ -597,7 +597,7 @@
                     <select id="filterTipo">
                         <option value="">Todos os Tipos</option>
                         <option value="Entrada">Entrada</option>
-                        <option value="SaÃ­da">SaÃ­da</option>
+                        <option value="Saída">Saída</option>
                     </select>
                     <select id="filterModelo">
                         <option value="">Todos os Modelos</option>
@@ -606,10 +606,10 @@
                         <option value="Manual">Manual</option>
                     </select>
                     <select id="filterPeriodo">
-                        <option value="">Todos os PerÃ­odos</option>
+                        <option value="">Todos os Períodos</option>
                         <option value="hoje">Hoje</option>
                         <option value="semana">Esta Semana</option>
-                        <option value="mes">Este MÃªs</option>
+                        <option value="mes">Este Mês</option>
                         <option value="trimestre">Este Trimestre</option>
                     </select>
                     <select id="filterStatus">
@@ -626,12 +626,12 @@
                     <thead>
                         <tr>
                             <th>Tipo</th>
-                            <th>NÃºmero</th>
-                            <th>Emitente/DestinatÃ¡rio</th>
+                            <th>Número</th>
+                            <th>Emitente/Destinatário</th>
                             <th>Valor Total</th>
-                            <th>Data EmissÃ£o</th>
+                            <th>Data Emissão</th>
                             <th>Status</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="notasBody">
@@ -653,31 +653,31 @@
                     <div class="type-toggle">
                         <input type="radio" id="tipoEntrada" name="tipoNF" value="Entrada" checked>
                         <label for="tipoEntrada">Entrada</label>
-                        <input type="radio" id="tipoSaida" name="tipoNF" value="SaÃ­da">
-                        <label for="tipoSaida">SaÃ­da</label>
+                        <input type="radio" id="tipoSaida" name="tipoNF" value="Saída">
+                        <label for="tipoSaida">Saída</label>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>InformaÃ§Ãµes BÃ¡sicas</h3>
+                    <h3>Informações Básicas</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="modelo">Modelo *</label>
                             <select id="modelo" required>
                                 <option value="">Selecione</option>
-                                <option value="NFe">NFe (EletrÃ´nica)</option>
-                                <option value="NFSe">NFSe (ServiÃ§o)</option>
+                                <option value="NFe">NFe (Eletrônica)</option>
+                                <option value="NFSe">NFSe (Serviço)</option>
                                 <option value="Manual">Manual</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="numero">NÃºmero da NF *</label>
+                            <label for="numero">Número da NF *</label>
                             <input type="text" id="numero" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="serie">SÃ©rie</label>
+                            <label for="serie">Série</label>
                             <input type="text" id="serie">
                         </div>
                         <div class="form-group">
@@ -711,7 +711,7 @@
                             <input type="number" id="valorProdutos" step="0.01" value="0.00">
                         </div>
                         <div class="form-group">
-                            <label for="valorServicos">Valor ServiÃ§os</label>
+                            <label for="valorServicos">Valor Serviços</label>
                             <input type="number" id="valorServicos" step="0.01" value="0.00">
                         </div>
                     </div>
@@ -758,7 +758,7 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>RetenÃ§Ãµes</h3>
+                    <h3>Retenções</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="irrf">IRRF (R$)</label>
@@ -770,7 +770,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="outraRetencao">Outra RetenÃ§Ã£o (R$)</label>
+                        <label for="outraRetencao">Outra Retenção (R$)</label>
                         <input type="number" id="outraRetencao" step="0.01" value="0.00">
                     </div>
                 </div>
@@ -779,20 +779,20 @@
                     <h3>Datas</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="dataEmissao">Data de EmissÃ£o *</label>
+                            <label for="dataEmissao">Data de Emissão *</label>
                             <input type="date" id="dataEmissao" required>
                         </div>
                         <div class="form-group">
-                            <label for="dataCompetencia">Data de CompetÃªncia</label>
+                            <label for="dataCompetencia">Data de Competência</label>
                             <input type="date" id="dataCompetencia">
                         </div>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>ObservaÃ§Ãµes</h3>
+                    <h3>Observações</h3>
                     <div class="form-group">
-                        <label for="observacoes">ObservaÃ§Ãµes</label>
+                        <label for="observacoes">Observações</label>
                         <textarea id="observacoes" placeholder="Notas sobre a NF..."></textarea>
                     </div>
                 </div>
@@ -936,7 +936,7 @@
                 new Date(n.data_emissao).getFullYear() === currentMonth.getFullYear()
             );
             const saidas = notas.filter(n =>
-                n.tipo === 'SaÃ­da' &&
+                n.tipo === 'Saída' &&
                 new Date(n.data_emissao).getMonth() === currentMonth.getMonth() &&
                 new Date(n.data_emissao).getFullYear() === currentMonth.getFullYear()
             );
@@ -1060,7 +1060,7 @@
                             <div class="detail-value">${data.tipo}</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">NÃºmero</div>
+                            <div class="detail-label">Número</div>
                             <div class="detail-value">${data.numero}${data.serie ? '/' + data.serie : ''}</div>
                         </div>
                     </div>
@@ -1076,11 +1076,11 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-item">
-                            <div class="detail-label">Data EmissÃ£o</div>
+                            <div class="detail-label">Data Emissão</div>
                             <div class="detail-value">${new Date(data.data_emissao).toLocaleDateString('pt-BR')}</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Data CompetÃªncia</div>
+                            <div class="detail-label">Data Competência</div>
                             <div class="detail-value">${data.data_competencia ? new Date(data.data_competencia).toLocaleDateString('pt-BR') : '-'}</div>
                         </div>
                    </div>
@@ -1115,7 +1115,7 @@
                             <div class="detail-value">${formatCurrency(data.cofins || 0)}</div>
                         </div>
                     </div>
-                    <h3 style="margin-top: 20px; color: #1a237e; font-size: 14px; font-weight: 600;">RetenÃ§Ãµes</h3>
+                    <h3 style="margin-top: 20px; color: #1a237e; font-size: 14px; font-weight: 600;">Retenções</h3>
                     <div class="detail-row">
                         <div class="detail-item">
                             <div class="detail-label">IRRF</div>
@@ -1126,7 +1126,7 @@
                             <div class="detail-value">${formatCurrency(data.inss || 0)}</div>
                         </div>
                     </div>
-                    ${data.observacoes ? `<div style="margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;"><strong>ObservaÃ§Ãµes:</strong><br>${data.observacoes}</div>` : ''}
+                    ${data.observacoes ? `<div style="margin-top: 15px; padding: 10px; background: #f9f9f9; border-radius: 4px;"><strong>Observações:</strong><br>${data.observacoes}</div>` : ''}
                 `;
 
                 document.getElementById('detailContent').innerHTML = html;
@@ -1156,7 +1156,7 @@
             const numero = document.getElementById('numero').value;
 
             if (!numero) {
-                showToast('NÃºmero da NF Ã© obrigatÃ³rio', 'error');
+                showToast('Número da NF é obrigatório', 'error');
                 return;
             }
 
@@ -1166,7 +1166,7 @@
                 numero,
                 serie: document.getElementById('serie').value,
                 categoria: document.getElementById('categoria').value,
-                cliente_id: tipo === 'SaÃ­da' ? document.getElementById('clienteFornecedor').value : null,
+                cliente_id: tipo === 'Saída' ? document.getElementById('clienteFornecedor').value : null,
                 fornecedor_id: tipo === 'Entrada' ? document.getElementById('clienteFornecedor').value : null,
                 centro_custo: document.getElementById('centroCusto').value,
                 valor_produtos: parseFloat(document.getElementById('valorProdutos').value),
@@ -1225,7 +1225,7 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('NF excluÃ­da com sucesso', 'success');
+                showToast('NF excluída com sucesso', 'success');
                 await loadNotas();
             } catch (error) {
                 console.error('Erro ao excluir NF:', error);
