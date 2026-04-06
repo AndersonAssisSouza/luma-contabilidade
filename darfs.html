@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARFs - LUMA Contabilidade</title>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333;}
+        .container {display: flex; min-height: 100vh;}
+        .sidebar {width: 250px; background: #1a237e; color: white; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); position: fixed; height: 100vh; overflow-y: auto;}
+        .sidebar .logo {font-size: 20px; font-weight: 700; margin-bottom: 40px; display: flex; align-items: center; gap: 8px;}
+        .sidebar nav {display: flex; flex-direction: column; gap: 10px;}
+        .sidebar a, .sidebar button {display: block; padding: 12px 16px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 14px; transition: all 0.2s; text-align: left; width: 100%;}
+        .sidebar a:hover, .sidebar button:hover {background: rgba(255,255,255,0.1); color: white;}
+        .sidebar a.active {background: rgba(255,255,255,0.2); color: white; font-weight: 600;}
+        .main {flex: 1; margin-left: 250px; padding: 30px;}
+        .header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;}
+        .header h1 {font-size: 28px; color: #1a237e;}
+        .filter-section {background: white; padding: 20px; border-radius: 4px; margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end;}
+        .filter-group {flex: 1;}
+        .filter-group label {display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; color: #333;}
+        .filter-group select {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;}
+        .btn {padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s; font-weight: 500;}
+        .btn-primary {background: #1a237e; color: white;}
+        .btn-primary:hover {background: #0d1653;}
+        .table-container {background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;}
+        table {width: 100%; border-collapse: collapse;}
+        thead {background: #f5f7fa; border-bottom: 2px solid #e0e0e0;}
+        th {padding: 15px; text-align: left; font-weight: 600; color: #1a237e; font-size: 13px;}
+        td {padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 13px;}
+        tbody tr:hover {background: #fafafa;}
+        .status {display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;}
+        .status-pendente {background: #fff3e0; color: #e65100;}
+        .status-gerado {background: #e1f5fe; color: #01579b;}
+        .status-pago {background: #e8f5e9; color: #2e7d32;}
+        .empty-state {text-align: center; padding: 40px; color: #999;}
+        .toast {position: fixed; bottom: 20px; right: 20px; padding: 15px 20px; background: #323232; color: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 2000; animation: slideIn 0.3s ease-out;}
+        .toast.error {background: #c62828;}
+        @keyframes slideIn {from {transform: translateX(400px); opacity: 0;} to {transform: translateX(0); opacity: 1;}}
+        .loading {display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3000;}
+        .loading.active {display: block;}
+        .spinner {border: 4px solid #f3f3f3; border-top: 4px solid #1a237e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;}
+        @keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
+        @media (max-width: 768px) {.sidebar {width: 100%; height: auto; position: relative;} .main {margin-left: 0; padding: 20px;} .container {flex-direction: column;} .filter-section {flex-direction: column;}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">ð LUMA</div>
+            <nav>
+                <a href="./dashboard.html">ð Dashboard</a>
+                <a href="./calendario_fiscal.html">ð CalendÃ¡rio Fiscal</a>
+                <a href="./contas_pagar.html">ð³ Contas a Pagar</a>
+                <a href="./contas_receber.html">ð° Contas a Receber</a>
+                <a href="./conciliacao.html">ð¦ ConciliaÃ§Ã£o</a>
+                <a href="./fluxo_caixa.html">ð Fluxo de Caixa</a>
+                <a href="./lancamentos.html">ð LanÃ§amentos</a>
+                <a href="./plano_contas.html">ð Plano de Contas</a>
+                <a href="./balancete.html">ð Balancete</a>
+                <a href="./dre.html">ð DRE</a>
+                <a href="./apuracoes.html">ð§® ApuraÃ§Ãµes</a>
+                <a href="./retencoes.html">ð¡ï¸ RetenÃ§Ãµes</a>
+                <a href="./darfs.html" class="active">ð DARFs</a>
+                <a href="./obrigacoes.html">â ObrigaÃ§Ãµes</a>
+                <a href="./clientes.html">ð¥ Clientes</a>
+                <a href="./fornecedores.html">ð­ Fornecedores</a>
+                <a href="./notas_fiscais.html">ð§¾ Notas Fiscais</a>
+                <a href="./pedidos_venda.html">ð Pedidos de Venda</a>
+                <a href="./produtos_servicos.html">ð¦ Produtos/ServiÃ§os</a>
+                <a href="./categorias.html">ð·ï¸ Categorias</a>
+                <a href="./centros_custo.html">ð¼ Centros de Custo</a>
+                <a href="./contas_bancarias.html">ð¦ Contas BancÃ¡rias</a>
+                <a href="./usuarios.html">ð¤ UsuÃ¡rios</a>
+                <a href="./configuracoes.html">âï¸ ConfiguraÃ§Ãµes</a>
+                <button onclick="handleLogout()">ðª Sair</button>
+            </nav>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <h1>DARFs</h1>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label>Filtrar por Status</label>
+                    <select id="statusFilter" onchange="filterDarfs()">
+                        <option value="">Todos</option>
+                        <option value="PENDENTE">Pendente</option>
+                        <option value="GERADO">Gerado</option>
+                        <option value="PAGO">Pago</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="darfsTable">
+                    <thead>
+                        <tr>
+                            <th>CÃ³digo Receita</th>
+                            <th>PerÃ­odo ApuraÃ§Ã£o</th>
+                            <th>Valor Principal</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="darfsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script type="module">
+        import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
+
+        let currentUser = null;
+        let allDarfs = [];
+
+        function showToast(message, type = 'error') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('pt-BR');
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        async function loadDarfs() {
+            try {
+                showLoading(true);
+                const { data, error } = await supabase
+                    .from('apuracoes')
+                    .select('*')
+                    .order('data_periodo', { ascending: false });
+
+                if (error) throw error;
+
+                allDarfs = (data || []).map(ap => ({
+                    id: ap.id,
+                    codigoReceita: '6100',
+                    periodoApuracao: ap.data_periodo,
+                    valorPrincipal: ap.valor_total || 0,
+                    vencimento: ap.data_vencimento || new Date(),
+                    status: ap.status || 'PENDENTE'
+                }));
+
+                renderDarfs(allDarfs);
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao carregar DARFs', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderDarfs(darfs) {
+            const tbody = document.getElementById('darfsBody');
+            if (darfs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Nenhum DARF disponÃ­vel</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = darfs.map(darf => `
+                <tr>
+                    <td>${darf.codigoReceita}</td>
+                    <td>${formatDate(darf.periodoApuracao)}</td>
+                    <td>${formatCurrency(darf.valorPrincipal)}</td>
+                    <td>${formatDate(darf.vencimento)}</td>
+                    <td><span class="status status-${darf.status.toLowerCase()}">
+                        ${darf.status}
+                    </span></td>
+                </tr>
+            `).join('');
+        }
+
+        function filterDarfs() {
+            const status = document.getElementById('statusFilter').value;
+            const filtered = status ? allDarfs.filter(d => d.status === status) : allDarfs;
+            renderDarfs(filtered);
+        }
+
+        async function handleLogout() {
+            await logout();
+            window.location.href = './login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await getSession();
+            if (!session?.user) window.location.href = './login.html';
+            currentUser = session.user;
+            await loadDarfs();
+        });
+    </script>
+</body>
+</html>
