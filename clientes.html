@@ -984,7 +984,7 @@
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            const auth = const session = await getSession();
+            const session = await getSession();
                 if (!session || !session.user) {
                     window.location.href = './login.html';
                     return;

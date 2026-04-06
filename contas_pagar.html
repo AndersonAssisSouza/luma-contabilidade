@@ -748,8 +748,7 @@
 
         async function fetchContas() {
             try {
-                const response = await db
-                    .from('contas_pagar')
+                const response = await supabase.from('contas_pagar')
                     .select('*, fornecedores(nome)')
                     .order('data_vencimento', { ascending: false });
 
@@ -1027,11 +1026,6 @@
                 toast.style.animation = 'slideOut 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
-        }
-
-        function logout() {
-            localStorage.removeItem('auth_token');
-            window.location.href = './login.html';
         }
 
         // Expose functions to inline onclick handlers
