@@ -690,7 +690,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth, getLancamentos, createLancamento, estornarLancamento, getPlanoContas, getContasAnaliticas } from './scripts/supabase_client_contab.js';
+        import { supabase, getLancamentos, createLancamento, estornarLancamento, getPlanoContas, getContasAnaliticas, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let lancamentos = [];
         let lancamentosOriginal = [];
@@ -701,7 +701,12 @@
 
         async function init() {
             try {
-                await requireAuth();
+                const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
                 await loadDados();
                 setupEventListeners();
                 await fetchLancamentos();
@@ -1028,6 +1033,10 @@
             localStorage.removeItem('auth_token');
             window.location.href = './login.html';
         }
+
+        // Expose functions to inline onclick handlers
+        window.estornarLancamento = estornarLancamento;
+        window.openModalEditar = openModalEditar;
 
         init();
     </script>

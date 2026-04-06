@@ -596,14 +596,19 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo } from './scripts/supabase_client_contab.js';
+        import { supabase, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let accounts = [];
         let expandedRows = new Set();
         let currentEditId = null;
 
         async function initPage() {
-            await requireAuth();
+            const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
             loadAccounts();
         }
 

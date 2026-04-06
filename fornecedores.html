@@ -648,7 +648,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let currentFornecedorId = null;
 
@@ -903,7 +903,7 @@
             const cpfCnpj = document.getElementById('cpfCnpj').value;
 
             if (tipo === 'PF' && !validateCPF(cpfCnpj)) {
-                showToast('CPF in{álido', 'error');
+                showToast('CPF inválido', 'error');
                 return;
             }
             if (tipo === 'PJ' && !validateCNPJ(cpfCnpj)) {
@@ -984,14 +984,24 @@
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            const auth = await requireAuth();
+            const auth = const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
             await auth.logout();
             window.location.href = 'login.html';
         });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await requireAuth();
+            const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
             await loadFornecedores();
         });
     </script>

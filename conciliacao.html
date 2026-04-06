@@ -574,7 +574,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
         let bankData = null;
@@ -895,8 +895,12 @@
         // Initialize
         async function init() {
             try {
-                await requireAuth();
-                currentUser = (await supabase.auth.getUser()).data.user;
+                const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
             } catch (error) {
                 showMessage('Erro de autenticação: ' + error.message, 'error');
                 window.location.href = './login.html';

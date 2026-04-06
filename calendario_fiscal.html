@@ -703,14 +703,19 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let currentDate = new Date(2026, 2, 27); // March 27, 2026
         let obligations = [];
         let currentView = 'calendar';
 
         async function initPage() {
-            await requireAuth();
+            const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
             loadObligations();
             renderCalendar();
         }

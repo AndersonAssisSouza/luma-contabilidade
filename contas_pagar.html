@@ -517,7 +517,7 @@
                         <option value="">Todos</option>
                         <option value="pendente">Pendente</option>
                         <option value="pago">Pago</option>
-                        <option value="vencido">Vencido"</option>
+                        <option value="vencido">Vencido</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -682,7 +682,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let contas = [];
         let contaAtualId = null;
@@ -692,7 +692,12 @@
 
         async function init() {
             try {
-                await requireAuth();
+                const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
                 await loadDados();
                 setupEventListeners();
                 await fetchContas();
@@ -706,7 +711,7 @@
             try {
                 const [fornecedoresData, ccData, cbData] = await Promise.all([
                     supabase.from('fornecedores').select('id, nome').order('nome'),
-                    supabase.from('centros_custo').select('id, nome').order(''nome'),
+                    supabase.from('centros_custo').select('id, nome').order('nome'),
                     supabase.from('contas_bancarias').select('id, numero').order('numero')
                 ]);
 
@@ -831,7 +836,7 @@
             contas.forEach(conta => {
                 const status = getStatus(conta);
 
-                if (status === 'vencido") {
+                if (status === 'vencido') {
                     totalVencido += conta.valor;
                 } else if (status !== 'pago') {
                     totalPendente += conta.valor;
@@ -1028,6 +1033,11 @@
             localStorage.removeItem('auth_token');
             window.location.href = './login.html';
         }
+
+        // Expose functions to inline onclick handlers
+        window.deleteConta = deleteConta;
+        window.openModalEditar = openModalEditar;
+        window.openModalPagamento = openModalPagamento;
 
         init();
     </script>

@@ -660,7 +660,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let contas = [];
         let contaAtualId = null;
@@ -669,7 +669,12 @@
 
         async function init() {
             try {
-                await requireAuth();
+                const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
                 await loadDados();
                 setupEventListeners();
                 await fetchContas();
@@ -994,6 +999,11 @@
             localStorage.removeItem('auth_token');
             window.location.href = './login.html';
         }
+
+        // Expose functions to inline onclick handlers
+        window.deleteConta = deleteConta;
+        window.openModalEditar = openModalEditar;
+        window.openModalRecebimento = openModalRecebimento;
 
         init();
     </script>

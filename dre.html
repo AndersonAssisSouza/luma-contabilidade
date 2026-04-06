@@ -481,7 +481,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         // Initialize
         let currentUser = null;
@@ -696,8 +696,12 @@
         // Initialize
         async function init() {
             try {
-                await requireAuth();
-                currentUser = (await supabase.auth.getUser()).data.user;
+                const session = await getSession();
+                if (!session || !session.user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+                currentUser = session.user;
                 initializeDateControls();
                 loadDREData();
             } catch (error) {

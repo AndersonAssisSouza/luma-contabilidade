@@ -788,12 +788,10 @@
   </div>
 
   <script type="module">
-    import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+    import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
     // Auth guard - only master role can access settings
-    requireAuth(['master']).catch(() => {
-      window.location.href = './dashboard.html';
-    });
+    // Auth check handled in init()
 
     let currentUser = null;
     let currentTenant = null;

@@ -823,7 +823,7 @@
     </div>
 
     <script type="module">
-        import { supabase, requireAuth } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
 
         let currentNFId = null;
 
@@ -1265,13 +1265,18 @@
         }
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await window.requireAuth().logout();
+            await logout();
             window.location.href = 'login.html';
         });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await window.requireAuth();
+            const session = await getSession();
+            if (!session || !session.user) {
+                window.location.href = './login.html';
+                return;
+            }
+            currentUser = session.user;
             await loadNotas();
         });
     </script>
