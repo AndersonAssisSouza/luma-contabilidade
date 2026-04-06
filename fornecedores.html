@@ -459,7 +459,7 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <div class="logo">📊 LUMA</div>
+            <div class="logo">ð LUMA</div>
             <nav>
                 <a href="dashboard.html">Dashboard</a>
                 <a href="clientes.html">Clientes</a>
@@ -473,7 +473,7 @@
             <div class="header">
                 <h1>Fornecedores</h1>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" id="exportBtn">📥 Exportar</button>
+                    <button class="btn btn-secondary" id="exportBtn">ð¥ Exportar</button>
                     <button class="btn btn-primary" id="newFornecedorBtn">+ Novo Fornecedor</button>
                 </div>
             </div>
@@ -492,7 +492,7 @@
                             <th>Telefone</th>
                             <th>Cidade/UF</th>
                             <th>Status</th>
-                            <th>Ações</th>
+                            <th>AÃ§Ãµes</th>
                         </tr>
                     </thead>
                     <tbody id="fornecedoresBody">
@@ -513,14 +513,14 @@
                     <h3>Tipo de Pessoa</h3>
                     <div class="type-toggle">
                         <input type="radio" id="tipoPF" name="tipoPessoa" value="PF" checked>
-                        <label for="tipoPF">Pessoa Física</label>
+                        <label for="tipoPF">Pessoa FÃ­sica</label>
                         <input type="radio" id="tipoPJ" name="tipoPessoa" value="PJ">
-                        <label for="tipoPJ">Pessoa Jurídica</label>
+                        <label for="tipoPJ">Pessoa JurÃ­dica</label>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h3>Informações Básicas</h3>
+                    <h3>InformaÃ§Ãµes BÃ¡sicas</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nome">Nome Completo *</label>
@@ -537,12 +537,12 @@
                             <input type="text" id="cpfCnpj" placeholder="000.000.000-00" required>
                         </div>
                         <div class="form-group">
-                            <label for="inscricaoEst">Inscrição Estadual</label>
+                            <label for="inscricaoEst">InscriÃ§Ã£o Estadual</label>
                             <input type="text" id="inscricaoEst">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="inscricaoMun">Inscrição Municipal</label>
+                        <label for="inscricaoMun">InscriÃ§Ã£o Municipal</label>
                         <input type="text" id="inscricaoMun">
                     </div>
                 </div>
@@ -562,14 +562,14 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>Endereço</h3>
+                    <h3>EndereÃ§o</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="logradouro">Logradouro *</label>
                             <input type="text" id="logradouro" required>
                         </div>
                         <div class="form-group">
-                            <label for="numero">Número *</label>
+                            <label for="numero">NÃºmero *</label>
                             <input type="text" id="numero" required>
                         </div>
                     </div>
@@ -629,9 +629,9 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>Observações</h3>
+                    <h3>ObservaÃ§Ãµes</h3>
                     <div class="form-group">
-                        <label for="observacoes">Observações</label>
+                        <label for="observacoes">ObservaÃ§Ãµes</label>
                         <textarea id="observacoes" placeholder="Notas sobre o fornecedor..."></textarea>
                     </div>
                 </div>
@@ -649,6 +649,8 @@
 
     <script type="module">
         import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+
+        let currentUser = null;
 
         let currentFornecedorId = null;
 
@@ -793,8 +795,8 @@
                     </span></td>
                     <td>
                         <div class="action-cell">
-                            <button class="btn btn-sm btn-secondary" onclick="editFornecedor(${fornecedor.id})">✏️</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${fornecedor.id})">🗑️</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editFornecedor(${fornecedor.id})">âï¸</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${fornecedor.id})">ðï¸</button>
                         </div>
                     </td>
                 </tr>
@@ -903,11 +905,11 @@
             const cpfCnpj = document.getElementById('cpfCnpj').value;
 
             if (tipo === 'PF' && !validateCPF(cpfCnpj)) {
-                showToast('CPF inválido', 'error');
+                showToast('CPF invÃ¡lido', 'error');
                 return;
             }
             if (tipo === 'PJ' && !validateCNPJ(cpfCnpj)) {
-                showToast('CNPJ inválido', 'error');
+                showToast('CNPJ invÃ¡lido', 'error');
                 return;
             }
 
@@ -969,7 +971,7 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('Fornecedor excluído com sucesso', 'success');
+                showToast('Fornecedor excluÃ­do com sucesso', 'success');
                 await loadFornecedores();
             } catch (error) {
                 console.error('Erro ao excluir fornecedor:', error);
@@ -980,7 +982,7 @@
         }
 
         document.getElementById('exportBtn').addEventListener('click', () => {
-            showToast('Funcionalidade de exportação em desenvolvimento', 'success');
+            showToast('Funcionalidade de exportaÃ§Ã£o em desenvolvimento', 'success');
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lançamentos Contábeis - LUMA Contabilidade</title>
+    <title>LanÃ§amentos ContÃ¡beis - LUMA Contabilidade</title>
     <style>
         * {
             margin: 0;
@@ -522,31 +522,31 @@
                 <li><a href="./dashboard.html">Dashboard</a></li>
                 <li><a href="./contas_pagar.html">Contas a Pagar</a></li>
                 <li><a href="./contas_receber.html">Contas a Receber</a></li>
-                <li><a href="./lancamentos.html" class="active">Lançamentos</a></li>
+                <li><a href="./lancamentos.html" class="active">LanÃ§amentos</a></li>
                 <li><a href="./plano_contas.html">Plano de Contas</a></li>
                 <li><a href="./centros_custo.html">Centros de Custo</a></li>
-                <li><a href="./relatorios.html">Relatórios</a></li>
+                <li><a href="./relatorios.html">RelatÃ³rios</a></li>
                 <li><a href="#" id="logout-link">Sair</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
             <div class="header">
-                <h1>Lançamentos Contábeis</h1>
-                <button class="btn btn-primary" id="novo-btn">+ Novo Lançamento</button>
+                <h1>LanÃ§amentos ContÃ¡beis</h1>
+                <button class="btn btn-primary" id="novo-btn">+ Novo LanÃ§amento</button>
             </div>
 
             <div class="summary">
                 <div class="summary-card">
-                    <div class="summary-card-label">Total de Lançamentos</div>
+                    <div class="summary-card-label">Total de LanÃ§amentos</div>
                     <div class="summary-card-value" id="total-lancamentos">0</div>
                 </div>
                 <div class="summary-card success">
-                    <div class="summary-card-label">Total Débitos</div>
+                    <div class="summary-card-label">Total DÃ©bitos</div>
                     <div class="summary-card-value" id="total-debitos">R$ 0,00</div>
                 </div>
                 <div class="summary-card danger">
-                    <div class="summary-card-label">Total Créditos</div>
+                    <div class="summary-card-label">Total CrÃ©ditos</div>
                     <div class="summary-card-value" id="total-creditos">R$ 0,00</div>
                 </div>
             </div>
@@ -557,7 +557,7 @@
                     <select id="filter-tipo">
                         <option value="">Todos</option>
                         <option value="manual">Manual</option>
-                        <option value="automatico">Automático</option>
+                        <option value="automatico">AutomÃ¡tico</option>
                         <option value="folha">Folha</option>
                         <option value="fiscal">Fiscal</option>
                     </select>
@@ -587,15 +587,15 @@
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Nº</th>
-                            <th>Conta Débito</th>
-                            <th>Débito</th>
-                            <th>Conta Crédito</th>
-                            <th>Crédito</th>
-                            <th>Histórico</th>
+                            <th>NÂº</th>
+                            <th>Conta DÃ©bito</th>
+                            <th>DÃ©bito</th>
+                            <th>Conta CrÃ©dito</th>
+                            <th>CrÃ©dito</th>
+                            <th>HistÃ³rico</th>
                             <th>Tipo</th>
                             <th>Status</th>
-                            <th>Ações</th>
+                            <th>AÃ§Ãµes</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-body">
@@ -610,15 +610,15 @@
 
     <div class="modal" id="modal-lancamento">
         <div class="modal-content">
-            <div class="modal-header" id="modal-titulo">Novo Lançamento Contábil</div>
+            <div class="modal-header" id="modal-titulo">Novo LanÃ§amento ContÃ¡bil</div>
             <form id="form-lancamento">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="data-lancamento">Data do Lançamento *</label>
+                        <label for="data-lancamento">Data do LanÃ§amento *</label>
                         <input type="date" id="data-lancamento" required>
                     </div>
                     <div class="form-group">
-                        <label for="data-competencia">Data da Competência *</label>
+                        <label for="data-competencia">Data da CompetÃªncia *</label>
                         <input type="date" id="data-competencia" required>
                     </div>
                     <div class="form-group">
@@ -626,7 +626,7 @@
                         <select id="tipo-lancamento" required>
                             <option value="">Selecione...</option>
                             <option value="manual">Manual</option>
-                            <option value="automatico">Automático</option>
+                            <option value="automatico">AutomÃ¡tico</option>
                             <option value="folha">Folha</option>
                             <option value="fiscal">Fiscal</option>
                         </select>
@@ -643,9 +643,9 @@
                     </div>
 
                     <div class="account-group full">
-                        <div class="account-group-title">Débito (Conta que recebe)</div>
+                        <div class="account-group-title">DÃ©bito (Conta que recebe)</div>
                         <div class="form-group">
-                            <label for="conta-debito">Conta Débito *</label>
+                            <label for="conta-debito">Conta DÃ©bito *</label>
                             <select id="conta-debito" required>
                                 <option value="">Selecione...</option>
                             </select>
@@ -654,9 +654,9 @@
                     </div>
 
                     <div class="account-group full">
-                        <div class="account-group-title">Crédito (Conta que fornece)</div>
+                        <div class="account-group-title">CrÃ©dito (Conta que fornece)</div>
                         <div class="form-group">
-                            <label for="conta-credito">Conta Crédito *</label>
+                            <label for="conta-credito">Conta CrÃ©dito *</label>
                             <select id="conta-credito" required>
                                 <option value="">Selecione...</option>
                             </select>
@@ -670,8 +670,8 @@
                     </div>
 
                     <div class="form-group full">
-                        <label for="historico">Histórico / Descrição *</label>
-                        <input type="text" id="historico" required placeholder="Descreva o lançamento...">
+                        <label for="historico">HistÃ³rico / DescriÃ§Ã£o *</label>
+                        <input type="text" id="historico" required placeholder="Descreva o lanÃ§amento...">
                     </div>
 
                     <div class="form-group">
@@ -683,7 +683,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn close-btn" id="modal-fechar">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Lançamento</button>
+                    <button type="submit" class="btn btn-primary">Salvar LanÃ§amento</button>
                 </div>
             </form>
         </div>
@@ -691,6 +691,8 @@
 
     <script type="module">
         import { supabase, getLancamentos, createLancamento, estornarLancamento, getPlanoContas, getContasAnaliticas, getSession, logout } from './scripts/supabase_client_contab.js';
+
+        let currentUser = null;
 
         let lancamentos = [];
         let lancamentosOriginal = [];
@@ -711,7 +713,7 @@
                 setupEventListeners();
                 await fetchLancamentos();
             } catch (error) {
-                console.error('Erro na inicialização:', error);
+                console.error('Erro na inicializaÃ§Ã£o:', error);
                 window.location.href = './login.html';
             }
         }
@@ -770,8 +772,8 @@
                 renderTabela();
                 updateSummary();
             } catch (error) {
-                console.error('Erro ao buscar lançamentos:', error);
-                showToast('Erro ao carregar lançamentos', 'error');
+                console.error('Erro ao buscar lanÃ§amentos:', error);
+                showToast('Erro ao carregar lanÃ§amentos', 'error');
             }
         }
 
@@ -785,7 +787,7 @@
         function getTipoBadge(tipo) {
             const tipoMap = {
                 'manual': 'Manual',
-                'automatico': 'Automático',
+                'automatico': 'AutomÃ¡tico',
                 'folha': 'Folha',
                 'fiscal': 'Fiscal'
             };
@@ -807,7 +809,7 @@
             const tbody = document.getElementById('tabela-body');
 
             if (lancamentos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><div class="empty-state-icon">📭</div>Nenhum lançamento encontrado</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="empty-state"><div class="empty-state-icon">ð­</div>Nenhum lanÃ§amento encontrado</td></tr>';
                 return;
             }
 
@@ -877,14 +879,14 @@
             creditoError.textContent = '';
 
             if (debitoId && creditoId && debitoId === creditoId) {
-                debitoError.textContent = 'Débito e crédito devem ser em contas diferentes';
-                creditoError.textContent = 'Débito e crédito devem ser em contas diferentes';
+                debitoError.textContent = 'DÃ©bito e crÃ©dito devem ser em contas diferentes';
+                creditoError.textContent = 'DÃ©bito e crÃ©dito devem ser em contas diferentes';
             }
         }
 
         function openModalNova() {
             lancamentoAtualId = null;
-            document.getElementById('modal-titulo').textContent = 'Novo Lançamento Contábil';
+            document.getElementById('modal-titulo').textContent = 'Novo LanÃ§amento ContÃ¡bil';
             document.getElementById('form-lancamento').reset();
             document.getElementById('modal-lancamento').classList.add('active');
             document.getElementById('data-lancamento').valueAsDate = new Date();
@@ -898,7 +900,7 @@
             if (!lance) return;
 
             lancamentoAtualId = id;
-            document.getElementById('modal-titulo').textContent = 'Editar Lançamento Contábil';
+            document.getElementById('modal-titulo').textContent = 'Editar LanÃ§amento ContÃ¡bil';
             document.getElementById('data-lancamento').value = lance.data_lancamento;
             document.getElementById('data-competencia').value = lance.data_competencia;
             document.getElementById('tipo-lancamento').value = lance.tipo;
@@ -919,7 +921,7 @@
             const creditoId = document.getElementById('conta-credito').value;
 
             if (debitoId === creditoId) {
-                showToast('Débito e crédito devem ser em contas diferentes', 'error');
+                showToast('DÃ©bito e crÃ©dito devem ser em contas diferentes', 'error');
                 return;
             }
 
@@ -939,22 +941,22 @@
             try {
                 if (lancamentoAtualId) {
                     await supabase.from('lancamentos_contabeis').update(dados).eq('id', lancamentoAtualId);
-                    showToast('Lançamento atualizado com sucesso!');
+                    showToast('LanÃ§amento atualizado com sucesso!');
                 } else {
                     dados.numero = numeroSequencia++;
                     await supabase.from('lancamentos_contabeis').insert([dados]);
-                    showToast('Lançamento criado com sucesso!');
+                    showToast('LanÃ§amento criado com sucesso!');
                 }
                 closeModal();
                 await fetchLancamentos();
             } catch (error) {
-                console.error('Erro ao salvar lançamento:', error);
-                showToast('Erro ao salvar lançamento', 'error');
+                console.error('Erro ao salvar lanÃ§amento:', error);
+                showToast('Erro ao salvar lanÃ§amento', 'error');
             }
         }
 
         async function estornarLancamento(id) {
-            if (!confirm('Tem certeza que deseja estornar este lançamento? Esta ação criará um lançamento de reversão.')) return;
+            if (!confirm('Tem certeza que deseja estornar este lanÃ§amento? Esta aÃ§Ã£o criarÃ¡ um lanÃ§amento de reversÃ£o.')) return;
 
             try {
                 const lance = lancamentos.find(l => l.id === id);
@@ -977,11 +979,11 @@
                 };
 
                 await supabase.from('lancamentos_contabeis').insert([reversao]);
-                showToast('Lançamento estornado e reversão criada com sucesso!');
+                showToast('LanÃ§amento estornado e reversÃ£o criada com sucesso!');
                 await fetchLancamentos();
             } catch (error) {
-                console.error('Erro ao estornar lançamento:', error);
-                showToast('Erro ao estornar lançamento', 'error');
+                console.error('Erro ao estornar lanÃ§amento:', error);
+                showToast('Erro ao estornar lanÃ§amento', 'error');
             }
         }
 
@@ -1027,11 +1029,6 @@
                 toast.style.animation = 'slideOut 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
-        }
-
-        function logout() {
-            localStorage.removeItem('auth_token');
-            window.location.href = './login.html';
         }
 
         // Expose functions to inline onclick handlers

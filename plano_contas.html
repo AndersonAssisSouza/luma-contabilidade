@@ -449,23 +449,23 @@
             </div>
             <nav>
                 <div class="nav-item" onclick="navigateTo('dashboard.html')">
-                    <span class="nav-icon">📊</span>
+                    <span class="nav-icon">ð</span>
                     <span>Dashboard</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('apuracoes.html')">
-                    <span class="nav-icon">📈</span>
-                    <span>Apurações Fiscais</span>
+                    <span class="nav-icon">ð</span>
+                    <span>ApuraÃ§Ãµes Fiscais</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('calendario_fiscal.html')">
-                    <span class="nav-icon">📅</span>
-                    <span>Calendário Fiscal</span>
+                    <span class="nav-icon">ð</span>
+                    <span>CalendÃ¡rio Fiscal</span>
                 </div>
                 <div class="nav-item active" onclick="navigateTo('plano_contas.html')">
-                    <span class="nav-icon">📋</span>
+                    <span class="nav-icon">ð</span>
                     <span>Plano de Contas</span>
                 </div>
                 <div class="nav-item" onclick="navigateTo('empresas.html')">
-                    <span class="nav-icon">🏢</span>
+                    <span class="nav-icon">ð¢</span>
                     <span>Empresas</span>
                 </div>
             </nav>
@@ -488,11 +488,11 @@
                         <option value="PASSIVO">Passivo</option>
                         <option value="RECEITA">Receita</option>
                         <option value="DESPESA">Despesa</option>
-                        <option value="PL">Patrimônio Líquido</option>
+                        <option value="PL">PatrimÃ´nio LÃ­quido</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Buscar por Descrição</label>
+                    <label>Buscar por DescriÃ§Ã£o</label>
                     <input type="text" id="filterDescricao" placeholder="Digite para filtrar...">
                 </div>
             </div>
@@ -504,14 +504,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 150px;">Código</th>
-                            <th style="flex: 1;">Descrição</th>
+                            <th style="width: 150px;">CÃ³digo</th>
+                            <th style="flex: 1;">DescriÃ§Ã£o</th>
                             <th style="width: 120px;">Tipo</th>
                             <th style="width: 100px;">Natureza</th>
-                            <th style="width: 80px;">Nível</th>
-                            <th style="width: 100px;">Lançamento</th>
+                            <th style="width: 80px;">NÃ­vel</th>
+                            <th style="width: 100px;">LanÃ§amento</th>
                             <th style="width: 80px;">Status</th>
-                            <th style="width: 120px;">Ações</th>
+                            <th style="width: 120px;">AÃ§Ãµes</th>
                         </tr>
                     </thead>
                     <tbody id="accountsTableBody">
@@ -530,7 +530,7 @@
                     <form onsubmit="saveAccount(event)">
                         <div class="form-group-inline">
                             <div class="form-group">
-                                <label>Código da Conta *</label>
+                                <label>CÃ³digo da Conta *</label>
                                 <input type="text" id="accountCodigo" placeholder="Ex: 1.1.1.01" required>
                             </div>
                             <div class="form-group">
@@ -541,13 +541,13 @@
                                     <option value="PASSIVO">Passivo</option>
                                     <option value="RECEITA">Receita</option>
                                     <option value="DESPESA">Despesa</option>
-                                    <option value="PL">Patrimônio Líquido</option>
+                                    <option value="PL">PatrimÃ´nio LÃ­quido</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Descrição da Conta *</label>
+                            <label>DescriÃ§Ã£o da Conta *</label>
                             <input type="text" id="accountDescricao" placeholder="Ex: Caixa Geral" required>
                         </div>
 
@@ -560,7 +560,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Nível *</label>
+                                <label>NÃ­vel *</label>
                                 <select id="accountNivel" required>
                                     <option value="">Selecione...</option>
                                     <option value="1">Grupo</option>
@@ -581,7 +581,7 @@
                         <div class="form-group">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="accountAceitaLancamento" checked>
-                                <label for="accountAceitaLancamento" style="margin: 0; font-weight: 400;">Aceita Lançamento Direto</label>
+                                <label for="accountAceitaLancamento" style="margin: 0; font-weight: 400;">Aceita LanÃ§amento Direto</label>
                             </div>
                         </div>
 
@@ -597,6 +597,8 @@
 
     <script type="module">
         import { supabase, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo, getSession, logout } from './scripts/supabase_client_contab.js';
+
+        let currentUser = null;
 
         let accounts = [];
         let expandedRows = new Set();
@@ -684,7 +686,7 @@
                     {
                         id: 6,
                         codigo: '1.1.2',
-                        descricao: 'Créditos',
+                        descricao: 'CrÃ©ditos',
                         tipo: 'ATIVO',
                         natureza: 'DEVEDORA',
                         nivel: 3,
@@ -729,7 +731,7 @@
                     {
                         id: 10,
                         codigo: '2.1.1',
-                        descricao: 'Obrigações com Pessoal',
+                        descricao: 'ObrigaÃ§Ãµes com Pessoal',
                         tipo: 'PASSIVO',
                         natureza: 'CREDORA',
                         nivel: 3,
@@ -740,7 +742,7 @@
                     {
                         id: 11,
                         codigo: '2.1.1.01',
-                        descricao: 'Salários a Pagar',
+                        descricao: 'SalÃ¡rios a Pagar',
                         tipo: 'PASSIVO',
                         natureza: 'CREDORA',
                         nivel: 4,
@@ -819,7 +821,7 @@
                     {
                         id: 18,
                         codigo: '4.1.1.01',
-                        descricao: 'Salários',
+                        descricao: 'SalÃ¡rios',
                         tipo: 'DESPESA',
                         natureza: 'DEVEDORA',
                         nivel: 4,
@@ -827,11 +829,11 @@
                         aceita_lancamento: true,
                         status: 'ativo'
                     },
-                    // PATRIMÔNIO LÍQUIDO
+                    // PATRIMÃNIO LÃQUIDO
                     {
                         id: 19,
                         codigo: '5',
-                        descricao: 'PATRIMÔNIO LÍQUIDO',
+                        descricao: 'PATRIMÃNIO LÃQUIDO',
                         tipo: 'PL',
                         natureza: 'CREDORA',
                         nivel: 1,
@@ -886,7 +888,7 @@
                 let toggleHtml = '';
                 if (hasChildren) {
                     const isExpanded = expandedRows.has(account.id);
-                    toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? '▼' : '▶'}</div>`;
+                    toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'â¼' : 'â¶'}</div>`;
                 } else {
                     toggleHtml = '<div class="tree-toggle empty"></div>';
                 }
@@ -906,7 +908,7 @@
                     </td>
                     <td>${account.natureza}</td>
                     <td>${account.nivel}</td>
-                    <td>${account.aceita_lancamento ? '✓ Sim' : 'Não'}</td>
+                    <td>${account.aceita_lancamento ? 'â Sim' : 'NÃ£o'}</td>
                     <td><span class="${statusClass}">${account.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
                     <td class="row-actions">
                         <button class="btn btn-small btn-secondary" onclick="openEditAccountModal(${account.id})">Editar</button>
@@ -936,7 +938,7 @@
             let toggleHtml = '';
             if (hasChildren) {
                 const isExpanded = expandedRows.has(account.id);
-                toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? '▼' : '▶'}</div>`;
+                toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'â¼' : 'â¶'}</div>`;
             } else {
                 toggleHtml = '<div class="tree-toggle empty"></div>';
             }
@@ -956,7 +958,7 @@
                 </td>
                 <td>${account.natureza}</td>
                 <td>${account.nivel}</td>
-                <td>${account.aceita_lancamento ? '✓ Sim' : 'Não'}</td>
+                <td>${account.aceita_lancamento ? 'â Sim' : 'NÃ£o'}</td>
                 <td><span class="${statusClass}">${account.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
                 <td class="row-actions">
                     <button class="btn btn-small btn-secondary" onclick="openEditAccountModal(${account.id})">Editar</button>
