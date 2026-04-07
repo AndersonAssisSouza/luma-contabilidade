@@ -840,15 +840,15 @@
 
     function loadCompanyData() {
       if (currentTenant) {
-        document.getElementById('tenantName').value = currentTenant.name || '';
+        document.getElementById('tenantName').value = currentTenant.nome || '';
         document.getElementById('tenantCNPJ').value = currentTenant.cnpj || '';
-        document.getElementById('tenantEmail').value = currentTenant.email || '';
-        document.getElementById('tenantPhone').value = currentTenant.phone || '';
-        document.getElementById('tenantAddress').value = currentTenant.address || '';
-        document.getElementById('tenantCity').value = currentTenant.city || '';
-        document.getElementById('tenantState').value = currentTenant.state || '';
-        document.getElementById('tenantZip').value = currentTenant.zip || '';
-        document.getElementById('tenantWebsite').value = currentTenant.website || '';
+        document.getElementById('tenantEmail').value = currentTenant.email_admin || '';
+        document.getElementById('tenantPhone').value = currentTenant.telefone || '';
+        document.getElementById('tenantAddress').value = currentTenant.endereco_logradouro || '';
+        document.getElementById('tenantCity').value = currentTenant.endereco_cidade || '';
+        document.getElementById('tenantState').value = currentTenant.endereco_uf || '';
+        document.getElementById('tenantZip').value = currentTenant.endereco_cep || '';
+        document.getElementById('tenantWebsite').value = (currentTenant.config && currentTenant.config.website) || '';
       }
     }
 
@@ -950,15 +950,15 @@
         const { error } = await supabase
           .from('tenants')
           .update({
-            name: document.getElementById('tenantName').value,
+            nome: document.getElementById('tenantName').value,
             cnpj: document.getElementById('tenantCNPJ').value,
-            email: document.getElementById('tenantEmail').value,
-            phone: document.getElementById('tenantPhone').value,
-            address: document.getElementById('tenantAddress').value,
-            city: document.getElementById('tenantCity').value,
-            state: document.getElementById('tenantState').value,
-            zip: document.getElementById('tenantZip').value,
-            website: document.getElementById('tenantWebsite').value,
+            email_admin: document.getElementById('tenantEmail').value,
+            telefone: document.getElementById('tenantPhone').value,
+            endereco_logradouro: document.getElementById('tenantAddress').value,
+            endereco_cidade: document.getElementById('tenantCity').value,
+            endereco_uf: document.getElementById('tenantState').value,
+            endereco_cep: document.getElementById('tenantZip').value,
+            config: Object.assign({}, (currentTenant.config || {}), { website: document.getElementById('tenantWebsite').value }),
           })
           .eq('id', currentTenant.id);
 
