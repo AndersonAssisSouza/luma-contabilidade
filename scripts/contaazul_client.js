@@ -72,8 +72,21 @@ export async function contaAzulAuthorize(empresaId) {
 export async function contaAzulCallback(empresaId, code) {
   try {
     if (!empresaId || !code) throw new Error('empresaId and code are required');
-    // callback usa POST porque a Edge Function lê de req.json()
-    return await invokeEdgeFunctionPost('contaazul-auth', { action: 'callback', empresa_id: empresaId, code });
+    // callback usa híbrido: action como query param + code/empresa_id no POST body
+    // Edge Function lê action de url.searchParams e dados de req.json()
+    const url = `${SUPABASE_FUNCTIONS_URL}/contaazul-auth?action=callback`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code, empresa_id: empresaId })
+    });
+    const data = await response.json();
+    if (!response.ok) return { data: null, error: data };
+    return { data, error: null };
   } catch (error) {
     console.error('contaAzulCallback error:', error);
     return { data: null, error };
