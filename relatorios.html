@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Relatórios - LUMA Contabilidade</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
+        .sidebar nav { display: flex; flex-direction: column; gap: 10px; }
+        .sidebar a, .sidebar button { display: block; padding: 12px 16px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 14px; text-align: left; width: 100%; }
+        .sidebar a:hover, .sidebar button:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+        .main { flex: 1; margin-left: 250px; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; color: #1a237e; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; font-weight: 500; }
+        .btn-primary { background: #1a237e; color: white; }
+        .btn-primary:hover { background: #0d1653; }
+        .filter-section { background: white; padding: 20px; border-radius: 4px; margin-bottom: 30px; display: flex; gap: 15px; align-items: flex-end; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex-wrap: wrap; }
+        .filter-group { flex: 1; min-width: 150px; }
+        .filter-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; }
+        .filter-group select, .filter-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .company-info { padding: 12px 16px; background: #f5f7fa; border-radius: 4px; font-size: 13px; color: #666; }
+        .reports-section { margin-bottom: 40px; }
+        .section-title { font-size: 18px; font-weight: 600; color: #1a237e; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .section-title-icon { font-size: 24px; }
+        .reports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .report-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 12px; }
+        .report-card:hover { box-shadow: 0 4px 16px rgba(26,35,126,0.2); transform: translateY(-2px); }
+        .report-card-icon { font-size: 32px; }
+        .report-card-title { font-size: 16px; font-weight: 600; color: #1a237e; }
+        .report-card-description { font-size: 13px; color: #666; line-height: 1.5; }
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 15px 20px; color: white; border-radius: 4px; z-index: 2000; }
+        .toast.error { background: #c62828; }
+        .toast.success { background: #4caf50; }
+        .loading { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 3000; }
+        .loading.active { display: block; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1a237e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+        @media(max-width:768px) { .sidebar{width:100%;height:auto;position:relative} .main{margin-left:0;padding:20px} .container{flex-direction:column} .reports-grid{grid-template-columns:1fr} }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <div class="logo">📊 LUMA</div>
+        <nav>
+            <a href="./dashboard.html">📊 Dashboard</a>
+            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+            <a href="./relatorios.html" class="active">📈 Relatórios</a>
+            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+            <a href="./contas_receber.html">💰 Contas a Receber</a>
+            <a href="./conciliacao.html">🏦 Conciliação</a>
+            <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
+            <a href="./lancamentos.html">📝 Lançamentos</a>
+            <a href="./plano_contas.html">📑 Plano de Contas</a>
+            <a href="./balancete.html">📋 Balancete</a>
+            <a href="./dre.html">📊 DRE</a>
+            <a href="./apuracoes.html">🧮 Apurações</a>
+            <a href="./retencoes.html">🛡️ Retenções</a>
+            <a href="./darfs.html">📄 DARFs</a>
+            <a href="./obrigacoes.html">✓ Obrigações</a>
+            <a href="./clientes.html">👥 Clientes</a>
+            <a href="./fornecedores.html">🏭 Fornecedores</a>
+            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+            <a href="./categorias.html">🏷️ Categorias</a>
+            <a href="./centros_custo.html">💼 Centros de Custo</a>
+            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+            <a href="./usuarios.html">🤓 Usuários</a>
+            <a href="./configuracoes.html">⚙️ Configurações</a>
+            <button onclick="handleLogout()">🚪 Sair</button>
+        </nav>
+    </div>
+    <div class="main">
+        <div class="header"><h1>Central de Relatórios</h1></div>
+        <div class="filter-section">
+            <div class="filter-group">
+                <label>Período</label>
+                <select id="periodoSelect">
+                    <option value="mes">Mês Atual</option>
+                    <option value="trimestre">Trimestre</option>
+                    <option value="semestre">Semestre</option>
+                    <option value="ano">Ano</option>
+                    <option value="custom">Personalizado</option>
+                </select>
+            </div>
+            <div class="filter-group" id="dataCustomGroup" style="display:none"><label>Data Inicial</label><input type="date" id="dataInicio"></div>
+            <div class="filter-group" id="dataFimGroup" style="display:none"><label>Data Final</label><input type="date" id="dataFim"></div>
+            <div class="company-info"><strong>Empresa:</strong> <span id="empresaNome">LUMA Contabilidade</span></div>
+            <div><button class="btn btn-primary" id="exportBtn">📥 Exportar</button></div>
+        </div>
+        <div class="reports-section">
+            <div class="section-title"><span class="section-title-icon">📚</span> Relatórios Contábeis</div>
+            <div class="reports-grid">
+                <a href="./balancete.html" class="report-card"><div class="report-card-icon">📋</div><div class="report-card-title">Balancete</div><div class="report-card-description">Demonstração de todos os saldos das contas do período</div></a>
+                <a href="./dre.html" class="report-card"><div class="report-card-icon">📊</div><div class="report-card-title">DRE</div><div class="report-card-description">Demonstração do Resultado do Exercício</div></a>
+                <a href="./plano_contas.html" class="report-card"><div class="report-card-icon">📑</div><div class="report-card-title">Plano de Contas</div><div class="report-card-description">Estrutura completa da hierarquia de contas</div></a>
+            </div>
+        </div>
+        <div class="reports-section">
+            <div class="section-title"><span class="section-title-icon">💰</span> Relatórios Financeiros</div>
+            <div class="reports-grid">
+                <a href="./fluxo_caixa.html" class="report-card"><div class="report-card-icon">📈</div><div class="report-card-title">Fluxo de Caixa</div><div class="report-card-description">Projeção e análise de entradas e saídas de caixa</div></a>
+                <a href="./contas_pagar.html" class="report-card"><div class="report-card-icon">💳</div><div class="report-card-title">Contas a Pagar</div><div class="report-card-description">Acompanhamento de obrigações financeiras a vencer</div></a>
+                <a href="./contas_receber.html" class="report-card"><div class="report-card-icon">💰</div><div class="report-card-title">Contas a Receber</div><div class="report-card-description">Controle de créditos a receber de clientes</div></a>
+                <a href="./conciliacao.html" class="report-card"><div class="report-card-icon">🏦</div><div class="report-card-title">Conciliação Bancária</div><div class="report-card-description">Verificação de concordância entre saldos</div></a>
+            </div>
+        </div>
+        <div class="reports-section">
+            <div class="section-title"><span class="section-title-icon">🧮</span> Relatórios Fiscais</div>
+            <div class="reports-grid">
+                <a href="./apuracoes.html" class="report-card"><div class="report-card-icon">🧮</div><div class="report-card-title">Apurações de Impostos</div><div class="report-card-description">Cálculo e controle de impostos devidos</div></a>
+                <a href="./retencoes.html" class="report-card"><div class="report-card-icon">🛡️</div><div class="report-card-title">Retenções</div><div class="report-card-description">Registro de impostos retidos na fonte</div></a>
+                <a href="./darfs.html" class="report-card"><div class="report-card-icon">📄</div><div class="report-card-title">DARFs</div><div class="report-card-description">Documento de Arrecadação de Receita Federal</div></a>
+                <a href="./obrigacoes.html" class="report-card"><div class="report-card-icon">✓</div><div class="report-card-title">Obrigações Acessórias</div><div class="report-card-description">Prazos e status de obrigações fiscais</div></a>
+            </div>
+        </div>
+        <div class="reports-section">
+            <div class="section-title"><span class="section-title-icon">🛒</span> Relatórios Comerciais</div>
+            <div class="reports-grid">
+                <a href="./clientes.html" class="report-card"><div class="report-card-icon">👥</div><div class="report-card-title">Clientes</div><div class="report-card-description">Cadastro e análise de carteira de clientes</div></a>
+                <a href="./fornecedores.html" class="report-card"><div class="report-card-icon">🏭</div><div class="report-card-title">Fornecedores</div><div class="report-card-description">Gestão de relacionamento com fornecedores</div></a>
+                <a href="./notas_fiscais.html" class="report-card"><div class="report-card-icon">🧾</div><div class="report-card-title">Notas Fiscais</div><div class="report-card-description">Emissão e acompanhamento de documentos fiscais</div></a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loading" id="loading"><div class="spinner"></div></div>
+<script type="module">
+import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
+let currentUser = null;
+function showToast(m,t='error'){const e=document.createElement('div');e.className='toast '+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
+function getDateRange(p){const d=new Date(),y=d.getFullYear(),m=d.getMonth();let s,e;switch(p){case'mes':s=new Date(y,m,1);e=new Date(y,m+1,0);break;case'trimestre':{const t=Math.floor(m/3)*3;s=new Date(y,t,1);e=new Date(y,t+3,0);break}case'semestre':{const t=Math.floor(m/6)*6;s=new Date(y,t,1);e=new Date(y,t+6,0);break}case'ano':s=new Date(y,0,1);e=new Date(y,11,31);break;default:s=new Date(y,m,1);e=new Date(y,m+1,0)}return{start:s.toISOString().split('T')[0],end:e.toISOString().split('T')[0]}}
+function updateDateFields(){const p=document.getElementById('periodoSelect').value;const c=document.getElementById('dataCustomGroup');const f=document.getElementById('dataFimGroup');if(p==='custom'){c.style.display='flex';f.style.display='flex'}else{c.style.display='none';f.style.display='none';const r=getDateRange(p);document.getElementById('dataInicio').value=r.start;document.getElementById('dataFim').value=r.end}}
+document.getElementById('periodoSelect').addEventListener('change',updateDateFields);
+document.getElementById('exportBtn').addEventListener('click',()=>{const di=document.getElementById('dataInicio').value;const df=document.getElementById('dataFim').value;if(!di||!df){showToast('Selecione o período antes de exportar');return}showToast('Exportação iniciada.','success')});
+window.handleLogout=async function(){await logout();window.location.href='./login.html'};
+document.addEventListener('DOMContentLoaded',async()=>{const session=await getSession();if(!session?.user){window.location.href='./login.html';return}currentUser=session.user;try{const profile=await getProfile();if(profile?.empresa_nome){document.getElementById('empresaNome').textContent=profile.empresa_nome}}catch(e){console.error('Erro:',e)}updateDateFields()});
+</script>
+</body>
+  </html>
