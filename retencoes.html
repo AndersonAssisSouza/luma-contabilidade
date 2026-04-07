@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RetenÃ§Ãµes - LUMA Contabilidade</title>
+    <title>Retenções - LUMA Contabilidade</title>
     <style>
         * {
             margin: 0;
@@ -434,41 +434,41 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <div class="logo">ð LUMA</div>
+            <div class="logo">📊 LUMA</div>
             <nav>
-                <a href="./dashboard.html">ð Dashboard</a>
-                <a href="./calendario_fiscal.html">ð CalendÃ¡rio Fiscal</a>
-                <a href="./contas_pagar.html">ð³ Contas a Pagar</a>
-                <a href="./contas_receber.html">ð° Contas a Receber</a>
-                <a href="./conciliacao.html">ð¦ ConciliaÃ§Ã£o</a>
-                <a href="./fluxo_caixa.html">ð Fluxo de Caixa</a>
-                <a href="./lancamentos.html">ð LanÃ§amentos</a>
-                <a href="./plano_contas.html">ð Plano de Contas</a>
-                <a href="./balancete.html">ð Balancete</a>
-                <a href="./dre.html">ð DRE</a>
-                <a href="./apuracoes.html">ð§® ApuraÃ§Ãµes</a>
-                <a href="./retencoes.html" class="active">ð¡ï¸ RetenÃ§Ãµes</a>
-                <a href="./darfs.html">ð DARFs</a>
-                <a href="./obrigacoes.html">â ObrigaÃ§Ãµes</a>
-                <a href="./clientes.html">ð¥ Clientes</a>
-                <a href="./fornecedores.html">ð­ Fornecedores</a>
-                <a href="./notas_fiscais.html">ð§¾ Notas Fiscais</a>
-                <a href="./pedidos_venda.html">ð Pedidos de Venda</a>
-                <a href="./produtos_servicos.html">ð¦ Produtos/ServiÃ§os</a>
-                <a href="./categorias.html">ð·ï¸ Categorias</a>
-                <a href="./centros_custo.html">ð¼ Centros de Custo</a>
-                <a href="./contas_bancarias.html">ð¦ Contas BancÃ¡rias</a>
-                <a href="./usuarios.html">ð¤ UsuÃ¡rios</a>
-                <a href="./configuracoes.html">âï¸ ConfiguraÃ§Ãµes</a>
-                <button onclick="handleLogout()">ðª Sair</button>
+                <a href="./dashboard.html">📊 Dashboard</a>
+                <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+                <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+                <a href="./contas_receber.html">💰 Contas a Receber</a>
+                <a href="./conciliacao.html">🏦 Conciliação</a>
+                <a href="./fluxo_caixa.html">📈 Fluxo de Caixa</a>
+                <a href="./lancamentos.html">📝 Lançamentos</a>
+                <a href="./plano_contas.html">📑 Plano de Contas</a>
+                <a href="./balancete.html">📋 Balancete</a>
+                <a href="./dre.html">📊 DRE</a>
+                <a href="./apuracoes.html">🧮 Apurações</a>
+                <a href="./retencoes.html" class="active">🛡️ Retenções</a>
+                <a href="./darfs.html">📄 DARFs</a>
+                <a href="./obrigacoes.html">✓ Obrigações</a>
+                <a href="./clientes.html">👥 Clientes</a>
+                <a href="./fornecedores.html">🏭 Fornecedores</a>
+                <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+                <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+                <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+                <a href="./categorias.html">🏷️ Categorias</a>
+                <a href="./centros_custo.html">💼 Centros de Custo</a>
+                <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+                <a href="./usuarios.html">👤 Usuários</a>
+                <a href="./configuracoes.html">⚙️ Configurações</a>
+                <button onclick="handleLogout()">🚪 Sair</button>
             </nav>
         </div>
 
         <div class="main">
             <div class="header">
-                <h1>RetenÃ§Ãµes</h1>
+                <h1>Retenções</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary" id="newRetencaoBtn">+ Nova RetenÃ§Ã£o</button>
+                    <button class="btn btn-primary" id="newRetencaoBtn">+ Nova Retenção</button>
                 </div>
             </div>
 
@@ -480,14 +480,14 @@
                 <table id="retencoeTable">
                     <thead>
                         <tr>
-                            <th>Tipo RetenÃ§Ã£o</th>
+                            <th>Tipo Retenção</th>
                             <th>Retido De</th>
-                            <th>Base CÃ¡lculo</th>
-                            <th>AlÃ­quota (%)</th>
+                            <th>Base Cálculo</th>
+                            <th>Alíquota (%)</th>
                             <th>Valor Retido</th>
-                            <th>CompetÃªncia</th>
+                            <th>Competência</th>
                             <th>Status</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="retencaoBody">
@@ -500,14 +500,14 @@
     <div class="modal" id="retencaoModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Nova RetenÃ§Ã£o</h2>
+                <h2 id="modalTitle">Nova Retenção</h2>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3>InformaÃ§Ãµes BÃ¡sicas</h3>
+                    <h3>Informações Básicas</h3>
                     <div class="form-group">
-                        <label for="tipoRetencao">Tipo RetenÃ§Ã£o *</label>
+                        <label for="tipoRetencao">Tipo Retenção *</label>
                         <select id="tipoRetencao" required>
                             <option value="">Selecione</option>
                             <option value="IRRF">IRRF</option>
@@ -524,14 +524,14 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>CÃ¡lculo</h3>
+                    <h3>Cálculo</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="baseCalculo">Base CÃ¡lculo *</label>
+                            <label for="baseCalculo">Base Cálculo *</label>
                             <input type="number" id="baseCalculo" step="0.01" required>
                         </div>
                         <div class="form-group">
-                            <label for="aliquota">AlÃ­quota (%) *</label>
+                            <label for="aliquota">Alíquota (%) *</label>
                             <input type="number" id="aliquota" step="0.01" required>
                         </div>
                     </div>
@@ -549,7 +549,7 @@
                             <input type="date" id="dataFatoGerador" required>
                         </div>
                         <div class="form-group">
-                            <label for="dataCompetencia">Data CompetÃªncia *</label>
+                            <label for="dataCompetencia">Data Competência *</label>
                             <input type="date" id="dataCompetencia" required>
                         </div>
                     </div>
@@ -559,7 +559,7 @@
                     <h3>Status</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="direcao">DireÃ§Ã£o *</label>
+                            <label for="direcao">Direção *</label>
                             <select id="direcao" required>
                                 <option value="">Selecione</option>
                                 <option value="SOFRIDA">Sofrida</option>
@@ -580,7 +580,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
-                <button class="btn btn-primary" id="saveBtn">Salvar RetenÃ§Ã£o</button>
+                <button class="btn btn-primary" id="saveBtn">Salvar Retenção</button>
             </div>
         </div>
     </div>
@@ -625,8 +625,8 @@
 
                 renderRetencoes(data || []);
             } catch (error) {
-                console.error('Erro ao carregar retenÃ§Ãµes:', error);
-                showToast('Erro ao carregar retenÃ§Ãµes', 'error');
+                console.error('Erro ao carregar retenções:', error);
+                showToast('Erro ao carregar retenções', 'error');
             } finally {
                 showLoading(false);
             }
@@ -635,7 +635,7 @@
         function renderRetencoes(retencoes) {
             const tbody = document.getElementById('retencaoBody');
             if (retencoes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>Nenhuma retenÃ§Ã£o cadastrada</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>Nenhuma retenção cadastrada</p></div></td></tr>';
                 return;
             }
 
@@ -652,8 +652,8 @@
                     </span></td>
                     <td>
                         <div class="action-cell">
-                            <button class="btn btn-sm btn-secondary" onclick="editRetencao(${ret.id})">âï¸</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteRetencao(${ret.id})">ðï¸</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editRetencao(${ret.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteRetencao(${ret.id})">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -689,7 +689,7 @@
 
         document.getElementById('newRetencaoBtn').addEventListener('click', () => {
             currentRetencaoId = null;
-            document.getElementById('modalTitle').textContent = 'Nova RetenÃ§Ã£o';
+            document.getElementById('modalTitle').textContent = 'Nova Retenção';
             document.getElementById('retencaoModal').classList.add('active');
             resetForm();
         });
@@ -731,7 +731,7 @@
                 if (error) throw error;
 
                 currentRetencaoId = id;
-                document.getElementById('modalTitle').textContent = 'Editar RetenÃ§Ã£o';
+                document.getElementById('modalTitle').textContent = 'Editar Retenção';
                 document.getElementById('tipoRetencao').value = data.tipo_retencao;
                 document.getElementById('retidoDe').value = data.retido_de;
                 document.getElementById('baseCalculo').value = data.base_calculo;
@@ -744,8 +744,8 @@
 
                 document.getElementById('retencaoModal').classList.add('active');
             } catch (error) {
-                console.error('Erro ao carregar retenÃ§Ã£o:', error);
-                showToast('Erro ao carregar retenÃ§Ã£o', 'error');
+                console.error('Erro ao carregar retenção:', error);
+                showToast('Erro ao carregar retenção', 'error');
             }
         }
 
@@ -770,27 +770,27 @@
                         .update(retencaoData)
                         .eq('id', currentRetencaoId);
                     if (error) throw error;
-                    showToast('RetenÃ§Ã£o atualizada com sucesso', 'success');
+                    showToast('Retenção atualizada com sucesso', 'success');
                 } else {
                     const { error } = await supabase
                         .from('retencoes')
                         .insert([retencaoData]);
                     if (error) throw error;
-                    showToast('RetenÃ§Ã£o criada com sucesso', 'success');
+                    showToast('Retenção criada com sucesso', 'success');
                 }
                 document.getElementById('retencaoModal').classList.remove('active');
                 resetForm();
                 await loadRetencoes();
             } catch (error) {
-                console.error('Erro ao salvar retenÃ§Ã£o:', error);
-                showToast('Erro ao salvar retenÃ§Ã£o', 'error');
+                console.error('Erro ao salvar retenção:', error);
+                showToast('Erro ao salvar retenção', 'error');
             } finally {
                 showLoading(false);
             }
         });
 
         async function deleteRetencao(id) {
-            if (!confirm('Tem certeza que deseja excluir esta retenÃ§Ã£o?')) return;
+            if (!confirm('Tem certeza que deseja excluir esta retenção?')) return;
 
             try {
                 showLoading(true);
@@ -800,11 +800,11 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('RetenÃ§Ã£o excluÃ­da com sucesso', 'success');
+                showToast('Retenção excluída com sucesso', 'success');
                 await loadRetencoes();
             } catch (error) {
-                console.error('Erro ao excluir retenÃ§Ã£o:', error);
-                showToast('Erro ao excluir retenÃ§Ã£o', 'error');
+                console.error('Erro ao excluir retenção:', error);
+                showToast('Erro ao excluir retenção', 'error');
             } finally {
                 showLoading(false);
             }
