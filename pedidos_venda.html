@@ -448,33 +448,33 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <div class="logo">ð LUMA</div>
+            <div class="logo">📊 LUMA</div>
             <nav>
-                <a href="./dashboard.html">ð Dashboard</a>
-                <a href="./calendario_fiscal.html">ð CalendÃ¡rio Fiscal</a>
-                <a href="./contas_pagar.html">ð³ Contas a Pagar</a>
-                <a href="./contas_receber.html">ð° Contas a Receber</a>
-                <a href="./conciliacao.html">ð¦ ConciliaÃ§Ã£o</a>
-                <a href="./fluxo_caixa.html">ð Fluxo de Caixa</a>
-                <a href="./lancamentos.html">ð LanÃ§amentos</a>
-                <a href="./plano_contas.html">ð Plano de Contas</a>
-                <a href="./balancete.html">ð Balancete</a>
-                <a href="./dre.html">ð DRE</a>
-                <a href="./apuracoes.html">ð§® ApuraÃ§Ãµes</a>
-                <a href="./retencoes.html">ð¡ï¸ RetenÃ§Ãµes</a>
-                <a href="./darfs.html">ð DARFs</a>
-                <a href="./obrigacoes.html">â ObrigaÃ§Ãµes</a>
-                <a href="./clientes.html">ð¥ Clientes</a>
-                <a href="./fornecedores.html">ð­ Fornecedores</a>
-                <a href="./notas_fiscais.html">ð§¾ Notas Fiscais</a>
-                <a href="./pedidos_venda.html" class="active">ð Pedidos de Venda</a>
-                <a href="./produtos_servicos.html">ð¦ Produtos/ServiÃ§os</a>
-                <a href="./categorias.html">ð·ï¸ Categorias</a>
-                <a href="./centros_custo.html">ð¼ Centros de Custo</a>
-                <a href="./contas_bancarias.html">ð¦ Contas BancÃ¡rias</a>
-                <a href="./usuarios.html">ð¤ UsuÃ¡rios</a>
-                <a href="./configuracoes.html">âï¸ ConfiguraÃ§Ãµes</a>
-                <button onclick="handleLogout()">ðª Sair</button>
+                <a href="./dashboard.html">📊 Dashboard</a>
+                <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+                <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+                <a href="./contas_receber.html">💰 Contas a Receber</a>
+                <a href="./conciliacao.html">🏦 Conciliação</a>
+                <a href="./fluxo_caixa.html">📈 Fluxo de Caixa</a>
+                <a href="./lancamentos.html">📝 Lançamentos</a>
+                <a href="./plano_contas.html">📑 Plano de Contas</a>
+                <a href="./balancete.html">📋 Balancete</a>
+                <a href="./dre.html">📊 DRE</a>
+                <a href="./apuracoes.html">🧮 Apurações</a>
+                <a href="./retencoes.html">🛡️ Retenções</a>
+                <a href="./darfs.html">📄 DARFs</a>
+                <a href="./obrigacoes.html">✓ Obrigações</a>
+                <a href="./clientes.html">👥 Clientes</a>
+                <a href="./fornecedores.html">🏭 Fornecedores</a>
+                <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+                <a href="./pedidos_venda.html" class="active">🛒 Pedidos de Venda</a>
+                <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+                <a href="./categorias.html">🏷️ Categorias</a>
+                <a href="./centros_custo.html">💼 Centros de Custo</a>
+                <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+                <a href="./usuarios.html">👤 Usuários</a>
+                <a href="./configuracoes.html">⚙️ Configurações</a>
+                <button onclick="handleLogout()">🚪 Sair</button>
             </nav>
         </div>
 
@@ -487,19 +487,19 @@
             </div>
 
             <div class="search-section">
-                <input type="text" id="searchInput" placeholder="Buscar por nÃºmero ou cliente...">
+                <input type="text" id="searchInput" placeholder="Buscar por número ou cliente...">
             </div>
 
             <div class="table-container">
                 <table id="pedidosTable">
                     <thead>
                         <tr>
-                            <th>NÃºmero</th>
+                            <th>Número</th>
                             <th>Cliente</th>
                             <th>Data Pedido</th>
                             <th>Valor Total</th>
                             <th>Status</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="pedidosBody">
@@ -517,10 +517,10 @@
             </div>
             <div class="modal-body">
                 <div class="form-section">
-                    <h3>InformaÃ§Ãµes BÃ¡sicas</h3>
+                    <h3>Informações Básicas</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="numero">NÃºmero *</label>
+                            <label for="numero">Número *</label>
                             <input type="text" id="numero" required>
                         </div>
                         <div class="form-group">
@@ -532,7 +532,7 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="dataEmissao">Data EmissÃ£o *</label>
+                            <label for="dataEmissao">Data Emissão *</label>
                             <input type="date" id="dataEmissao" required>
                         </div>
                         <div class="form-group">
@@ -565,9 +565,9 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>ObservaÃ§Ãµes</h3>
+                    <h3>Observações</h3>
                     <div class="form-group">
-                        <label for="observacoes">ObservaÃ§Ãµes</label>
+                        <label for="observacoes">Observações</label>
                         <textarea id="observacoes" placeholder="Notas sobre o pedido..."></textarea>
                     </div>
                 </div>
@@ -672,9 +672,9 @@
                         <td>
                             <div class="action-cell">
                                 ${pedido.status !== 'FATURADO' && pedido.status !== 'CANCELADO' ?
-                                    `<button class="btn btn-sm btn-success" onclick="faturarPedido(${pedido.id})">â</button>` : ''}
-                                <button class="btn btn-sm btn-secondary" onclick="editPedido(${pedido.id})">âï¸</button>
-                                <button class="btn btn-sm btn-danger" onclick="deletePedido(${pedido.id})">ðï¸</button>
+                                    `<button class="btn btn-sm btn-success" onclick="faturarPedido(${pedido.id})">✓</button>` : ''}
+                                <button class="btn btn-sm btn-secondary" onclick="editPedido(${pedido.id})">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deletePedido(${pedido.id})">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -819,7 +819,7 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('Pedido excluÃ­do com sucesso', 'success');
+                showToast('Pedido excluído com sucesso', 'success');
                 await loadPedidos();
             } catch (error) {
                 console.error('Erro ao excluir pedido:', error);
