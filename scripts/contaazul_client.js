@@ -26,9 +26,7 @@ export async function contaAzulAuthorize(empresaId) {
   try {
     if (!empresaId) throw new Error('empresaId is required');
     const { data, error } = await supabase.functions.invoke('contaazul-auth', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'authorize', empresa_id: empresaId })
+      body: { action: 'authorize', empresa_id: empresaId }
     });
     if (error) return { data: null, error };
     return { data, error: null };
@@ -42,9 +40,7 @@ export async function contaAzulCallback(empresaId, code) {
   try {
     if (!empresaId || !code) throw new Error('empresaId and code are required');
     const { data, error } = await supabase.functions.invoke('contaazul-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'callback', empresa_id: empresaId, code })
+      body: { action: 'callback', empresa_id: empresaId, code }
     });
     if (error) return { data: null, error };
     return { data, error: null };
@@ -58,9 +54,7 @@ export async function contaAzulStatus(empresaId) {
   try {
     if (!empresaId) throw new Error('empresaId is required');
     const { data, error } = await supabase.functions.invoke('contaazul-auth', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'status', empresa_id: empresaId })
+      body: { action: 'status', empresa_id: empresaId }
     });
     if (error) return { data: null, error };
     return { data, error: null };
@@ -74,9 +68,7 @@ export async function contaAzulTest(empresaId) {
   try {
     if (!empresaId) throw new Error('empresaId is required');
     const { data, error } = await supabase.functions.invoke('contaazul-auth', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'test', empresa_id: empresaId })
+      body: { action: 'test', empresa_id: empresaId }
     });
     if (error) return { data: null, error };
     return { data, error: null };
@@ -90,9 +82,7 @@ export async function contaAzulRefresh(empresaId) {
   try {
     if (!empresaId) throw new Error('empresaId is required');
     const { data, error } = await supabase.functions.invoke('contaazul-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'refresh', empresa_id: empresaId })
+      body: { action: 'refresh', empresa_id: empresaId }
     });
     if (error) return { data: null, error };
     return { data, error: null };
@@ -106,9 +96,7 @@ export async function contaAzulSync(empresaId, syncAction = 'full') {
   try {
     if (!empresaId) throw new Error('empresaId is required');
     const { data, error } = await supabase.functions.invoke('contaazul-sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: syncAction, empresa_id: empresaId })
+      body: { action: syncAction, empresa_id: empresaId }
     });
     if (error) return { data: null, error };
     return { data, error: null };
@@ -122,9 +110,7 @@ export async function contaAzulQuery(empresaId, endpoint, params = {}) {
   try {
     if (!empresaId || !endpoint) throw new Error('empresaId and endpoint are required');
     const { data, error } = await supabase.functions.invoke('contaazul-sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'query', empresa_id: empresaId, endpoint, params })
+      body: { action: 'query', empresa_id: empresaId, endpoint, params }
     });
     if (error) return { data: null, error };
     return { data, error: null };
