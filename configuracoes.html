@@ -670,6 +670,7 @@
           </div>
 
           <button type="button" class="btn btn-secondary" id="testContaAzulBtn">Testar Conexão</button>
+          <button type="button" class="btn btn-success" id="syncContaAzulBtn" style="display: none; margin-left: 0.5rem;">Sincronizar Dados</button>
         </div>
       </div>
 
@@ -789,6 +790,7 @@
 
   <script type="module">
     import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+    import { contaAzulAuthorize, contaAzulCallback, contaAzulStatus, contaAzulTest, contaAzulSync } from './scripts/contaazul_client.js';
 
     // Auth guard - only master role can access settings
     // Auth check handled in init()
@@ -819,6 +821,7 @@
           loadIntegrations();
           loadUsers();
           loadPlanInfo();
+          handleOAuthCallback();
         }
       } catch (error) {
         console.error('Erro ao inicializar:', error);
@@ -849,16 +852,31 @@
       }
     }
 
-    function loadIntegrations() {
-      // Conta Azul
-      if (currentTenant?.conta_azul_connected) {
-        document.getElementById('contaAzulStatus').textContent = 'Conectado em ' + new Date(currentTenant.conta_azul_connected_at).toLocaleDateString('pt-BR');
-        document.getElementById('contaAzulStatusBadge').className = 'status-badge connected';
-        document.getElementById('contaAzulStatusBadge').textContent = 'Conectado';
-        document.getElementById('connectContaAzulBtn').style.display = 'none';
-        document.getElementById('disconnectContaAzulBtn').style.display = 'block';
-        document.getElementById('contaAzulId').value = currentTenant.conta_azul_id || '';
-        document.getElementById('contaAzulConnectedAt').value = new Date(currentTenant.conta_azul_connected_at).toLocaleDateString('pt-BR');
+    async function loadIntegrations() {
+      // Conta Azul - check real OAuth status via Edge Function
+      if (currentTenant) {
+        try {
+          const { data: statusData, error: statusError } = await contaAzulStatus(currentTenant.id);
+          if (!statusError && statusData && statusData.connected) {
+            document.getElementById('contaAzulStatus').textContent = 'Conectado — expira em ' + new Date(statusData.expires_at).toLocaleDateString('pt-BR');
+            document.getElementById('contaAzulStatusBadge').className = 'status-badge connected';
+            document.getElementById('contaAzulStatusBadge').textContent = 'Conectado';
+            document.getElementById('connectContaAzulBtn').style.display = 'none';
+            document.getElementById('disconnectContaAzulBtn').style.display = 'inline-block';
+            document.getElementById('syncContaAzulBtn').style.display = 'inline-block';
+            document.getElementById('contaAzulId').value = currentTenant.id;
+            document.getElementById('contaAzulConnectedAt').value = statusData.last_updated ? new Date(statusData.last_updated).toLocaleDateString('pt-BR') : '-';
+          } else if (!statusError && statusData && statusData.status === 'expired') {
+            document.getElementById('contaAzulStatus').textContent = 'Token expirado — reconecte';
+            document.getElementById('contaAzulStatusBadge').className = 'status-badge pending';
+            document.getElementById('contaAzulStatusBadge').textContent = 'Expirado';
+            document.getElementById('connectContaAzulBtn').style.display = 'inline-block';
+            document.getElementById('disconnectContaAzulBtn').style.display = 'none';
+            document.getElementById('syncContaAzulBtn').style.display = 'none';
+          }
+        } catch (e) {
+          console.warn('Conta Azul status check failed:', e);
+        }
       }
 
       // LUMA RH
@@ -953,14 +971,41 @@
     });
 
     // Conta Azul
-    document.getElementById('connectContaAzulBtn').addEventListener('click', () => {
-      // OAuth flow - in production, implement actual Conta Azul OAuth
-      showWarning('Redirecionar para autenticação Conta Azul (implementar OAuth)');
+    document.getElementById('connectContaAzulBtn').addEventListener('click', async () => {
+      try {
+        if (!currentTenant) {
+          showError('Dados da empresa não carregados');
+          return;
+        }
+        showWarning('Iniciando autenticação com Conta Azul...');
+        const { data, error } = await contaAzulAuthorize(currentTenant.id);
+        if (error) throw error;
+        if (data && data.auth_url) {
+          window.location.href = data.auth_url;
+        } else {
+          showError('Não foi possível gerar URL de autenticação');
+        }
+      } catch (error) {
+        console.error('Erro ao conectar Conta Azul:', error);
+        showError('Erro ao iniciar autenticação: ' + (error.message || 'Erro desconhecido'));
+      }
     });
 
     document.getElementById('disconnectContaAzulBtn').addEventListener('click', async () => {
-      if (confirm('Desconectar Conta Azul?')) {
+      if (confirm('Desconectar Conta Azul? Os tokens de acesso serão removidos.')) {
         try {
+          // Revogar tokens na tabela contaazul_tokens
+          await supabase
+            .from('contaazul_tokens')
+            .update({
+              access_token: null,
+              refresh_token: null,
+              status: 'revoked',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('empresa_id', currentTenant.id);
+
+          // Atualizar flag no tenant
           await supabase
             .from('tenants')
             .update({
@@ -969,19 +1014,77 @@
               conta_azul_connected_at: null,
             })
             .eq('id', currentTenant.id);
-          showSuccess('Conta Azul desconectada');
-          setTimeout(() => location.reload(), 1000);
+
+          showSuccess('Conta Azul desconectada com sucesso');
+          setTimeout(() => location.reload(), 1500);
         } catch (error) {
-          showError('Erro ao desconectar');
+          console.error('Erro ao desconectar:', error);
+          showError('Erro ao desconectar Conta Azul');
         }
       }
     });
 
-    document.getElementById('testContaAzulBtn').addEventListener('click', () => {
-      showSuccess('Conexão com Conta Azul testada com sucesso!');
+    document.getElementById('testContaAzulBtn').addEventListener('click', async () => {
+      try {
+        if (!currentTenant) {
+          showError('Dados da empresa não carregados');
+          return;
+        }
+        showWarning('Testando conexão com Conta Azul...');
+        const { data, error } = await contaAzulTest(currentTenant.id);
+        if (error) throw error;
+        if (data && data.success) {
+          showSuccess('Conexão com Conta Azul OK! Status API: ' + data.api_status);
+        } else {
+          showError('Falha na conexão: ' + (data?.message || 'Erro desconhecido'));
+        }
+      } catch (error) {
+        console.error('Erro ao testar conexão:', error);
+        showError('Erro ao testar conexão: ' + (error.message || 'Erro desconhecido'));
+      }
     });
 
-    // LUMA RH
+    // Sync Conta Azul
+    document.getElementById('syncContaAzulBtn').addEventListener('click', async () => {
+      try {
+        if (!currentTenant) {
+          showError('Dados da empresa não carregados');
+          return;
+        }
+        showWarning('Iniciando sincronização com Conta Azul... Isso pode levar alguns minutos.');
+        const { data, error } = await contaAzulSync(currentTenant.id, 'full');
+        if (error) throw error;
+        if (data && data.status) {
+          showSuccess('Sincronização iniciada! Status: ' + data.status);
+        } else {
+          showSuccess('Sincronização solicitada com sucesso');
+        }
+      } catch (error) {
+        console.error('Erro ao sincronizar:', error);
+        showError('Erro na sincronização: ' + (error.message || 'Erro desconhecido'));
+      }
+    });
+
+    // Handle OAuth callback (check URL for ?code= parameter)
+    async function handleOAuthCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code && currentTenant) {
+        try {
+          showWarning('Processando autenticação Conta Azul...');
+          const { data, error } = await contaAzulCallback(currentTenant.id, code);
+          if (error) throw error;
+          window.history.replaceState({}, document.title, window.location.pathname);
+          showSuccess('Conta Azul conectada com sucesso!');
+          setTimeout(() => location.reload(), 1500);
+        } catch (error) {
+          console.error('Erro no callback OAuth:', error);
+          showError('Erro ao finalizar autenticação: ' + (error.message || 'Erro desconhecido'));
+        }
+      }
+    }
+
+        // LUMA RH
     document.getElementById('saveLumaRHBtn').addEventListener('click', async () => {
       try {
         const tenantId = document.getElementById('lumaRHTenantId').value;
