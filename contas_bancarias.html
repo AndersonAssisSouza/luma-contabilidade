@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contas BancÃ¡rias - LUMA Contabilidade</title>
+    <title>Contas Bancárias - LUMA Contabilidade</title>
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333;}
@@ -65,39 +65,39 @@
 <body>
     <div class="container">
         <div class="sidebar">
-            <div class="logo">ð LUMA</div>
+            <div class="logo">📊 LUMA</div>
             <nav>
-                <a href="./dashboard.html">ð Dashboard</a>
-                <a href="./calendario_fiscal.html">ð CalendÃ¡rio Fiscal</a>
-                <a href="./contas_pagar.html">ð³ Contas a Pagar</a>
-                <a href="./contas_receber.html">ð° Contas a Receber</a>
-                <a href="./conciliacao.html">ð¦ ConciliaÃ§Ã£o</a>
-                <a href="./fluxo_caixa.html">ð Fluxo de Caixa</a>
-                <a href="./lancamentos.html">ð LanÃ§amentos</a>
-                <a href="./plano_contas.html">ð Plano de Contas</a>
-                <a href="./balancete.html">ð Balancete</a>
-                <a href="./dre.html">ð DRE</a>
-                <a href="./apuracoes.html">ð§® ApuraÃ§Ãµes</a>
-                <a href="./retencoes.html">ð¡ï¸ RetenÃ§Ãµes</a>
-                <a href="./darfs.html">ð DARFs</a>
-                <a href="./obrigacoes.html">â ObrigaÃ§Ãµes</a>
-                <a href="./clientes.html">ð¥ Clientes</a>
-                <a href="./fornecedores.html">ð­ Fornecedores</a>
-                <a href="./notas_fiscais.html">ð§¾ Notas Fiscais</a>
-                <a href="./pedidos_venda.html">ð Pedidos de Venda</a>
-                <a href="./produtos_servicos.html">ð¦ Produtos/ServiÃ§os</a>
-                <a href="./categorias.html">ð·ï¸ Categorias</a>
-                <a href="./centros_custo.html">ð¼ Centros de Custo</a>
-                <a href="./contas_bancarias.html" class="active">ð¦ Contas BancÃ¡rias</a>
-                <a href="./usuarios.html">ð¤ UsuÃ¡rios</a>
-                <a href="./configuracoes.html">âï¸ ConfiguraÃ§Ãµes</a>
-                <button onclick="handleLogout()">ðª Sair</button>
+                <a href="./dashboard.html">📊 Dashboard</a>
+                <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+                <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+                <a href="./contas_receber.html">💰 Contas a Receber</a>
+                <a href="./conciliacao.html">🏦 Conciliação</a>
+                <a href="./fluxo_caixa.html">📈 Fluxo de Caixa</a>
+                <a href="./lancamentos.html">📝 Lançamentos</a>
+                <a href="./plano_contas.html">📑 Plano de Contas</a>
+                <a href="./balancete.html">📋 Balancete</a>
+                <a href="./dre.html">📊 DRE</a>
+                <a href="./apuracoes.html">🧮 Apurações</a>
+                <a href="./retencoes.html">🛡️ Retenções</a>
+                <a href="./darfs.html">📄 DARFs</a>
+                <a href="./obrigacoes.html">✓ Obrigações</a>
+                <a href="./clientes.html">👥 Clientes</a>
+                <a href="./fornecedores.html">🏭 Fornecedores</a>
+                <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+                <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+                <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+                <a href="./categorias.html">🏷️ Categorias</a>
+                <a href="./centros_custo.html">💼 Centros de Custo</a>
+                <a href="./contas_bancarias.html" class="active">🏦 Contas Bancárias</a>
+                <a href="./usuarios.html">👤 Usuários</a>
+                <a href="./configuracoes.html">⚙️ Configurações</a>
+                <button onclick="handleLogout()">🚪 Sair</button>
             </nav>
         </div>
 
         <div class="main">
             <div class="header">
-                <h1>Contas BancÃ¡rias</h1>
+                <h1>Contas Bancárias</h1>
                 <div class="header-actions">
                     <button class="btn btn-primary" id="newContaBtn">+ Nova Conta</button>
                 </div>
@@ -113,12 +113,12 @@
                         <tr>
                             <th>Nome</th>
                             <th>Banco</th>
-                            <th>AgÃªncia</th>
+                            <th>Agência</th>
                             <th>Conta</th>
                             <th>Tipo</th>
                             <th>Saldo Inicial</th>
                             <th>Status</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="contasBody">
@@ -131,7 +131,7 @@
     <div class="modal" id="contaModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Nova Conta BancÃ¡ria</h2>
+                <h2 id="modalTitle">Nova Conta Bancária</h2>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
@@ -145,13 +145,13 @@
                         <input type="text" id="banco" required>
                     </div>
                     <div class="form-group">
-                        <label for="codigoBanco">CÃ³digo Banco</label>
+                        <label for="codigoBanco">Código Banco</label>
                         <input type="text" id="codigoBanco">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="agencia">AgÃªncia *</label>
+                        <label for="agencia">Agência *</label>
                         <input type="text" id="agencia" required>
                     </div>
                     <div class="form-group">
@@ -165,7 +165,7 @@
                         <select id="tipo" required>
                             <option value="">Selecione</option>
                             <option value="CORRENTE">Corrente</option>
-                            <option value="POUPANCA">PoupanÃ§a</option>
+                            <option value="POUPANCA">Poupança</option>
                             <option value="INVESTIMENTO">Investimento</option>
                             <option value="CAIXA">Caixa</option>
                         </select>
@@ -255,8 +255,8 @@
                     </span></td>
                     <td>
                         <div class="action-cell">
-                            <button class="btn btn-sm btn-secondary" onclick="editConta(${c.id})">âï¸</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteConta(${c.id})">ðï¸</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editConta(${c.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteConta(${c.id})">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -273,7 +273,7 @@
 
         document.getElementById('newContaBtn').addEventListener('click', () => {
             currentContaId = null;
-            document.getElementById('modalTitle').textContent = 'Nova Conta BancÃ¡ria';
+            document.getElementById('modalTitle').textContent = 'Nova Conta Bancária';
             document.getElementById('contaModal').classList.add('active');
             resetForm();
         });
@@ -308,7 +308,7 @@
                 if (error) throw error;
 
                 currentContaId = id;
-                document.getElementById('modalTitle').textContent = 'Editar Conta BancÃ¡ria';
+                document.getElementById('modalTitle').textContent = 'Editar Conta Bancária';
                 document.getElementById('nome').value = data.nome;
                 document.getElementById('banco').value = data.banco;
                 document.getElementById('codigoBanco').value = data.codigo_banco || '';
@@ -372,7 +372,7 @@
                     .eq('id', id);
 
                 if (error) throw error;
-                showToast('Conta excluÃ­da com sucesso', 'success');
+                showToast('Conta excluída com sucesso', 'success');
                 await loadContas();
             } catch (error) {
                 showToast('Erro ao excluir conta', 'error');
