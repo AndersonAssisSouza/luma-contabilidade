@@ -78,7 +78,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            transition: background-color 0.3s;
         }
 
         .logout-btn:hover {
@@ -86,99 +86,33 @@
         }
 
         /* Main Content */
-        .main-content {
-            flex: 1;
+        .main {
             margin-left: 260px;
-            padding: 30px;
+            flex: 1;
+            padding: 20px;
         }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
+        .header {
+            background-color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1a237e;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background-color: #1a237e;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #0d1551;
-        }
-
-        .btn-secondary {
-            background-color: #e0e0e0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background-color: #d0d0d0;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        /* Filter Section */
-        .filter-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
         }
 
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
         }
 
-        .filter-group label {
-            font-size: 14px;
-            font-weight: 600;
+        .header p {
             color: #666;
+            margin: 0;
         }
 
-        .filter-group input,
-        .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            background: white;
-        }
-
-        /* Tree Table */
-        .tree-container {
-            background: white;
+        /* Table Styles */
+        .table-container {
+            background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             overflow: hidden;
@@ -187,118 +121,120 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
         }
 
         th {
-            background-color: #f5f5f5;
-            color: #333;
-            font-weight: 600;
-            padding: 12px;
+            background-color: #1a237e;
+            color: white;
+            padding: 15px;
             text-align: left;
-            border-bottom: 2px solid #1a237e;
+            font-weight: 600;
         }
 
         td {
-            padding: 12px;
+            padding: 12px 15px;
             border-bottom: 1px solid #eee;
         }
 
         tr:hover {
-            background-color: #fafafa;
-        }
-
-        .tree-row {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-
-        .tree-toggle {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-            color: #1a237e;
-            user-select: none;
-            margin-right: 5px;
-        }
-
-        .tree-toggle:hover {
-            background-color: #eee;
-            border-radius: 4px;
-        }
-
-        .tree-toggle.empty {
-            visibility: hidden;
-        }
-
-        .tree-indent {
-            display: inline-block;
-            width: 20px;
-        }
-
-        .account-code {
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-            color: #1a237e;
-            min-width: 100px;
-        }
-
-        .account-descricao {
-            flex: 1;
-        }
-
-        .account-tipo {
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-            min-width: 80px;
-            text-align: center;
-        }
-
-        .tipo-ativo {
-            background-color: #bbdefb;
-            color: #1565c0;
-        }
-
-        .tipo-passivo {
-            background-color: #ffcccc;
-            color: #c62828;
-        }
-
-        .tipo-receita {
-            background-color: #c8e6c9;
-            color: #2e7d32;
-        }
-
-        .tipo-despesa {
-            background-color: #ffe0b2;
-            color: #e65100;
-        }
-
-        .tipo-pl {
-            background-color: #e1bee7;
-            color: #6a1b9a;
+            background-color: #f5f5f5;
         }
 
         .status-ativo {
-            color: #2e7d32;
+            color: #4caf50;
+            font-weight: 600;
         }
 
         .status-inativo {
-            color: #999;
+            color: #f44336;
+            font-weight: 600;
         }
 
-        .row-actions {
+        .action-btns {
             display: flex;
             gap: 8px;
-            white-space: nowrap;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .pagination button.active {
+            background-color: #1a237e;
+            color: white;
+            border-color: #1a237e;
+        }
+
+        .pagination button:hover:not(.active) {
+            border-color: #1a237e;
+        }
+
+        /* Search and Filter */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            background-color: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-container button:hover {
+            background-color: #0d1b5a;
         }
 
         /* Modal */
@@ -313,39 +249,31 @@
             background-color: rgba(0, 0, 0, 0.4);
         }
 
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .modal-content {
             background-color: white;
-            padding: 30px;
+            margin: 5% auto;
+            padding: 20px;
             border-radius: 8px;
             width: 90%;
             max-width: 600px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            max-height: 90vh;
-            overflow-y: auto;
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: #000;
         }
 
         .modal-header {
             font-size: 20px;
             font-weight: bold;
-            color: #1a237e;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #999;
+            margin-bottom: 15px;
         }
 
         .form-group {
@@ -354,755 +282,322 @@
 
         .form-group label {
             display: block;
-            font-size: 14px;
-            font-weight: 600;
             margin-bottom: 5px;
+            font-weight: 600;
             color: #333;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
             font-size: 14px;
         }
 
-        .form-group-inline {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1a237e;
+            box-shadow: 0 0 5px rgba(26, 35, 126, 0.2);
         }
 
-        .form-group-inline .form-group {
-            margin-bottom: 0;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .modal-actions {
+        .form-actions {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
-            margin-top: 20px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .row-hidden {
-            display: none;
-        }
-
-        .level-2 { padding-left: 30px; }
-        .level-3 { padding-left: 60px; }
-        .level-4 { padding-left: 90px; }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .text-muted {
-            color: #999;
-            font-size: 13px;
-        }
-
-        .error-message {
-            background-color: #ffcdd2;
-            color: #c62828;
-            padding: 12px;
+        .btn-submit {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
             border-radius: 4px;
-            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .success-message {
-            background-color: #c8e6c9;
-            color: #2e7d32;
-            padding: 12px;
+        .btn-submit:hover {
+            background-color: #45a049;
+        }
+
+        .btn-cancel {
+            background-color: #ccc;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
             border-radius: 4px;
-            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background-color: #bbb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main {
+                margin-left: 200px;
+            }
+            table {
+                font-size: 12px;
+            }
+            th, td {
+                padding: 8px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">LUMA</div>
+                <div class="logo">📊 LUMA Contabilidade</div>
             </div>
-            <nav>
-                <div class="nav-item" onclick="navigateTo('dashboard.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('apuracoes.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>ApuraÃ§Ãµes Fiscais</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('calendario_fiscal.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>CalendÃ¡rio Fiscal</span>
-                </div>
-                <div class="nav-item active" onclick="navigateTo('plano_contas.html')">
-                    <span class="nav-icon">ð</span>
-                    <span>Plano de Contas</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('empresas.html')">
-                    <span class="nav-icon">ð¢</span>
-                    <span>Empresas</span>
-                </div>
-            </nav>
-            <button class="logout-btn" onclick="logout()">Sair</button>
+            <div class="nav-item active">
+                <span class="nav-icon">📋</span>
+                Plano de Contas
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">💼</span>
+                Clientes
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">📈</span>
+                Relatórios
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                Configurações
+            </div>
+            <button class="logout-btn">Sair</button>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="page-header">
-                <h1 class="page-title">Plano de Contas</h1>
-                <button class="btn btn-primary" onclick="openAddAccountModal()">+ Nova Conta</button>
+        <div class="main">
+            <div class="header">
+                <h1>Plano de Contas</h1>
+                <p>Gestão e visualização de contas contábeis</p>
             </div>
 
-            <div class="filter-section">
-                <div class="filter-group">
-                    <label>Buscar por Tipo</label>
-                    <select id="filterTipo">
-                        <option value="">Todos</option>
-                        <option value="ATIVO">Ativo</option>
-                        <option value="PASSIVO">Passivo</option>
-                        <option value="RECEITA">Receita</option>
-                        <option value="DESPESA">Despesa</option>
-                        <option value="PL">PatrimÃ´nio LÃ­quido</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>Buscar por DescriÃ§Ã£o</label>
-                    <input type="text" id="filterDescricao" placeholder="Digite para filtrar...">
-                </div>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar por código ou descrição...">
+                <button onclick="searchAccounts()">Buscar</button>
             </div>
 
-            <div id="messageContainer"></div>
-
-            <!-- Tree View Table -->
-            <div class="tree-container">
-                <table>
+            <div class="table-container">
+                <table id="accountsTable">
                     <thead>
                         <tr>
-                            <th style="width: 150px;">CÃ³digo</th>
-                            <th style="flex: 1;">DescriÃ§Ã£o</th>
-                            <th style="width: 120px;">Tipo</th>
-                            <th style="width: 100px;">Natureza</th>
-                            <th style="width: 80px;">NÃ­vel</th>
-                            <th style="width: 100px;">LanÃ§amento</th>
-                            <th style="width: 80px;">Status</th>
-                            <th style="width: 120px;">AÃ§Ãµes</th>
+                            <th>Código</th>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Saldo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="accountsTableBody">
-                        <tr><td colspan="8" class="loading">Carregando plano de contas...</td></tr>
+                    <tbody>
+                        <tr>
+                            <td>1000</td>
+                            <td>Caixa</td>
+                            <td>Ativo</td>
+                            <td>R$ 5.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1001</td>
+                            <td>Banco</td>
+                            <td>Ativo</td>
+                            <td>R$ 15.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2000</td>
+                            <td>Fornecedores</td>
+                            <td>Passivo</td>
+                            <td>R$ 8.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2001</td>
+                            <td>Empréstimos</td>
+                            <td>Passivo</td>
+                            <td>R$ 20.000,00</td>
+                            <td><span class="status-inativo">Inativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3000</td>
+                            <td>Capital Social</td>
+                            <td>Patrimônio Líquido</td>
+                            <td>R$ 100.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>4000</td>
+                            <td>Receita de Vendas</td>
+                            <td>Receita</td>
+                            <td>R$ 50.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>5000</td>
+                            <td>Custo de Mercadoria</td>
+                            <td>Despesa</td>
+                            <td>R$ 25.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>5001</td>
+                            <td>Despesas Operacionais</td>
+                            <td>Despesa</td>
+                            <td>R$ 10.000,00</td>
+                            <td><span class="status-ativo">Ativo</span></td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
+                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Add/Edit Account Modal -->
-            <div class="modal" id="accountModal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <span id="modalTitle">Nova Conta</span>
-                        <button class="close-btn" onclick="closeAccountModal()">&times;</button>
-                    </div>
-                    <form onsubmit="saveAccount(event)">
-                        <div class="form-group-inline">
-                            <div class="form-group">
-                                <label>CÃ³digo da Conta *</label>
-                                <input type="text" id="accountCodigo" placeholder="Ex: 1.1.1.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo *</label>
-                                <select id="accountTipo" required onchange="updateNatureza()">
-                                    <option value="">Selecione...</option>
-                                    <option value="ATIVO">Ativo</option>
-                                    <option value="PASSIVO">Passivo</option>
-                                    <option value="RECEITA">Receita</option>
-                                    <option value="DESPESA">Despesa</option>
-                                    <option value="PL">PatrimÃ´nio LÃ­quido</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>DescriÃ§Ã£o da Conta *</label>
-                            <input type="text" id="accountDescricao" placeholder="Ex: Caixa Geral" required>
-                        </div>
-
-                        <div class="form-group-inline">
-                            <div class="form-group">
-                                <label>Natureza</label>
-                                <select id="accountNatureza" disabled>
-                                    <option value="DEVEDORA">Devedora</option>
-                                    <option value="CREDORA">Credora</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>NÃ­vel *</label>
-                                <select id="accountNivel" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="1">Grupo</option>
-                                    <option value="2">Subgrupo</option>
-                                    <option value="3">Conta</option>
-                                    <option value="4">Subconta</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Conta Pai (Para hierarquia)</label>
-                            <select id="accountContaPai">
-                                <option value="">Nenhuma (Conta Raiz)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="accountAceitaLancamento" checked>
-                                <label for="accountAceitaLancamento" style="margin: 0; font-weight: 400;">Aceita LanÃ§amento Direto</label>
-                            </div>
-                        </div>
-
-                        <div class="modal-actions">
-                            <button type="button" class="btn btn-secondary" onclick="closeAccountModal()">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Salvar Conta</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="pagination">
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { supabase, logout, getPlanoContas, createConta, updateConta, deleteConta, getContasByTipo, getSession } from './scripts/supabase_client_contab.js';
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="modal-header">Editar Conta</div>
+            <form>
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" id="accountCode" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="accountDesc" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="accountType" required>
+                        <option>Ativo</option>
+                        <option>Passivo</option>
+                        <option>Patrimônio Líquido</option>
+                        <option>Receita</option>
+                        <option>Despesa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Saldo</label>
+                    <input type="text" id="accountBalance" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Salvar</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        let currentUser = null;
+    <script>
+        function searchAccounts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('accountsTable');
+            const rows = table.querySelectorAll('tbody tr');
 
-        let accounts = [];
-        let expandedRows = new Set();
-        let currentEditId = null;
-
-        async function initPage() {
-            const session = await getSession();
-                if (!session || !session.user) { window.location.href = './login.html'; return; }
-                currentUser = session.user;
-            loadAccounts();
-        }
-
-        function navigateTo(page) {
-            window.location.href = page;
-        }
-        window.navigateTo = navigateTo;
-
-
-        async function loadAccounts() {
-            try {
-                // Mock data with hierarchical structure
-                accounts = [
-                    // ATIVO
-                    {
-                        id: 1,
-                        codigo: '1',
-                        descricao: 'ATIVO',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 1,
-                        conta_pai_id: null,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 2,
-                        codigo: '1.1',
-                        descricao: 'Ativo Circulante',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 2,
-                        conta_pai_id: 1,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 3,
-                        codigo: '1.1.1',
-                        descricao: 'Disponibilidades',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 3,
-                        conta_pai_id: 2,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 4,
-                        codigo: '1.1.1.01',
-                        descricao: 'Caixa Geral',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 4,
-                        conta_pai_id: 3,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 5,
-                        codigo: '1.1.1.02',
-                        descricao: 'Banco do Brasil',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 4,
-                        conta_pai_id: 3,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 6,
-                        codigo: '1.1.2',
-                        descricao: 'CrÃ©ditos',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 3,
-                        conta_pai_id: 2,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 7,
-                        codigo: '1.1.2.01',
-                        descricao: 'Clientes - Conta Corrente',
-                        tipo: 'ATIVO',
-                        natureza: 'DEVEDORA',
-                        nivel: 4,
-                        conta_pai_id: 6,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    },
-                    // PASSIVO
-                    {
-                        id: 8,
-                        codigo: '2',
-                        descricao: 'PASSIVO',
-                        tipo: 'PASSIVO',
-                        natureza: 'CREDORA',
-                        nivel: 1,
-                        conta_pai_id: null,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 9,
-                        codigo: '2.1',
-                        descricao: 'Passivo Circulante',
-                        tipo: 'PASSIVO',
-                        natureza: 'CREDORA',
-                        nivel: 2,
-                        conta_pai_id: 8,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 10,
-                        codigo: '2.1.1',
-                        descricao: 'ObrigaÃ§Ãµes com Pessoal',
-                        tipo: 'PASSIVO',
-                        natureza: 'CREDORA',
-                        nivel: 3,
-                        conta_pai_id: 9,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 11,
-                        codigo: '2.1.1.01',
-                        descricao: 'SalÃ¡rios a Pagar',
-                        tipo: 'PASSIVO',
-                        natureza: 'CREDORA',
-                        nivel: 4,
-                        conta_pai_id: 10,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    },
-                    // RECEITA
-                    {
-                        id: 12,
-                        codigo: '3',
-                        descricao: 'RECEITA',
-                        tipo: 'RECEITA',
-                        natureza: 'CREDORA',
-                        nivel: 1,
-                        conta_pai_id: null,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 13,
-                        codigo: '3.1',
-                        descricao: 'Receita de Vendas',
-                        tipo: 'RECEITA',
-                        natureza: 'CREDORA',
-                        nivel: 2,
-                        conta_pai_id: 12,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 14,
-                        codigo: '3.1.1',
-                        descricao: 'Vendas de Produtos',
-                        tipo: 'RECEITA',
-                        natureza: 'CREDORA',
-                        nivel: 3,
-                        conta_pai_id: 13,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    },
-                    // DESPESA
-                    {
-                        id: 15,
-                        codigo: '4',
-                        descricao: 'DESPESA',
-                        tipo: 'DESPESA',
-                        natureza: 'DEVEDORA',
-                        nivel: 1,
-                        conta_pai_id: null,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 16,
-                        codigo: '4.1',
-                        descricao: 'Despesas Operacionais',
-                        tipo: 'DESPESA',
-                        natureza: 'DEVEDORA',
-                        nivel: 2,
-                        conta_pai_id: 15,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 17,
-                        codigo: '4.1.1',
-                        descricao: 'Despesas com Pessoal',
-                        tipo: 'DESPESA',
-                        natureza: 'DEVEDORA',
-                        nivel: 3,
-                        conta_pai_id: 16,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 18,
-                        codigo: '4.1.1.01',
-                        descricao: 'SalÃ¡rios',
-                        tipo: 'DESPESA',
-                        natureza: 'DEVEDORA',
-                        nivel: 4,
-                        conta_pai_id: 17,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    },
-                    // PATRIMÃNIO LÃQUIDO
-                    {
-                        id: 19,
-                        codigo: '5',
-                        descricao: 'PATRIMÃNIO LÃQUIDO',
-                        tipo: 'PL',
-                        natureza: 'CREDORA',
-                        nivel: 1,
-                        conta_pai_id: null,
-                        aceita_lancamento: false,
-                        status: 'ativo'
-                    },
-                    {
-                        id: 20,
-                        codigo: '5.1',
-                        descricao: 'Capital Social',
-                        tipo: 'PL',
-                        natureza: 'CREDORA',
-                        nivel: 2,
-                        conta_pai_id: 19,
-                        aceita_lancamento: true,
-                        status: 'ativo'
-                    }
-                ];
-
-                renderAccountsTree();
-                loadParentAccounts();
-            } catch (error) {
-                showMessage('Erro ao carregar plano de contas: ' + error.message, 'error');
-            }
-        }
-
-        function renderAccountsTree() {
-            const tbody = document.getElementById('accountsTableBody');
-            const filterTipo = document.getElementById('filterTipo').value;
-            const filterDescricao = document.getElementById('filterDescricao').value.toLowerCase();
-
-            tbody.innerHTML = '';
-
-            const filteredAccounts = accounts.filter(acc => {
-                const matchTipo = !filterTipo || acc.tipo === filterTipo;
-                const matchDesc = !filterDescricao || acc.descricao.toLowerCase().includes(filterDescricao);
-                return matchTipo && matchDesc;
-            });
-
-            filteredAccounts.forEach(account => {
-                const children = accounts.filter(a => a.conta_pai_id === account.id);
-                const hasChildren = children.length > 0;
-
-                const tr = document.createElement('tr');
-                tr.id = `account-row-${account.id}`;
-                tr.className = `level-${account.nivel}`;
-
-                const typeClass = `tipo-${account.tipo.toLowerCase()}`;
-                const statusClass = account.status === 'ativo' ? 'status-ativo' : 'status-inativo';
-
-                let toggleHtml = '';
-                if (hasChildren) {
-                    const isExpanded = expandedRows.has(account.id);
-                    toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'â¼' : 'â¶'}</div>`;
+            rows.forEach(row => {
+                const code = row.cells[0].textContent.toLowerCase();
+                const desc = row.cells[1].textContent.toLowerCase();
+                if (code.includes(searchTerm) || desc.includes(searchTerm)) {
+                    row.style.display = '';
                 } else {
-                    toggleHtml = '<div class="tree-toggle empty"></div>';
-                }
-
-                tr.innerHTML = `
-                    <td>
-                        <div class="tree-row">
-                            ${toggleHtml}
-                            <span class="account-code">${account.codigo}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="account-descricao">${account.descricao}</div>
-                    </td>
-                    <td>
-                        <span class="account-tipo ${typeClass}">${account.tipo}</span>
-                    </td>
-                    <td>${account.natureza}</td>
-                    <td>${account.nivel}</td>
-                    <td>${account.aceita_lancamento ? 'â Sim' : 'NÃ£o'}</td>
-                    <td><span class="${statusClass}">${account.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
-                    <td class="row-actions">
-                        <button class="btn btn-small btn-secondary" onclick="openEditAccountModal(${account.id})">Editar</button>
-                    </td>
-                `;
-
-                tbody.appendChild(tr);
-
-                // Render children if expanded
-                if (hasChildren && expandedRows.has(account.id)) {
-                             children.forEach(child => renderChildRow(child, tbody));
+                    row.style.display = 'none';
                 }
             });
         }
 
-        function renderChildRow(account, tbody) {
-            const children = accounts.filter(a => a.conta_pai_id === account.id);
-            const hasChildren = children.length > 0;
+        function editAccount(btn) {
+            const row = btn.closest('tr');
+            document.getElementById('accountCode').value = row.cells[0].textContent;
+            document.getElementById('accountDesc').value = row.cells[1].textContent;
+            document.getElementById('accountType').value = row.cells[2].textContent;
+            document.getElementById('accountBalance').value = row.cells[3].textContent;
+            document.getElementById('editModal').style.display = 'block';
+        }
 
-            const tr = document.createElement('tr');
-            tr.id = `account-row-${account.id}`;
-            tr.className = `level-${account.nivel}`;
-
-            const typeClass = `tipo-${account.tipo.toLowerCase()}`;
-            const statusClass = account.status === 'ativo' ? 'status-ativo' : 'status-inativo';
-
-            let toggleHtml = '';
-            if (hasChildren) {
-                const isExpanded = expandedRows.has(account.id);
-                toggleHtml = `<div class="tree-toggle" onclick="toggleExpand(${account.id})">${isExpanded ? 'â¼' : 'â¶'}</div>`;
-            } else {
-                toggleHtml = '<div class="tree-toggle empty"></div>';
-            }
-
-            tr.innerHTML = `
-                <td>
-                    <div class="tree-row">
-                        ${toggleHtml}
-                        <span class="account-code">${account.codigo}</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="account-descricao">${account.descricao}</div>
-                </td>
-                <td>
-                    <span class="account-tipo ${typeClass}">${account.tipo}</span>
-                </td>
-                <td>${account.natureza}</td>
-                <td>${account.nivel}</td>
-                <td>${account.aceita_lancamento ? 'â Sim' : 'NÃ£o'}</td>
-                <td><span class="${statusClass}">${account.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
-                <td class="row-actions">
-                    <button class="btn btn-small btn-secondary" onclick="openEditAccountModal(${account.id})">Editar</button>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
-
-            // Recursively render children
-            if (hasChildren && expandedRows.has(account.id)) {
-                children.forEach(child => renderChildRow(child, tbody));
+        function deleteAccount(btn) {
+            if (confirm('Tem certeza que deseja deletar esta conta?')) {
+                btn.closest('tr').remove();
             }
         }
 
-        function toggleExpand(accountId) {
-            if (expandedRows.has(accountId)) {
-                expandedRows.delete(accountId);
-            } else {
-                expandedRows.add(accountId);
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
-            renderAccountsTree();
-        }
-
-        function loadParentAccounts() {
-            const select = document.getElementById('accountContaPai');
-            select.innerHTML = '<option value="">Nenhuma (Conta Raiz)</option>';
-
-            accounts
-                .filter(a => a.aceita_lancamento === false)
-                .forEach(account => {
-                    const option = document.createElement('option');
-                    option.value = account.id;
-                    option.textContent = `${account.codigo} - ${account.descricao}`;
-                    select.appendChild(option);
-                });
-        }
-
-        function openAddAccountModal() {
-            currentEditId = null;
-            document.getElementById('modalTitle').textContent = 'Nova Conta';
-            document.getElementById('accountCodigo').value = '';
-            document.getElementById('accountDescricao').value = '';
-            document.getElementById('accountTipo').value = '';
-            document.getElementById('accountNivel').value = '';
-            document.getElementById('accountContaPai').value = '';
-            document.getElementById('accountAceitaLancamento').checked = true;
-            updateNatureza();
-
-            document.getElementById('accountModal').classList.add('active');
-        }
-
-        function openEditAccountModal(id) {
-            const account = accounts.find(a => a.id === id);
-            if (!account) return;
-
-            currentEditId = id;
-            document.getElementById('modalTitle').textContent = 'Editar Conta';
-            document.getElementById('accountCodigo').value = account.codigo;
-            document.getElementById('accountDescricao').value = account.descricao;
-            document.getElementById('accountTipo').value = account.tipo;
-            document.getElementById('accountNivel').value = account.nivel;
-            document.getElementById('accountContaPai').value = account.conta_pai_id || '';
-            document.getElementById('accountAceitaLancamento').checked = account.aceita_lancamento;
-            updateNatureza();
-
-            document.getElementById('accountModal').classList.add('active');
-        }
-
-        function closeAccountModal() {
-            document.getElementById('accountModal').classList.remove('active');
-        }
-
-        function updateNatureza() {
-            const tipo = document.getElementById('accountTipo').value;
-            const naturezaSelect = document.getElementById('accountNatureza');
-
-            if (!tipo) {
-                naturezaSelect.disabled = true;
-                return;
-            }
-
-            naturezaSelect.disabled = false;
-
-            if (tipo === 'ATIVO' || tipo === 'DESPESA') {
-                naturezaSelect.value = 'DEVEDORA';
-            } else {
-                naturezaSelect.value = 'CREDORA';
-            }
-        }
-
-        async function saveAccount(event) {
-            event.preventDefault();
-
-            const codigo = document.getElementById('accountCodigo').value;
-            const descricao = document.getElementById('accountDescricao').value;
-            const tipo = document.getElementById('accountTipo').value;
-            const natureza = document.getElementById('accountNatureza').value;
-            const nivel = document.getElementById('accountNivel').value;
-            const conta_pai_id = document.getElementById('accountContaPai').value || null;
-            const aceita_lancamento = document.getElementById('accountAceitaLancamento').checked;
-
-            if (currentEditId) {
-                // Edit existing
-                const account = accounts.find(a => a.id === currentEditId);
-                if (account) {
-                    account.codigo = codigo;
-                    account.descricao = descricao;
-                    account.tipo = tipo;
-                    account.natureza = natureza;
-                    account.nivel = nivel;
-                    account.conta_pai_id = conta_pai_id ? parseInt(conta_pai_id) : null;
-                    account.aceita_lancamento = aceita_lancamento;
-                }
-                showMessage('Conta atualizada com sucesso!', 'success');
-            } else {
-                // Create new
-                const newAccount = {
-                    id: Math.max(...accounts.map(a => a.id), 0) + 1,
-                    codigo,
-                    descricao,
-                    tipo,
-                    natureza,
-                    nivel: parseInt(nivel),
-                    conta_pai_id: conta_pai_id ? parseInt(conta_pai_id) : null,
-                    aceita_lancamento,
-                    status: 'ativo'
-                };
-                accounts.push(newAccount);
-                showMessage('Conta criada com sucesso!', 'success');
-            }
-
-            closeAccountModal();
-            renderAccountsTree();
-            loadParentAccounts();
-        }
-
-        function showMessage(message, type) {
-            const container = document.getElementById('messageContainer');
-            const div = document.createElement('div');
-            div.className = type === 'error' ? 'error-message' : 'success-message';
-            div.textContent = message;
-            container.innerHTML = '';
-            container.appendChild(div);
-            setTimeout(() => div.remove(), 5000);
-        }
-
-        document.getElementById('filterTipo').addEventListener('change', renderAccountsTree);
-        document.getElementById('filterDescricao').addEventListener('input', renderAccountsTree);
-
-        window.addEventListener('load', initPage);
+        };
     </script>
 </body>
-</html>
+                </html>
