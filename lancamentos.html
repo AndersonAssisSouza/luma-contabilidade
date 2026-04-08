@@ -35,525 +35,192 @@
             min-height: 100vh;
         }
 
+        
+    
+        /* Sidebar - Dashboard Style */
         .sidebar {
             width: 260px;
-            background: var(--primary);
-            color: white;
-            padding: 24px 0;
-            position: fixed;
-            height: 100vh;
+            min-width: 260px;
+            background-color: #1a237e;
             overflow-y: auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px 0;
+            min-height: 100vh;
         }
-
-        .sidebar-logo {
-            padding: 0 24px 32px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 18px;
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-section-title {
+            padding: 0 24px;
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            margin-top: 16px;
-        }
-
-        .sidebar-menu li {
-            margin: 0;
-        }
-
-        .sidebar-menu a {
-            display: block;
-            padding: 12px 24px;
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-left-color: white;
-        }
-
-        .sidebar-menu a.active {
-            background: rgba(255,255,255,0.15);
-            color: white;
-            border-left-color: white;
-            font-weight: 600;
-        }
-
-        .main-content { margin-left: 250px;
-            margin-left: 260px;
-            flex: 1;
-            padding: 32px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #2e7d32;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c62828;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-
-        .summary-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-left: 4px solid var(--primary);
-        }
-
-        .summary-card.success {
-            border-left-color: var(--success);
-        }
-
-        .summary-card.danger {
-            border-left-color: var(--danger);
-        }
-
-        .summary-card-label {
-            font-size: 12px;
-            color: #666;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
             margin-bottom: 8px;
         }
-
-        .summary-card-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .summary-card.success .summary-card-value {
-            color: var(--success);
-        }
-
-        .summary-card.danger .summary-card-value {
-            color: var(--danger);
-        }
-
-        .filters {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            align-items: end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #666;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 10px 12px;
-            border: 1px solid var(--gray-medium);
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
-        }
-
-        .filters-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: var(--gray-light);
-            border-bottom: 2px solid var(--gray-medium);
-        }
-
-        th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
+        .sidebar-item {
+            padding: 10px 24px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
             font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--gray-dark);
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid var(--gray-medium);
-            font-size: 14px;
-        }
-
-        tbody tr:hover {
-            background: var(--gray-light);
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-ativo {
-            background: #c8e6c9;
-            color: #2e7d32;
-        }
-
-        .status-estornado {
-            background: #ffcdd2;
-            color: #d32f2f;
-        }
-
-        .status-pendente {
-            background: #fff9c4;
-            color: #f57f17;
-        }
-
-        .tipo-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .tipo-badge.automatico {
-            background: #f3e5f5;
-            color: #6a1b9a;
-        }
-
-        .tipo-badge.folha {
-            background: #fff3e0;
-            color: #e65100;
-        }
-
-        .tipo-badge.fiscal {
-            background: #e8f5e9;
-            color: #1b5e20;
-        }
-
-        .text-debit {
-            color: var(--success);
-            font-weight: 600;
-        }
-
-        .text-credit {
-            color: var(--danger);
-            font-weight: 600;
-        }
-
-        .actions {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
         }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #ffffff;
+            border-left-color: #ffd600;
+        }
+        .sidebar-item.active {
+            background-color: #3949ab;
+            color: #ffd600;
+            border-left-color: #ffd600;
+            font-weight: 600;
+        }
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
         }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 32px;
-            border-radius: 8px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 24px;
-            border-bottom: 2px solid var(--gray-medium);
-            padding-bottom: 16px;
-        }
-
-        .modal-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .modal-body .form-group.full {
-            grid-column: 1 / -1;
-        }
-
-        .account-group {
-            background: #f5f5f5;
-            padding: 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-        }
-
-        .account-group-title {
-            font-weight: 600;
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .account-group .form-group {
-            margin-bottom: 12px;
-        }
-
-        .account-group .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .validation-error {
-            color: var(--danger);
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            border-top: 1px solid var(--gray-medium);
-            padding-top: 20px;
-        }
-
-        .close-btn {
-            background: var(--gray-medium);
-            color: var(--text);
-        }
-
-        .close-btn:hover {
-            background: #bdbdbd;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: #999;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            background: var(--success);
-            color: white;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            z-index: 2000;
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast.error {
-            background: var(--danger);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .filters {
-                grid-template-columns: 1fr;
-            }
-
-            .summary {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-body {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-                max-width: 90vw;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            th, td {
-                padding: 8px;
-            }
-        }
-    
-        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
-        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
-        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
-        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
-        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
-        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container-app">
-            <div class="sidebar">
-        <div class="logo">📊 LUMA</div>
-        <nav>
-            <a href="./dashboard.html">📊 Dashboard</a>
-            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
-            <a href="./relatorios.html">📈 Relatórios</a>
-            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
-            <a href="./contas_receber.html">💰 Contas a Receber</a>
-            <a href="./conciliacao.html">🏦 Conciliação</a>
-            <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
-            <a href="./lancamentos.html" class="active">📝 Lançamentos</a>
-            <a href="./plano_contas.html">📑 Plano de Contas</a>
-            <a href="./balancete.html">📋 Balancete</a>
-            <a href="./dre.html">📊 DRE</a>
-            <a href="./apuracoes.html">🧮 Apurações</a>
-            <a href="./retencoes.html">🛡️ Retenções</a>
-            <a href="./darfs.html">📄 DARFs</a>
-            <a href="./obrigacoes.html">✓ Obrigações</a>
-            <a href="./clientes.html">👥 Clientes</a>
-            <a href="./fornecedores.html">🏭 Fornecedores</a>
-            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
-            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
-            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
-            <a href="./categorias.html">🏷️ Categorias</a>
-            <a href="./centros_custo.html">💼 Centros de Custo</a>
-            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
-            <a href="./usuarios.html">🤓 Usuários</a>
-            <a href="./configuracoes.html">⚙️ Configurações</a>
-            <button onclick="handleLogout()">🚪 Sair</button>
-        </nav>
-    </div>
+                    <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Principal</div>
+                <a href="./dashboard.html" class="sidebar-item">
+                    <span class="sidebar-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="./calendario_fiscal.html" class="sidebar-item">
+                    <span class="sidebar-icon">📅</span>
+                    <span>Calendário Fiscal</span>
+                </a>
+                <a href="./relatorios.html" class="sidebar-item">
+                    <span class="sidebar-icon">📈</span>
+                    <span>Relatórios</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Financeiro</div>
+                <a href="./contas_pagar.html" class="sidebar-item">
+                    <span class="sidebar-icon">💳</span>
+                    <span>Contas a Pagar</span>
+                </a>
+                <a href="./contas_receber.html" class="sidebar-item">
+                    <span class="sidebar-icon">💰</span>
+                    <span>Contas a Receber</span>
+                </a>
+                <a href="./conciliacao.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏦</span>
+                    <span>Conciliação Bancária</span>
+                </a>
+                <a href="./fluxo_caixa.html" class="sidebar-item">
+                    <span class="sidebar-icon">📈</span>
+                    <span>Fluxo de Caixa</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Contábil</div>
+                <a href="./lancamentos.html" class="sidebar-item active">
+                    <span class="sidebar-icon">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="./plano_contas.html" class="sidebar-item">
+                    <span class="sidebar-icon">📑</span>
+                    <span>Plano de Contas</span>
+                </a>
+                <a href="./balancete.html" class="sidebar-item">
+                    <span class="sidebar-icon">📋</span>
+                    <span>Balancete</span>
+                </a>
+                <a href="./dre.html" class="sidebar-item">
+                    <span class="sidebar-icon">📊</span>
+                    <span>DRE</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Fiscal</div>
+                <a href="./apuracoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">🧮</span>
+                    <span>Apurações</span>
+                </a>
+                <a href="./retencoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">🛡️</span>
+                    <span>Retenções</span>
+                </a>
+                <a href="./darfs.html" class="sidebar-item">
+                    <span class="sidebar-icon">📄</span>
+                    <span>DARFs</span>
+                </a>
+                <a href="./obrigacoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Obrigações</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Comercial</div>
+                <a href="./clientes.html" class="sidebar-item">
+                    <span class="sidebar-icon">👥</span>
+                    <span>Clientes</span>
+                </a>
+                <a href="./fornecedores.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏭</span>
+                    <span>Fornecedores</span>
+                </a>
+                <a href="./notas_fiscais.html" class="sidebar-item">
+                    <span class="sidebar-icon">🧾</span>
+                    <span>Notas Fiscais</span>
+                </a>
+                <a href="./pedidos_venda.html" class="sidebar-item">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>Pedidos de Venda</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Cadastros</div>
+                <a href="./produtos_servicos.html" class="sidebar-item">
+                    <span class="sidebar-icon">📦</span>
+                    <span>Produtos/Serviços</span>
+                </a>
+                <a href="./categorias.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏷️</span>
+                    <span>Categorias</span>
+                </a>
+                <a href="./centros_custo.html" class="sidebar-item">
+                    <span class="sidebar-icon">💼</span>
+                    <span>Centros de Custo</span>
+                </a>
+                <a href="./contas_bancarias.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏦</span>
+                    <span>Contas Bancárias</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Configurações</div>
+                <a href="./configuracoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+                <a href="./usuarios.html" class="sidebar-item">
+                    <span class="sidebar-icon">🔐</span>
+                    <span>Usuários</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title"></div>
+                <a href="#" class="sidebar-item" onclick="event.preventDefault(); handleLogout();">
+                    <span class="sidebar-icon">🚪</span>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </aside>
 
         <main class="main-content">
             <div class="header">

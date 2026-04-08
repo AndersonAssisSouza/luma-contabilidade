@@ -1310,7 +1310,7 @@
         // Check Conta Azul integration status
         async function checkContaAzul() {
             try {
-                const profile = await getProfile();
+                const { data: profile } = await getProfile();
                 if (!profile?.tenant_id) return;
                 caEmpresaId = profile.tenant_id;
 

@@ -23,433 +23,193 @@
         }
 
         /* Sidebar */
+        
+    
+        /* Sidebar - Dashboard Style */
         .sidebar {
             width: 260px;
+            min-width: 260px;
             background-color: #1a237e;
-            color: white;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
             overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            padding: 24px 0;
+            min-height: 100vh;
         }
-
-        .logo {
-            padding: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-
-        .nav {
-            list-style: none;
-        }
-
-        .nav li {
-            margin: 0;
-        }
-
-        .nav a {
-            display: block;
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            padding: 12px 20px;
-            border-left: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .nav a:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .nav a.active {
-            background-color: rgba(255,255,255,0.1);
-            border-left-color: #fff;
-            color: white;
-        }
-
-        /* Main content */
-        .main { margin-left: 250px;
-            margin-left: 260px;
-            flex: 1;
-            padding: 30px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            color: #1a237e;
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .control-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .control-group label {
-            font-weight: 500;
-            color: #555;
-            font-size: 14px;
-        }
-
-        select, input[type="date"] {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: white;
-            cursor: pointer;
-        }
-
-        select:focus, input[type="date"]:focus {
-            outline: none;
-            border-color: #1a237e;
-            box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
-        }
-
-        .view-toggle {
-            display: flex;
-            gap: 5px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 2px;
-        }
-
-        .view-btn {
-            padding: 6px 12px;
-            background-color: transparent;
-            color: #555;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-
-        .view-btn.active {
-            background-color: #1a237e;
-            color: white;
-        }
-
-        button {
-            padding: 8px 16px;
-            background-color: #1a237e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #0d1850;
-        }
-
-        button.secondary {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        button.secondary:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* Summary Cards */
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .card-title {
-            font-size: 12px;
-            color: #999;
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-section-title {
+            padding: 0 24px;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 10px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
         }
-
-        .card-value {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1a237e;
-            font-family: 'Courier New', monospace;
-        }
-
-        .card.positive .card-value {
-            color: #2e7d32;
-        }
-
-        .card.negative .card-value {
-            color: #c62828;
-        }
-
-        /* Sections */
-        .section {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: 25px;
-        }
-
-        .section-header {
-            padding: 15px 20px;
-            background-color: #f5f5f5;
-            border-bottom: 2px solid #1a237e;
-            font-weight: 600;
-            color: #1a237e;
-            font-size: 15px;
-        }
-
-        .section-content {
-            padding: 20px;
-        }
-
-        .transaction-item {
+        .sidebar-item {
+            padding: 10px 24px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
+            gap: 12px;
+            text-decoration: none;
         }
-
-        .transaction-item:last-child {
-            border-bottom: none;
+        .sidebar-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #ffffff;
+            border-left-color: #ffd600;
         }
-
-        .transaction-label {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .transaction-name {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .transaction-date {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .transaction-value {
+        .sidebar-item.active {
+            background-color: #3949ab;
+            color: #ffd600;
+            border-left-color: #ffd600;
             font-weight: 600;
-            font-family: 'Courier New', monospace;
+        }
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
         }
-
-        .transaction-value.positive {
-            color: #2e7d32;
-        }
-
-        .transaction-value.negative {
-            color: #c62828;
-        }
-
-        /* Chart */
-        .chart-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .chart-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a237e;
-            margin-bottom: 20px;
-        }
-
-        .chart-canvas {
-            width: 100%;
-            height: 300px;
-            position: relative;
-        }
-
-        /* Line chart using CSS */
-        .line-chart {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            height: 250px;
-            gap: 8px;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .chart-bar {
-            flex: 1;
-            background-color: #1a237e;
-            border-radius: 4px 4px 0 0;
-            position: relative;
-            min-height: 20px;
-        }
-
-        .chart-bar.positive {
-            background-color: #2e7d32;
-        }
-
-        .chart-bar.negative {
-            background-color: #c62828;
-        }
-
-        .chart-label {
-            position: absolute;
-            bottom: -25px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 11px;
-            color: #666;
-        }
-
-        .chart-value {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            font-weight: 600;
-            color: #333;
-            white-space: nowrap;
-        }
-
-        /* Projection section */
-        .projection-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-        }
-
-        .projection-item {
-            text-align: center;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-        }
-
-        .projection-period {
-            font-size: 11px;
-            color: #999;
-            margin-bottom: 5px;
-        }
-
-        .projection-balance {
-            font-size: 16px;
-            font-weight: 600;
-            font-family: 'Courier New', monospace;
-            color: #1a237e;
-        }
-
-        .projection-balance.positive {
-            color: #2e7d32;
-        }
-
-        .projection-balance.negative {
-            color: #c62828;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .error {
-            background-color: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .success {
-            background-color: #e8f5e9;
-            border: 1px solid #66bb6a;
-            color: #2e7d32;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-    
-        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
-        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
-        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
-        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
-        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
-        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-            <div class="sidebar">
-        <div class="logo">📊 LUMA</div>
-        <nav>
-            <a href="./dashboard.html">📊 Dashboard</a>
-            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
-            <a href="./relatorios.html">📈 Relatórios</a>
-            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
-            <a href="./contas_receber.html">💰 Contas a Receber</a>
-            <a href="./conciliacao.html">🏦 Conciliação</a>
-            <a href="./fluxo_caixa.html" class="active">📊 Fluxo de Caixa</a>
-            <a href="./lancamentos.html">📝 Lançamentos</a>
-            <a href="./plano_contas.html">📑 Plano de Contas</a>
-            <a href="./balancete.html">📋 Balancete</a>
-            <a href="./dre.html">📊 DRE</a>
-            <a href="./apuracoes.html">🧮 Apurações</a>
-            <a href="./retencoes.html">🛡️ Retenções</a>
-            <a href="./darfs.html">📄 DARFs</a>
-            <a href="./obrigacoes.html">✓ Obrigações</a>
-            <a href="./clientes.html">👥 Clientes</a>
-            <a href="./fornecedores.html">🏭 Fornecedores</a>
-            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
-            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
-            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
-            <a href="./categorias.html">🏷️ Categorias</a>
-            <a href="./centros_custo.html">💼 Centros de Custo</a>
-            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
-            <a href="./usuarios.html">🤓 Usuários</a>
-            <a href="./configuracoes.html">⚙️ Configurações</a>
-            <button onclick="handleLogout()">🚪 Sair</button>
-        </nav>
-    </div>
+                    <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Principal</div>
+                <a href="./dashboard.html" class="sidebar-item">
+                    <span class="sidebar-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="./calendario_fiscal.html" class="sidebar-item">
+                    <span class="sidebar-icon">📅</span>
+                    <span>Calendário Fiscal</span>
+                </a>
+                <a href="./relatorios.html" class="sidebar-item">
+                    <span class="sidebar-icon">📈</span>
+                    <span>Relatórios</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Financeiro</div>
+                <a href="./contas_pagar.html" class="sidebar-item">
+                    <span class="sidebar-icon">💳</span>
+                    <span>Contas a Pagar</span>
+                </a>
+                <a href="./contas_receber.html" class="sidebar-item">
+                    <span class="sidebar-icon">💰</span>
+                    <span>Contas a Receber</span>
+                </a>
+                <a href="./conciliacao.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏦</span>
+                    <span>Conciliação Bancária</span>
+                </a>
+                <a href="./fluxo_caixa.html" class="sidebar-item active">
+                    <span class="sidebar-icon">📈</span>
+                    <span>Fluxo de Caixa</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Contábil</div>
+                <a href="./lancamentos.html" class="sidebar-item">
+                    <span class="sidebar-icon">📝</span>
+                    <span>Lançamentos</span>
+                </a>
+                <a href="./plano_contas.html" class="sidebar-item">
+                    <span class="sidebar-icon">📑</span>
+                    <span>Plano de Contas</span>
+                </a>
+                <a href="./balancete.html" class="sidebar-item">
+                    <span class="sidebar-icon">📋</span>
+                    <span>Balancete</span>
+                </a>
+                <a href="./dre.html" class="sidebar-item">
+                    <span class="sidebar-icon">📊</span>
+                    <span>DRE</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Fiscal</div>
+                <a href="./apuracoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">🧮</span>
+                    <span>Apurações</span>
+                </a>
+                <a href="./retencoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">🛡️</span>
+                    <span>Retenções</span>
+                </a>
+                <a href="./darfs.html" class="sidebar-item">
+                    <span class="sidebar-icon">📄</span>
+                    <span>DARFs</span>
+                </a>
+                <a href="./obrigacoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">✓</span>
+                    <span>Obrigações</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Comercial</div>
+                <a href="./clientes.html" class="sidebar-item">
+                    <span class="sidebar-icon">👥</span>
+                    <span>Clientes</span>
+                </a>
+                <a href="./fornecedores.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏭</span>
+                    <span>Fornecedores</span>
+                </a>
+                <a href="./notas_fiscais.html" class="sidebar-item">
+                    <span class="sidebar-icon">🧾</span>
+                    <span>Notas Fiscais</span>
+                </a>
+                <a href="./pedidos_venda.html" class="sidebar-item">
+                    <span class="sidebar-icon">🛒</span>
+                    <span>Pedidos de Venda</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Cadastros</div>
+                <a href="./produtos_servicos.html" class="sidebar-item">
+                    <span class="sidebar-icon">📦</span>
+                    <span>Produtos/Serviços</span>
+                </a>
+                <a href="./categorias.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏷️</span>
+                    <span>Categorias</span>
+                </a>
+                <a href="./centros_custo.html" class="sidebar-item">
+                    <span class="sidebar-icon">💼</span>
+                    <span>Centros de Custo</span>
+                </a>
+                <a href="./contas_bancarias.html" class="sidebar-item">
+                    <span class="sidebar-icon">🏦</span>
+                    <span>Contas Bancárias</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Configurações</div>
+                <a href="./configuracoes.html" class="sidebar-item">
+                    <span class="sidebar-icon">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+                <a href="./usuarios.html" class="sidebar-item">
+                    <span class="sidebar-icon">🔐</span>
+                    <span>Usuários</span>
+                </a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title"></div>
+                <a href="#" class="sidebar-item" onclick="event.preventDefault(); handleLogout();">
+                    <span class="sidebar-icon">🚪</span>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </aside>
 
         <!-- Main Content -->
         <main class="main">
@@ -581,7 +341,7 @@
 
         async function checkContaAzul() {
             try {
-                const profile = await getProfile();
+                const { data: profile } = await getProfile();
                 if (!profile?.tenant_id) return;
                 caEmpresaId = profile.tenant_id;
                 const { data } = await supabase.from('contaazul_tokens')
