@@ -806,7 +806,7 @@
   </div>
 
   <script type="module">
-    import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+    import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
     import { contaAzulAuthorize, contaAzulCallback, contaAzulStatus, contaAzulTest, contaAzulSync } from './scripts/contaazul_client.js';
 
     // Auth guard - only master role can access settings
@@ -825,10 +825,19 @@
         currentUser = user;
         updateUserInfo();
 
-        // Get tenant data
+        // Get profile to find tenant_id
+        const { data: profile, error: profileError } = await getProfile();
+        if (profileError || !profile?.tenant_id) {
+          console.error('Perfil não encontrado ou sem tenant_id:', profileError);
+          showError('Perfil não encontrado. Verifique seu cadastro.');
+          return;
+        }
+
+        // Get tenant data using tenant_id from profile
         const { data: tenantData, error: tenantError } = await supabase
           .from('tenants')
           .select('*')
+          .eq('id', profile.tenant_id)
           .single();
 
         if (tenantError && tenantError.code !== 'PGRST116') throw tenantError;
@@ -1173,12 +1182,6 @@
       if (confirm('Cancelar assinatura? Esta ação é irreversível.')) {
         showWarning('Processando cancelamento...');
       }
-    });
-
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = './login.html';
     });
 
     document.getElementById('cancelBtn').addEventListener('click', () => {
