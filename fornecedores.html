@@ -676,9 +676,11 @@
     </div>
 
     <script type="module">
-        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
 
         let currentFornecedorId = null;
 
@@ -785,17 +787,59 @@
             });
         });
 
+        async function checkContaAzul() {
+            try {
+                const profile = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
+
         async function loadFornecedores() {
             try {
                 showLoading(true);
-                const { data, error } = await supabase
-                    .from('fornecedores')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                await checkContaAzul();
 
-                if (error) throw error;
+                if (caConnected && caEmpresaId) {
+                    const { data, error } = await supabase
+                        .from('ca_pessoas')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .eq('ativo', true)
+                        .order('nome');
 
-                renderFornecedores(data || []);
+                    if (error) throw error;
+
+                    const fornecedores = (data || []).filter(p =>
+                        Array.isArray(p.tipo_relacao) ? p.tipo_relacao.some(t => t === 'SUPPLIER' || t === 'Fornecedor') : true
+                    ).map(p => ({
+                        id: p.id,
+                        nome: p.nome,
+                        cpf_cnpj: p.documento || '-',
+                        email: p.email || '-',
+                        telefone: p.telefone || '-',
+                        cidade: p.endereco_cidade || '-',
+                        uf: p.endereco_uf || '-',
+                        ativo: p.ativo,
+                        _source: 'contaazul'
+                    }));
+                    renderFornecedores(fornecedores);
+                    showToast('Fornecedores carregados da Conta Azul', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('fornecedores')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+                    renderFornecedores(data || []);
+                }
             } catch (error) {
                 console.error('Erro ao carregar fornecedores:', error);
                 showToast('Erro ao carregar fornecedores', 'error');

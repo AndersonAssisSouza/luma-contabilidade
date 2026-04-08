@@ -707,9 +707,11 @@
     </div>
 
     <script type="module">
-        import { supabase, logout, getSession } from './scripts/supabase_client_contab.js';
+        import { supabase, logout, getSession, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
 
         let contas = [];
         let contaAtualId = null;
@@ -717,11 +719,26 @@
         let centrosCusto = [];
         let contasBancarias = [];
 
+        async function checkContaAzul() {
+            try {
+                const profile = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
+
         async function init() {
             try {
                 const session = await getSession();
                 if (!session || !session.user) { window.location.href = './login.html'; return; }
                 currentUser = session.user;
+                await checkContaAzul();
                 await loadDados();
                 setupEventListeners();
                 await fetchContas();
@@ -772,11 +789,32 @@
 
         async function fetchContas() {
             try {
-                const response = await supabase.from('contas_pagar')
-                    .select('*, fornecedores(nome)')
-                    .order('data_vencimento', { ascending: false });
+                if (caConnected && caEmpresaId) {
+                    // Fetch from Conta Azul synced data
+                    const [caRes, pessoasRes] = await Promise.all([
+                        supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId).order('data_vencimento', { ascending: false }),
+                        supabase.from('ca_pessoas').select('id, nome').eq('empresa_id', caEmpresaId)
+                    ]);
+                    const pessoasMap = {};
+                    (pessoasRes.data || []).forEach(p => { pessoasMap[p.id] = p.nome; });
 
-                contas = response.data || [];
+                    contas = (caRes.data || []).map(ca => ({
+                        id: ca.id,
+                        descricao: ca.descricao || '-',
+                        valor: parseFloat(ca.total) || 0,
+                        data_vencimento: ca.data_vencimento,
+                        data_pagamento: ca.status === 'PAID' || ca.status === 'pago' ? ca.data_alteracao : null,
+                        status: ca.status,
+                        fornecedores: { nome: pessoasMap[ca.pessoa_id] || '-' },
+                        _source: 'contaazul'
+                    }));
+                    showToast('Dados carregados da Conta Azul', 'success');
+                } else {
+                    const response = await supabase.from('contas_pagar')
+                        .select('*, fornecedores(nome)')
+                        .order('data_vencimento', { ascending: false });
+                    contas = response.data || [];
+                }
                 renderTabela();
                 updateSummary();
             } catch (error) {

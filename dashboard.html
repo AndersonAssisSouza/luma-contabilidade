@@ -1239,11 +1239,14 @@
 
     <script type="module">
         import { supabase, getSession, logout, getTenant, getProfile } from './scripts/supabase_client_contab.js';
+        import { contaAzulStatus } from './scripts/contaazul_client.js';
 
         // Application State
         let currentUser = null;
         let currentTenant = null;
         let sidebarOpen = false;
+        let caConnected = false;
+        let caEmpresaId = null;
 
         // Initialize Application
         async function initializeApp() {
@@ -1264,6 +1267,9 @@
 
                 // Set up event listeners
                 setupEventListeners();
+
+                // Check Conta Azul integration
+                await checkContaAzul();
 
                 // Load dashboard data
                 loadDashboardData();
@@ -1301,81 +1307,141 @@
             currentTenant = { name: tenantName };
         }
 
-        // Load Dashboard Data from Supabase
+        // Check Conta Azul integration status
+        async function checkContaAzul() {
+            try {
+                const profile = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId)
+                    .single();
+
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                    // Show CA badge in header
+                    const header = document.querySelector('.header h2') || document.querySelector('.content h2');
+                    if (header) {
+                        const badge = document.createElement('span');
+                        badge.style.cssText = 'background:#4caf50;color:white;font-size:11px;padding:3px 8px;border-radius:12px;margin-left:10px;vertical-align:middle;';
+                        badge.textContent = '🔗 Conta Azul';
+                        header.appendChild(badge);
+                    }
+                }
+            } catch (e) {
+                console.warn('Conta Azul check:', e.message);
+            }
+        }
+
+        // Load Dashboard Data from Supabase (or Conta Azul when connected)
         async function loadDashboardData() {
             try {
                 const hoje = new Date().toISOString().split('T')[0];
                 const em30d = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
 
-                // Fetch all KPI data in parallel
-                const [bancosRes, receberRes, pagarRes, receberVencRes, pagarVencRes, obrigRes] = await Promise.all([
-                    supabase.from('contas_bancarias').select('saldo, saldo_inicial'),
-                    supabase.from('contas_receber').select('valor, status').eq('status', 'pendente').lte('data_vencimento', em30d),
-                    supabase.from('contas_pagar').select('valor, status').eq('status', 'pendente').lte('data_vencimento', em30d),
-                    supabase.from('contas_receber').select('valor, descricao, data_vencimento').eq('status', 'pendente').lt('data_vencimento', hoje),
-                    supabase.from('contas_pagar').select('valor, descricao, data_vencimento').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento'),
-                    supabase.from('calendario_obrigacoes').select('*').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
-                ]);
+                let saldoTotal, totalReceber, totalPagar, receberData, pagarData, receberVencData;
 
-                const saldoTotal = (bancosRes.data || []).reduce((s, c) => s + (c.saldo || c.saldo_inicial || 0), 0);
-                const totalReceber = (receberRes.data || []).reduce((s, c) => s + (c.valor || 0), 0);
-                const totalPagar = (pagarRes.data || []).reduce((s, c) => s + (c.valor || 0), 0);
-                const resultado = saldoTotal + totalReceber - totalPagar;
+                if (caConnected && caEmpresaId) {
+                    // === CONTA AZUL DATA ===
+                    const [contasFinRes, caReceberRes, caPagarRes, obrigRes] = await Promise.all([
+                        supabase.from('ca_contas_financeiras').select('nome, saldo_atual, tipo').eq('empresa_id', caEmpresaId).eq('ativo', true),
+                        supabase.from('ca_contas_receber').select('descricao, total, nao_pago, status, data_vencimento, pessoa_id').eq('empresa_id', caEmpresaId).in('status', ['PENDING', 'PARTIALLY_RECEIVED', 'pendente']),
+                        supabase.from('ca_contas_pagar').select('descricao, total, nao_pago, status, data_vencimento, pessoa_id').eq('empresa_id', caEmpresaId).in('status', ['PENDING', 'PARTIALLY_PAID', 'pendente']),
+                        supabase.from('calendario_obrigacoes').select('*').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
+                    ]);
 
-                const vencidasCount = (receberVencRes.data || []).length + (pagarVencRes.data || []).filter(p => p.data_vencimento < hoje).length;
+                    saldoTotal = (contasFinRes.data || []).reduce((s, c) => s + (parseFloat(c.saldo_atual) || 0), 0);
+                    totalReceber = (caReceberRes.data || []).reduce((s, c) => s + (parseFloat(c.nao_pago) || parseFloat(c.total) || 0), 0);
+                    totalPagar = (caPagarRes.data || []).reduce((s, c) => s + (parseFloat(c.nao_pago) || parseFloat(c.total) || 0), 0);
 
-                document.getElementById('kpiTotal').textContent = formatCurrency(saldoTotal);
-                document.getElementById('kpiReceber').textContent = formatCurrency(totalReceber);
-                document.getElementById('kpiPagar').textContent = formatCurrency(totalPagar);
-                document.getElementById('kpiResultado').textContent = formatCurrency(resultado);
+                    receberData = caReceberRes.data || [];
+                    pagarData = caPagarRes.data || [];
+                    receberVencData = receberData.filter(r => r.data_vencimento && r.data_vencimento < hoje);
 
-                // Update KPI change indicators
-                const kpiReceberChange = document.querySelector('#kpiReceber').nextElementSibling;
-                if (kpiReceberChange) kpiReceberChange.textContent = `${(receberRes.data || []).length} pendentes`;
+                    updateKPIs(saldoTotal, totalReceber, totalPagar, receberData, pagarData, receberVencData, obrigRes.data);
+                } else {
+                    // === LUMA NATIVE DATA ===
+                    const [bancosRes, receberRes, pagarRes, receberVencRes, pagarVencRes, obrigRes] = await Promise.all([
+                        supabase.from('contas_bancarias').select('saldo, saldo_inicial'),
+                        supabase.from('contas_receber').select('valor, status').eq('status', 'pendente').lte('data_vencimento', em30d),
+                        supabase.from('contas_pagar').select('valor, status').eq('status', 'pendente').lte('data_vencimento', em30d),
+                        supabase.from('contas_receber').select('valor, descricao, data_vencimento').eq('status', 'pendente').lt('data_vencimento', hoje),
+                        supabase.from('contas_pagar').select('valor, descricao, data_vencimento').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento'),
+                        supabase.from('calendario_obrigacoes').select('*').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
+                    ]);
 
-                const kpiPagarChange = document.querySelector('#kpiPagar').nextElementSibling;
-                if (kpiPagarChange) kpiPagarChange.textContent = `${vencidasCount} vencidas`;
+                    saldoTotal = (bancosRes.data || []).reduce((s, c) => s + (c.saldo || c.saldo_inicial || 0), 0);
+                    totalReceber = (receberRes.data || []).reduce((s, c) => s + (c.valor || 0), 0);
+                    totalPagar = (pagarRes.data || []).reduce((s, c) => s + (c.valor || 0), 0);
 
-                const kpiResultadoChange = document.querySelector('#kpiResultado').nextElementSibling;
-                if (kpiResultadoChange) {
-                    kpiResultadoChange.textContent = resultado >= 0 ? 'Positivo' : 'Negativo';
-                    kpiResultadoChange.className = `kpi-change ${resultado >= 0 ? 'positive' : 'negative'}`;
-                }
+                    receberData = receberRes.data || [];
+                    pagarData = pagarVencRes.data || [];
+                    receberVencData = receberVencRes.data || [];
 
-                // Update obrigações table
-                const obrigTbody = document.querySelector('#calendario-fiscal')?.previousElementSibling?.querySelector('table tbody') ||
-                    document.querySelectorAll('.card .table-wrapper table tbody')[0];
-                if (obrigTbody && obrigRes.data) {
-                    obrigTbody.innerHTML = (obrigRes.data || []).map(ob => {
-                        const venc = new Date(ob.data_vencimento);
-                        const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
-                        const statusClass = diasAte < 0 ? 'status-vencido' : diasAte < 7 ? 'status-vencendo' : 'status-normal';
-                        const statusText = diasAte < 0 ? 'Vencido' : diasAte < 7 ? 'Próximo' : 'Agendado';
-                        return `<tr><td>${ob.titulo || ob.nome || '-'}</td><td>${venc.toLocaleDateString('pt-BR')}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
-                    }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999;">Nenhuma obrigação pendente</td></tr>';
-                }
-
-                // Update contas vencidas table
-                const contasTbody = document.querySelectorAll('.card .table-wrapper table tbody')[1];
-                if (contasTbody) {
-                    const contasVenc = (pagarVencRes.data || []).slice(0, 4);
-                    contasTbody.innerHTML = contasVenc.map(c => {
-                        const venc = new Date(c.data_vencimento);
-                        const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
-                        const statusClass = diasAte < 0 ? 'status-vencido' : diasAte === 0 ? 'status-vencendo' : 'status-normal';
-                        const statusText = diasAte < 0 ? 'Vencido' : diasAte === 0 ? 'Hoje' : `Em ${diasAte} dias`;
-                        return `<tr><td>${c.descricao || '-'}</td><td>${formatCurrency(c.valor)}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
-                    }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999;">Nenhuma conta vencida</td></tr>';
+                    updateKPIs(saldoTotal, totalReceber, totalPagar, receberData, pagarData, receberVencData, obrigRes.data);
                 }
 
                 updateNotifications();
             } catch (error) {
                 console.error('Erro ao carregar dashboard:', error);
-                // Fallback to zeros
                 document.getElementById('kpiTotal').textContent = formatCurrency(0);
                 document.getElementById('kpiReceber').textContent = formatCurrency(0);
                 document.getElementById('kpiPagar').textContent = formatCurrency(0);
                 document.getElementById('kpiResultado').textContent = formatCurrency(0);
+            }
+        }
+
+        function updateKPIs(saldoTotal, totalReceber, totalPagar, receberData, pagarData, receberVencData, obrigData) {
+            const hoje = new Date().toISOString().split('T')[0];
+            const resultado = saldoTotal + totalReceber - totalPagar;
+            const vencidasCount = receberVencData.length + pagarData.filter(p => p.data_vencimento < hoje).length;
+
+            document.getElementById('kpiTotal').textContent = formatCurrency(saldoTotal);
+            document.getElementById('kpiReceber').textContent = formatCurrency(totalReceber);
+            document.getElementById('kpiPagar').textContent = formatCurrency(totalPagar);
+            document.getElementById('kpiResultado').textContent = formatCurrency(resultado);
+
+            const sourceLabel = caConnected ? ' (Conta Azul)' : '';
+
+            const kpiReceberChange = document.querySelector('#kpiReceber').nextElementSibling;
+            if (kpiReceberChange) kpiReceberChange.textContent = `${receberData.length} pendentes${sourceLabel}`;
+
+            const kpiPagarChange = document.querySelector('#kpiPagar').nextElementSibling;
+            if (kpiPagarChange) kpiPagarChange.textContent = `${vencidasCount} vencidas${sourceLabel}`;
+
+            const kpiResultadoChange = document.querySelector('#kpiResultado').nextElementSibling;
+            if (kpiResultadoChange) {
+                kpiResultadoChange.textContent = resultado >= 0 ? 'Positivo' : 'Negativo';
+                kpiResultadoChange.className = `kpi-change ${resultado >= 0 ? 'positive' : 'negative'}`;
+            }
+
+            // Update obrigações table
+            const obrigTbody = document.querySelector('#calendario-fiscal')?.previousElementSibling?.querySelector('table tbody') ||
+                document.querySelectorAll('.card .table-wrapper table tbody')[0];
+            if (obrigTbody && obrigData) {
+                obrigTbody.innerHTML = (obrigData || []).map(ob => {
+                    const venc = new Date(ob.data_vencimento);
+                    const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
+                    const statusClass = diasAte < 0 ? 'status-vencido' : diasAte < 7 ? 'status-vencendo' : 'status-normal';
+                    const statusText = diasAte < 0 ? 'Vencido' : diasAte < 7 ? 'Próximo' : 'Agendado';
+                    return `<tr><td>${ob.titulo || ob.nome || '-'}</td><td>${venc.toLocaleDateString('pt-BR')}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
+                }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999;">Nenhuma obrigação pendente</td></tr>';
+            }
+
+            // Update contas vencidas table
+            const contasTbody = document.querySelectorAll('.card .table-wrapper table tbody')[1];
+            if (contasTbody) {
+                const contasVenc = pagarData.slice(0, 4);
+                contasTbody.innerHTML = contasVenc.map(c => {
+                    const venc = new Date(c.data_vencimento);
+                    const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
+                    const statusClass = diasAte < 0 ? 'status-vencido' : diasAte === 0 ? 'status-vencendo' : 'status-normal';
+                    const statusText = diasAte < 0 ? 'Vencido' : diasAte === 0 ? 'Hoje' : `Em ${diasAte} dias`;
+                    const valor = c.valor || c.nao_pago || c.total || 0;
+                    return `<tr><td>${c.descricao || '-'}</td><td>${formatCurrency(valor)}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
+                }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999;">Nenhuma conta vencida</td></tr>';
             }
         }
 

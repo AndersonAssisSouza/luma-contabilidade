@@ -573,9 +573,25 @@
     </div>
 
     <script type="module">
-        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
+
+        async function checkContaAzul() {
+            try {
+                const profile = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
 
         // Format currency
         function formatCurrency(value) {
@@ -587,34 +603,63 @@
             }).format(value);
         }
 
-        // Load real cash flow data from Supabase
+        // Load real cash flow data from Supabase (or Conta Azul when connected)
         async function generateRealData() {
             const today = new Date();
             const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
             const monthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
 
-            // Fetch contas a receber (entradas), contas a pagar (saidas), and saldo bancario
-            const [recRes, pagRes, bancoRes] = await Promise.all([
-                supabase.from('contas_receber').select('*').gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
-                supabase.from('contas_pagar').select('*').gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
-                supabase.from('contas_bancarias').select('*')
-            ]);
+            let recebimentos, pagamentos, saldoBancario;
 
-            const recebimentos = (recRes.data || []).map(r => ({
-                name: r.descricao || r.numero_documento || 'Recebimento',
-                value: r.valor || 0,
-                date: new Date(r.data_vencimento),
-                status: r.status
-            }));
+            if (caConnected && caEmpresaId) {
+                // === CONTA AZUL DATA ===
+                const [caRecRes, caPagRes, caContasRes] = await Promise.all([
+                    supabase.from('ca_contas_receber').select('*').eq('empresa_id', caEmpresaId)
+                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                    supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId)
+                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                    supabase.from('ca_contas_financeiras').select('*').eq('empresa_id', caEmpresaId).eq('ativo', true)
+                ]);
 
-            const pagamentos = (pagRes.data || []).map(p => ({
-                name: p.descricao || p.numero_documento || 'Pagamento',
-                value: p.valor || 0,
-                date: new Date(p.data_vencimento),
-                status: p.status
-            }));
+                recebimentos = (caRecRes.data || []).map(r => ({
+                    name: r.descricao || 'Recebimento',
+                    value: parseFloat(r.nao_pago) || parseFloat(r.total) || 0,
+                    date: new Date(r.data_vencimento),
+                    status: r.status
+                }));
 
-            const saldoBancario = (bancoRes.data || []).reduce((sum, c) => sum + (c.saldo || c.saldo_inicial || 0), 0);
+                pagamentos = (caPagRes.data || []).map(p => ({
+                    name: p.descricao || 'Pagamento',
+                    value: parseFloat(p.nao_pago) || parseFloat(p.total) || 0,
+                    date: new Date(p.data_vencimento),
+                    status: p.status
+                }));
+
+                saldoBancario = (caContasRes.data || []).reduce((sum, c) => sum + (parseFloat(c.saldo_atual) || 0), 0);
+            } else {
+                // === LUMA NATIVE DATA ===
+                const [recRes, pagRes, bancoRes] = await Promise.all([
+                    supabase.from('contas_receber').select('*').gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                    supabase.from('contas_pagar').select('*').gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                    supabase.from('contas_bancarias').select('*')
+                ]);
+
+                recebimentos = (recRes.data || []).map(r => ({
+                    name: r.descricao || r.numero_documento || 'Recebimento',
+                    value: r.valor || 0,
+                    date: new Date(r.data_vencimento),
+                    status: r.status
+                }));
+
+                pagamentos = (pagRes.data || []).map(p => ({
+                    name: p.descricao || p.numero_documento || 'Pagamento',
+                    value: p.valor || 0,
+                    date: new Date(p.data_vencimento),
+                    status: p.status
+                }));
+
+                saldoBancario = (bancoRes.data || []).reduce((sum, c) => sum + (c.saldo || c.saldo_inicial || 0), 0);
+            }
 
             const monthly_inflows = recebimentos.reduce((s, r) => s + r.value, 0);
             const monthly_outflows = pagamentos.reduce((s, p) => s + p.value, 0);
@@ -805,6 +850,7 @@
                 const session = await getSession();
                 if (!session || !session.user) { window.location.href = './login.html'; return; }
                 currentUser = session.user;
+                await checkContaAzul();
                 loadData();
             } catch (error) {
                 showMessage('Erro de autenticação: ' + error.message, 'error');
