@@ -871,7 +871,7 @@
         async function loadDados() {
             try {
                 const [contasData, ccData] = await Promise.all([
-                    supabase.from('plano_contas').select('id, codigo, nome, tipo').order('codigo'),
+                    supabase.from('plano_contas').select('id, codigo, descricao, tipo').order('codigo'),
                     supabase.from('centros_custo').select('id, nome').order('nome')
                 ]);
 
@@ -892,7 +892,7 @@
 
             let optionsHtml = '<option value="">Selecione...</option>';
             planoContas.forEach(c => {
-                optionsHtml += `<option value="${c.id}">${c.codigo} - ${c.nome}</option>`;
+                optionsHtml += `<option value="${c.id}">${c.codigo} - ${c.descricao}</option>`;
             });
 
             debitoSelect.innerHTML = optionsHtml;
@@ -909,11 +909,11 @@
         async function fetchLancamentos() {
             try {
                 const response = await supabase
-                    .from('lancamentos_contabeis')
+                    .from('lancamentos')
                     .select(`
                         *,
-                        conta_debito:plano_contas!conta_debito_id(codigo, nome),
-                        conta_credito:plano_contas!conta_credito_id(codigo, nome)
+                        conta_debito:plano_contas!conta_debito_id(codigo, descricao),
+                        conta_credito:plano_contas!conta_credito_id(codigo, descricao)
                     `)
                     .order('data_lancamento', { ascending: false });
 
@@ -928,7 +928,7 @@
         }
 
         function getStatusBadge(status) {
-            if (status === 'estornado') {
+            if (status === 'ESTORNADO') {
                 return '<span class="status-badge status-estornado">Estornado</span>';
             }
             return '<span class="status-badge status-ativo">Ativo</span>';
@@ -967,17 +967,17 @@
                 return `
                     <tr>
                         <td>${formatData(lance.data_lancamento)}</td>
-                        <td>${lance.numero || index + 1}</td>
-                        <td>${lance.conta_debito?.codigo} - ${lance.conta_debito?.nome}</td>
+                        <td>${lance.numero_lancamento || index + 1}</td>
+                        <td>${lance.conta_debito?.codigo} - ${lance.conta_debito?.descricao}</td>
                         <td class="text-debit">${formatValor(lance.valor)}</td>
-                        <td>${lance.conta_credito?.codigo} - ${lance.conta_credito?.nome}</td>
+                        <td>${lance.conta_credito?.codigo} - ${lance.conta_credito?.descricao}</td>
                         <td class="text-credit">${formatValor(lance.valor)}</td>
                         <td>${lance.historico}</td>
                         <td>${getTipoBadge(lance.tipo)}</td>
                         <td>${getStatusBadge(lance.status)}</td>
                         <td>
                             <div class="actions">
-                                ${lance.status !== 'estornado' ? `<button class="btn btn-danger btn-small" onclick="estornarLancamento(${lance.id})">Estornar</button>` : ''}
+                                ${lance.status !== 'ESTORNADO' ? `<button class="btn btn-danger btn-small" onclick="estornarLancamento(${lance.id})">Estornar</button>` : ''}
                                 <button class="btn btn-primary btn-small" onclick="openModalEditar(${lance.id})">Editar</button>
                             </div>
                         </td>
@@ -991,7 +991,7 @@
             let totalCreditos = 0;
 
             lancamentos.forEach(lance => {
-                if (lance.status !== 'estornado') {
+                if (lance.status !== 'ESTORNADO') {
                     totalDebitos += lance.valor;
                     totalCreditos += lance.valor;
                 }
@@ -1053,7 +1053,7 @@
             document.getElementById('data-lancamento').value = lance.data_lancamento;
             document.getElementById('data-competencia').value = lance.data_competencia;
             document.getElementById('tipo-lancamento').value = lance.tipo;
-            document.getElementById('categoria').value = lance.categoria || '';
+            document.getElementById('categoria').value = lance.categoria_id || '';
             document.getElementById('conta-debito').value = lance.conta_debito_id || '';
             document.getElementById('conta-credito').value = lance.conta_credito_id || '';
             document.getElementById('valor-lancamento').value = lance.valor;
@@ -1078,22 +1078,22 @@
                 data_lancamento: document.getElementById('data-lancamento').value,
                 data_competencia: document.getElementById('data-competencia').value,
                 tipo: document.getElementById('tipo-lancamento').value,
-                categoria: document.getElementById('categoria').value || null,
+                categoria_id: document.getElementById('categoria').value || null,
                 conta_debito_id: debitoId,
                 conta_credito_id: creditoId,
                 valor: parseFloat(document.getElementById('valor-lancamento').value),
                 historico: document.getElementById('historico').value,
                 centro_custo_id: document.getElementById('centro-custo').value || null,
-                status: 'ativo'
+                status: 'ATIVO'
             };
 
             try {
                 if (lancamentoAtualId) {
-                    await supabase.from('lancamentos_contabeis').update(dados).eq('id', lancamentoAtualId);
+                    await supabase.from('lancamentos').update(dados).eq('id', lancamentoAtualId);
                     showToast('Lançamento atualizado com sucesso!');
                 } else {
-                    dados.numero = numeroSequencia++;
-                    await supabase.from('lancamentos_contabeis').insert([dados]);
+                    dados.numero_lancamento = numeroSequencia++;
+                    await supabase.from('lancamentos').insert([dados]);
                     showToast('Lançamento criado com sucesso!');
                 }
                 closeModal();
@@ -1111,23 +1111,23 @@
                 const lance = lancamentos.find(l => l.id === id);
                 if (!lance) return;
 
-                await supabase.from('lancamentos_contabeis').update({ status: 'estornado' }).eq('id', id);
+                await supabase.from('lancamentos').update({ status: 'ESTORNADO' }).eq('id', id);
 
                 const reversao = {
                     data_lancamento: new Date().toISOString().split('T')[0],
                     data_competencia: new Date().toISOString().split('T')[0],
                     tipo: 'manual',
-                    categoria: lance.categoria,
+                    categoria_id: lance.categoria_id,
                     conta_debito_id: lance.conta_credito_id,
                     conta_credito_id: lance.conta_debito_id,
                     valor: lance.valor,
                     historico: `ESTORNO - ${lance.historico}`,
                     centro_custo_id: lance.centro_custo_id,
-                    status: 'ativo',
-                    numero: numeroSequencia++
+                    status: 'ATIVO',
+                    numero_lancamento: numeroSequencia++
                 };
 
-                await supabase.from('lancamentos_contabeis').insert([reversao]);
+                await supabase.from('lancamentos').insert([reversao]);
                 showToast('Lançamento estornado e reversão criada com sucesso!');
                 await fetchLancamentos();
             } catch (error) {
@@ -1144,7 +1144,7 @@
 
             lancamentos = lancamentosOriginal.filter(lance => {
                 if (tipo && lance.tipo !== tipo) return false;
-                if (conta && lance.conta_debito_id !== parseInt(conta) && lance.conta_credito_id !== parseInt(conta)) return false;
+                if (conta && lance.conta_debito_id !== conta && lance.conta_credito_id !== conta) return false;
                 if (dataInicio && new Date(lance.data_lancamento) < new Date(dataInicio)) return false;
                 if (dataFim && new Date(lance.data_lancamento) > new Date(dataFim)) return false;
                 return true;
