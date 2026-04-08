@@ -71,7 +71,7 @@
         }
 
         /* Main content */
-        .main {
+        .main { margin-left: 250px;
             margin-left: 260px;
             flex: 1;
             padding: 30px;
@@ -369,23 +369,49 @@
         .responsive-table {
             overflow-x: auto;
         }
+    
+        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
+        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
+        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">LUMA</div>
-            <ul class="nav">
-                <li><a href="./dashboard.html">Dashboard</a></li>
-                <li><a href="./dre.html" class="active">DRE</a></li>
-                <li><a href="./fluxo_caixa.html">Fluxo de Caixa</a></li>
-                <li><a href="./conciliacao.html">Conciliação</a></li>
-                <li><a href="./lancamentos.html">Lançamentos</a></li>
-                <li><a href="./clientes.html">Clientes</a></li>
-                <li><a href="./fornecedores.html">Fornecedores</a></li>
-            </ul>
-        </aside>
+            <div class="sidebar">
+        <div class="logo">📊 LUMA</div>
+        <nav>
+            <a href="./dashboard.html">📊 Dashboard</a>
+            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+            <a href="./relatorios.html">📈 Relatórios</a>
+            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+            <a href="./contas_receber.html">💰 Contas a Receber</a>
+            <a href="./conciliacao.html">🏦 Conciliação</a>
+            <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
+            <a href="./lancamentos.html">📝 Lançamentos</a>
+            <a href="./plano_contas.html">📑 Plano de Contas</a>
+            <a href="./balancete.html">📋 Balancete</a>
+            <a href="./dre.html" class="active">📊 DRE</a>
+            <a href="./apuracoes.html">🧮 Apurações</a>
+            <a href="./retencoes.html">🛡️ Retenções</a>
+            <a href="./darfs.html">📄 DARFs</a>
+            <a href="./obrigacoes.html">✓ Obrigações</a>
+            <a href="./clientes.html">👥 Clientes</a>
+            <a href="./fornecedores.html">🏭 Fornecedores</a>
+            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+            <a href="./categorias.html">🏷️ Categorias</a>
+            <a href="./centros_custo.html">💼 Centros de Custo</a>
+            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+            <a href="./usuarios.html">🤓 Usuários</a>
+            <a href="./configuracoes.html">⚙️ Configurações</a>
+            <button onclick="handleLogout()">🚪 Sair</button>
+        </nav>
+    </div>
 
         <!-- Main Content -->
         <main class="main">
@@ -542,63 +568,107 @@
             return structure;
         }
 
-        // Load DRE data
+        // Load DRE data from Supabase
         async function loadDREData() {
             try {
-                const periodType = document.getElementById('period-type').value;
                 const month = document.getElementById('period-month').value;
                 const year = document.getElementById('period-year').value;
+                const periodType = document.getElementById('period-type').value;
 
-                // For now, we'll use mock data
-                // In production, this would fetch from Supabase
-                const mockData = createMockDREData(month, year);
-                renderDRETable(mockData);
-                updateChart(mockData);
+                let dataInicio, dataFim, prevInicio, prevFim;
+
+                if (periodType === 'month') {
+                    dataInicio = `${year}-${month}-01`;
+                    const lastDay = new Date(year, parseInt(month), 0).getDate();
+                    dataFim = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
+                    const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1;
+                    const prevYear = parseInt(month) === 1 ? parseInt(year) - 1 : parseInt(year);
+                    const prevLastDay = new Date(prevYear, prevMonth, 0).getDate();
+                    prevInicio = `${prevYear}-${String(prevMonth).padStart(2, '0')}-01`;
+                    prevFim = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(prevLastDay).padStart(2, '0')}`;
+                } else if (periodType === 'quarter') {
+                    const q = Math.ceil(parseInt(month) / 3);
+                    const qStart = (q - 1) * 3 + 1;
+                    dataInicio = `${year}-${String(qStart).padStart(2, '0')}-01`;
+                    const qEndMonth = q * 3;
+                    const qLastDay = new Date(year, qEndMonth, 0).getDate();
+                    dataFim = `${year}-${String(qEndMonth).padStart(2, '0')}-${String(qLastDay).padStart(2, '0')}`;
+                    prevInicio = `${parseInt(year) - 1}-${String(qStart).padStart(2, '0')}-01`;
+                    prevFim = `${parseInt(year) - 1}-${String(qEndMonth).padStart(2, '0')}-${String(qLastDay).padStart(2, '0')}`;
+                } else {
+                    dataInicio = `${year}-01-01`;
+                    dataFim = `${year}-12-31`;
+                    prevInicio = `${parseInt(year) - 1}-01-01`;
+                    prevFim = `${parseInt(year) - 1}-12-31`;
+                }
+
+                // Fetch lancamentos for current and previous period
+                const [currentRes, prevRes] = await Promise.all([
+                    supabase.from('lancamentos_contabeis').select('*, plano_contas_debito:plano_contas!lancamentos_contabeis_conta_debito_id_fkey(numero, nome, tipo), plano_contas_credito:plano_contas!lancamentos_contabeis_conta_credito_id_fkey(numero, nome, tipo)').gte('data', dataInicio).lte('data', dataFim).eq('estornado', false),
+                    supabase.from('lancamentos_contabeis').select('*, plano_contas_debito:plano_contas!lancamentos_contabeis_conta_debito_id_fkey(numero, nome, tipo), plano_contas_credito:plano_contas!lancamentos_contabeis_conta_credito_id_fkey(numero, nome, tipo)').gte('data', prevInicio).lte('data', prevFim).eq('estornado', false)
+                ]);
+
+                const dreData = buildDREFromLancamentos(currentRes.data || []);
+                const prevData = buildDREFromLancamentos(prevRes.data || []);
+                dreData.previous_period = prevData;
+
+                renderDRETable(dreData);
+                updateChart(dreData);
             } catch (error) {
                 showMessage('Erro ao carregar dados: ' + error.message, 'error');
                 console.error(error);
             }
         }
 
-        // Create mock DRE data
-        function createMockDREData(month, year) {
-            const receita_bruta = 150000;
-            const deducoes_total = 22500; // 15% impostos sobre receita
-            const receita_liquida = receita_bruta - deducoes_total;
-            const custos = 45000;
+        // Build DRE data from lancamentos contabeis
+        function buildDREFromLancamentos(lancamentos) {
+            let receitas = 0, custos = 0, despesas_admin = 0, despesas_pessoal = 0, despesas_fin = 0, despesas_outras = 0;
+
+            lancamentos.forEach(l => {
+                const valor = l.valor || 0;
+                const tipoDebito = l.plano_contas_debito?.tipo || '';
+                const tipoCredito = l.plano_contas_credito?.tipo || '';
+                const nomeDebito = (l.plano_contas_debito?.nome || '').toLowerCase();
+                const nomeCredito = (l.plano_contas_credito?.nome || '').toLowerCase();
+
+                // Receitas: crédito em contas de receita
+                if (tipoCredito === 'receita') receitas += valor;
+                if (tipoDebito === 'receita') receitas -= valor;
+
+                // Custos
+                if (tipoDebito === 'custo' || nomeDebito.includes('custo')) custos += valor;
+                if (tipoCredito === 'custo' || nomeCredito.includes('custo')) custos -= valor;
+
+                // Despesas
+                if (tipoDebito === 'despesa') {
+                    if (nomeDebito.includes('pessoal') || nomeDebito.includes('salário') || nomeDebito.includes('folha')) despesas_pessoal += valor;
+                    else if (nomeDebito.includes('financ') || nomeDebito.includes('juros') || nomeDebito.includes('banco')) despesas_fin += valor;
+                    else if (nomeDebito.includes('admin') || nomeDebito.includes('aluguel') || nomeDebito.includes('escritório')) despesas_admin += valor;
+                    else despesas_outras += valor;
+                }
+            });
+
+            const receita_bruta = receitas;
+            const deducoes_pis = receita_bruta * 0.0065;
+            const deducoes_cofins = receita_bruta * 0.03;
+            const deducoes_iss = receita_bruta * 0.05;
+            const receita_liquida = receita_bruta - deducoes_pis - deducoes_cofins - deducoes_iss;
             const lucro_bruto = receita_liquida - custos;
-            const despesas_total = 30000;
+            const despesas_total = despesas_admin + despesas_pessoal + despesas_fin + despesas_outras;
             const resultado_op = lucro_bruto - despesas_total;
-            const depr_amort = 3000;
+            const depr_amort = 0;
             const ebit = resultado_op - depr_amort;
-            const resultado_fin = -2000;
+            const resultado_fin = -despesas_fin;
             const resultado_antes_ir = ebit + resultado_fin;
-            const ir_csll = resultado_antes_ir * 0.34;
+            const ir_csll = Math.max(0, resultado_antes_ir * 0.34);
             const lucro_liquido = resultado_antes_ir - ir_csll;
 
             return {
-                receita_bruta: receita_bruta,
-                deducoes_pis: receita_bruta * 0.0165,
-                deducoes_cofins: receita_bruta * 0.076,
-                deducoes_iss: receita_bruta * 0.05,
-                receita_liquida: receita_liquida,
-                custos: custos,
-                lucro_bruto: lucro_bruto,
-                despesas_admin: 12000,
-                despesas_pessoal: 15000,
-                despesas_fin: 2000,
-                despesas_outras: 1000,
-                resultado_op: resultado_op,
-                depr_amort: depr_amort,
-                ebit: ebit,
-                resultado_fin: resultado_fin,
-                resultado_antes_ir: resultado_antes_ir,
-                ir_csll: ir_csll,
-                lucro_liquido: lucro_liquido,
-                previous_period: {
-                    receita_bruta: receita_bruta * 0.95,
-                    lucro_liquido: lucro_liquido * 0.90
-                }
+                receita_bruta, deducoes_pis, deducoes_cofins, deducoes_iss,
+                receita_liquida, custos, lucro_bruto,
+                despesas_admin, despesas_pessoal, despesas_fin, despesas_outras, despesas: despesas_total,
+                resultado_op, depr_amort, ebit, resultado_fin,
+                resultado_antes_ir, ir_csll, lucro_liquido
             };
         }
 
@@ -708,6 +778,8 @@
         }
 
         init();
-    </script>
+    
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

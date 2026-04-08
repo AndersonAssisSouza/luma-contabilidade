@@ -51,29 +51,30 @@
             <div class="logo">ð LUMA</div>
             <nav>
                 <a href="./dashboard.html">ð Dashboard</a>
-                <a href="./calendario_fiscal.html">ð CalendÃ¡rio Fiscal</a>
+                <a href="./relatorios.html">📈 Relatórios</a>
+            <a href="./calendario_fiscal.html">ð Calendário Fiscal</a>
                 <a href="./contas_pagar.html">ð³ Contas a Pagar</a>
                 <a href="./contas_receber.html">ð° Contas a Receber</a>
-                <a href="./conciliacao.html">ð¦ ConciliaÃ§Ã£o</a>
+                <a href="./conciliacao.html">ð¦ Conciliação</a>
                 <a href="./fluxo_caixa.html">ð Fluxo de Caixa</a>
-                <a href="./lancamentos.html">ð LanÃ§amentos</a>
+                <a href="./lancamentos.html">ð Lançamentos</a>
                 <a href="./plano_contas.html">ð Plano de Contas</a>
                 <a href="./balancete.html">ð Balancete</a>
                 <a href="./dre.html">ð DRE</a>
-                <a href="./apuracoes.html">ð§® ApuraÃ§Ãµes</a>
-                <a href="./retencoes.html">ð¡ï¸ RetenÃ§Ãµes</a>
+                <a href="./apuracoes.html">ð§® Apurações</a>
+                <a href="./retencoes.html">ð¡ï¸ Retenções</a>
                 <a href="./darfs.html" class="active">ð DARFs</a>
-                <a href="./obrigacoes.html">â ObrigaÃ§Ãµes</a>
+                <a href="./obrigacoes.html">â Obrigações</a>
                 <a href="./clientes.html">ð¥ Clientes</a>
                 <a href="./fornecedores.html">ð­ Fornecedores</a>
                 <a href="./notas_fiscais.html">ð§¾ Notas Fiscais</a>
                 <a href="./pedidos_venda.html">ð Pedidos de Venda</a>
-                <a href="./produtos_servicos.html">ð¦ Produtos/ServiÃ§os</a>
+                <a href="./produtos_servicos.html">ð¦ Produtos/Serviços</a>
                 <a href="./categorias.html">ð·ï¸ Categorias</a>
                 <a href="./centros_custo.html">ð¼ Centros de Custo</a>
-                <a href="./contas_bancarias.html">ð¦ Contas BancÃ¡rias</a>
-                <a href="./usuarios.html">ð¤ UsuÃ¡rios</a>
-                <a href="./configuracoes.html">âï¸ ConfiguraÃ§Ãµes</a>
+                <a href="./contas_bancarias.html">ð¦ Contas Bancárias</a>
+                <a href="./usuarios.html">ð¤ Usuários</a>
+                <a href="./configuracoes.html">âï¸ Configurações</a>
                 <button onclick="handleLogout()">ðª Sair</button>
             </nav>
         </div>
@@ -99,11 +100,14 @@
                 <table id="darfsTable">
                     <thead>
                         <tr>
-                            <th>CÃ³digo Receita</th>
-                            <th>PerÃ­odo ApuraÃ§Ã£o</th>
-                            <th>Valor Principal</th>
+                            <th>Código Receita</th>
+                            <th>Imposto</th>
+                            <th>Período</th>
+                            <th>Base de Cálculo</th>
+                            <th>Valor Devido</th>
                             <th>Vencimento</th>
                             <th>Status</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="darfsBody">
@@ -147,19 +151,23 @@
             try {
                 showLoading(true);
                 const { data, error } = await supabase
-                    .from('apuracoes')
+                    .from('apuracoes_fiscais')
                     .select('*')
-                    .order('data_periodo', { ascending: false });
+                    .order('competencia', { ascending: false });
 
                 if (error) throw error;
 
+                const codigoMap = { IRPJ: '0220', CSLL: '2372', PIS: '8109', COFINS: '2172', ISS: '0121', ICMS: '1000' };
+
                 allDarfs = (data || []).map(ap => ({
                     id: ap.id,
-                    codigoReceita: '6100',
-                    periodoApuracao: ap.data_periodo,
-                    valorPrincipal: ap.valor_total || 0,
-                    vencimento: ap.data_vencimento || new Date(),
-                    status: ap.status || 'PENDENTE'
+                    codigoReceita: codigoMap[ap.tipo] || '6100',
+                    imposto: ap.tipo || '-',
+                    periodoApuracao: ap.competencia,
+                    baseCalculo: ap.base_calculo || 0,
+                    valorPrincipal: ap.valor_devido || ap.valor_imposto || 0,
+                    vencimento: ap.data_vencimento || ap.competencia,
+                    status: (ap.status || 'PENDENTE').toUpperCase()
                 }));
 
                 renderDarfs(allDarfs);
@@ -174,33 +182,59 @@
         function renderDarfs(darfs) {
             const tbody = document.getElementById('darfsBody');
             if (darfs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Nenhum DARF disponÃ­vel</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>Nenhum DARF disponível</p></div></td></tr>';
                 return;
             }
 
             tbody.innerHTML = darfs.map(darf => `
                 <tr>
                     <td>${darf.codigoReceita}</td>
+                    <td>${darf.imposto}</td>
                     <td>${formatDate(darf.periodoApuracao)}</td>
-                    <td>${formatCurrency(darf.valorPrincipal)}</td>
+                    <td>${formatCurrency(darf.baseCalculo)}</td>
+                    <td><strong>${formatCurrency(darf.valorPrincipal)}</strong></td>
                     <td>${formatDate(darf.vencimento)}</td>
                     <td><span class="status status-${darf.status.toLowerCase()}">
                         ${darf.status}
                     </span></td>
+                    <td>
+                        ${darf.status !== 'PAGO' ? `<button class="btn btn-sm btn-primary" onclick="window._marcarPago(${darf.id})">Pagar</button>` : '-'}
+                    </td>
                 </tr>
             `).join('');
         }
+
+        async function marcarPago(id) {
+            if (!confirm('Marcar este DARF como pago?')) return;
+            try {
+                showLoading(true);
+                const { error } = await supabase
+                    .from('apuracoes_fiscais')
+                    .update({ status: 'PAGO', data_pagamento: new Date().toISOString().split('T')[0] })
+                    .eq('id', id);
+                if (error) throw error;
+                showToast('DARF marcado como pago', 'success');
+                await loadDarfs();
+            } catch (error) {
+                showToast('Erro ao atualizar DARF', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        window._marcarPago = marcarPago;
 
         function filterDarfs() {
             const status = document.getElementById('statusFilter').value;
             const filtered = status ? allDarfs.filter(d => d.status === status) : allDarfs;
             renderDarfs(filtered);
         }
+        window.filterDarfs = filterDarfs;
 
         async function handleLogout() {
             await logout();
             window.location.href = './login.html';
         }
+        window.handleLogout = handleLogout;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();

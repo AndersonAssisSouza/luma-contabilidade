@@ -118,7 +118,7 @@
     }
 
     /* Main Content */
-    .main {
+    .main { margin-left: 250px;
       margin-left: 260px;
       flex: 1;
       padding: 2rem;
@@ -515,32 +515,49 @@
         flex: 1;
       }
     }
-  </style>
+  
+        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
+        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
+        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    </style>
 </head>
 <body>
   <div class="container">
     <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <span>📊</span>
-        <span>LUMA</span>
-      </div>
-
-      <ul class="sidebar-nav">
-        <li><a href="./dashboard.html">Dashboard</a></li>
-        <li><a href="./lancamentos.html">Lançamentos</a></li>
-        <li><a href="./relatorios.html">Relatórios</a></li>
-        <li><a href="./configuracoes.html" class="active">Configurações</a></li>
-      </ul>
-
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar" id="userAvatarSidebar">U</div>
-          <div id="usernameSidebar">Usuário</div>
-        </div>
-        <button class="logout-btn" id="logoutBtn">Sair</button>
-      </div>
-    </aside>
+        <div class="sidebar">
+        <div class="logo">📊 LUMA</div>
+        <nav>
+            <a href="./dashboard.html">📊 Dashboard</a>
+            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+            <a href="./relatorios.html">📈 Relatórios</a>
+            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+            <a href="./contas_receber.html">💰 Contas a Receber</a>
+            <a href="./conciliacao.html">🏦 Conciliação</a>
+            <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
+            <a href="./lancamentos.html">📝 Lançamentos</a>
+            <a href="./plano_contas.html">📑 Plano de Contas</a>
+            <a href="./balancete.html">📋 Balancete</a>
+            <a href="./dre.html">📊 DRE</a>
+            <a href="./apuracoes.html">🧮 Apurações</a>
+            <a href="./retencoes.html">🛡️ Retenções</a>
+            <a href="./darfs.html">📄 DARFs</a>
+            <a href="./obrigacoes.html">✓ Obrigações</a>
+            <a href="./clientes.html">👥 Clientes</a>
+            <a href="./fornecedores.html">🏭 Fornecedores</a>
+            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+            <a href="./categorias.html">🏷️ Categorias</a>
+            <a href="./centros_custo.html">💼 Centros de Custo</a>
+            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+            <a href="./usuarios.html">🤓 Usuários</a>
+            <a href="./configuracoes.html" class="active">⚙️ Configurações</a>
+            <button onclick="handleLogout()">🚪 Sair</button>
+        </nav>
+    </div>
 
     <!-- Main Content -->
     <main class="main">
@@ -1192,6 +1209,8 @@
 
     // Initialize on load
     window.addEventListener('load', init);
-  </script>
+  
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

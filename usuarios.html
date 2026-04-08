@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UsuÃ¡rios - LUMA Contabilidade</title>
+    <title>Usuários - LUMA Contabilidade</title>
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333;}
@@ -48,36 +48,37 @@
             <div class="logo">ð LUMA</div>
             <nav>
                 <a href="./dashboard.html">ð Dashboard</a>
-                <a href="./calendario_fiscal.html">ð CalendÃ¡rio Fiscal</a>
+                <a href="./relatorios.html">📈 Relatórios</a>
+            <a href="./calendario_fiscal.html">ð Calendário Fiscal</a>
                 <a href="./contas_pagar.html">ð³ Contas a Pagar</a>
                 <a href="./contas_receber.html">ð° Contas a Receber</a>
-                <a href="./conciliacao.html">ð¦ ConciliaÃ§Ã£o</a>
+                <a href="./conciliacao.html">ð¦ Conciliação</a>
                 <a href="./fluxo_caixa.html">ð Fluxo de Caixa</a>
-                <a href="./lancamentos.html">ð LanÃ§amentos</a>
+                <a href="./lancamentos.html">ð Lançamentos</a>
                 <a href="./plano_contas.html">ð Plano de Contas</a>
                 <a href="./balancete.html">ð Balancete</a>
                 <a href="./dre.html">ð DRE</a>
-                <a href="./apuracoes.html">ð§® ApuraÃ§Ãµes</a>
-                <a href="./retencoes.html">ð¡ï¸ RetenÃ§Ãµes</a>
+                <a href="./apuracoes.html">ð§® Apurações</a>
+                <a href="./retencoes.html">ð¡ï¸ Retenções</a>
                 <a href="./darfs.html">ð DARFs</a>
-                <a href="./obrigacoes.html">â ObrigaÃ§Ãµes</a>
+                <a href="./obrigacoes.html">â Obrigações</a>
                 <a href="./clientes.html">ð¥ Clientes</a>
                 <a href="./fornecedores.html">ð­ Fornecedores</a>
                 <a href="./notas_fiscais.html">ð§¾ Notas Fiscais</a>
                 <a href="./pedidos_venda.html">ð Pedidos de Venda</a>
-                <a href="./produtos_servicos.html">ð¦ Produtos/ServiÃ§os</a>
+                <a href="./produtos_servicos.html">ð¦ Produtos/Serviços</a>
                 <a href="./categorias.html">ð·ï¸ Categorias</a>
                 <a href="./centros_custo.html">ð¼ Centros de Custo</a>
-                <a href="./contas_bancarias.html">ð¦ Contas BancÃ¡rias</a>
-                <a href="./usuarios.html" class="active">ð¤ UsuÃ¡rios</a>
-                <a href="./configuracoes.html">âï¸ ConfiguraÃ§Ãµes</a>
+                <a href="./contas_bancarias.html">ð¦ Contas Bancárias</a>
+                <a href="./usuarios.html" class="active">ð¤ Usuários</a>
+                <a href="./configuracoes.html">âï¸ Configurações</a>
                 <button onclick="handleLogout()">ðª Sair</button>
             </nav>
         </div>
 
         <div class="main">
             <div class="header">
-                <h1>GestÃ£o de UsuÃ¡rios</h1>
+                <h1>Gestão de Usuários</h1>
             </div>
 
             <div class="search-section">
@@ -135,7 +136,7 @@
                 renderUsuarios(data || []);
             } catch (error) {
                 console.error('Erro:', error);
-                showToast('Erro ao carregar usuÃ¡rios', 'error');
+                showToast('Erro ao carregar usuários', 'error');
             } finally {
                 showLoading(false);
             }
@@ -144,7 +145,7 @@
         function renderUsuarios(usuarios) {
             const tbody = document.getElementById('usuariosBody');
             if (usuarios.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Nenhum usuÃ¡rio encontrado</p></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Nenhum usuário encontrado</p></div></td></tr>';
                 return;
             }
 
@@ -153,7 +154,7 @@
                     <td>${user.nome || 'N/A'}</td>
                     <td>${user.email || 'N/A'}</td>
                     <td>${user.cargo || 'N/A'}</td>
-                    <td>${user.perfil || 'UsuÃ¡rio'}</td>
+                    <td>${user.perfil || 'Usuário'}</td>
                     <td><span class="status status-ativo">
                         Ativo
                     </span></td>

@@ -71,7 +71,7 @@
         }
 
         /* Main content */
-        .main {
+        .main { margin-left: 250px;
             margin-left: 260px;
             flex: 1;
             padding: 30px;
@@ -407,23 +407,49 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+    
+        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
+        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
+        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">LUMA</div>
-            <ul class="nav">
-                <li><a href="./dashboard.html">Dashboard</a></li>
-                <li><a href="./dre.html">DRE</a></li>
-                <li><a href="./fluxo_caixa.html" class="active">Fluxo de Caixa</a></li>
-                <li><a href="./conciliacao.html">Conciliação</a></li>
-                <li><a href="./lancamentos.html">Lançamentos</a></li>
-                <li><a href="./clientes.html">Clientes</a></li>
-                <li><a href="./fornecedores.html">Fornecedores</a></li>
-            </ul>
-        </aside>
+            <div class="sidebar">
+        <div class="logo">📊 LUMA</div>
+        <nav>
+            <a href="./dashboard.html">📊 Dashboard</a>
+            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+            <a href="./relatorios.html">📈 Relatórios</a>
+            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+            <a href="./contas_receber.html">💰 Contas a Receber</a>
+            <a href="./conciliacao.html">🏦 Conciliação</a>
+            <a href="./fluxo_caixa.html" class="active">📊 Fluxo de Caixa</a>
+            <a href="./lancamentos.html">📝 Lançamentos</a>
+            <a href="./plano_contas.html">📑 Plano de Contas</a>
+            <a href="./balancete.html">📋 Balancete</a>
+            <a href="./dre.html">📊 DRE</a>
+            <a href="./apuracoes.html">🧮 Apurações</a>
+            <a href="./retencoes.html">🛡️ Retenções</a>
+            <a href="./darfs.html">📄 DARFs</a>
+            <a href="./obrigacoes.html">✓ Obrigações</a>
+            <a href="./clientes.html">👥 Clientes</a>
+            <a href="./fornecedores.html">🏭 Fornecedores</a>
+            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+            <a href="./categorias.html">🏷️ Categorias</a>
+            <a href="./centros_custo.html">💼 Centros de Custo</a>
+            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+            <a href="./usuarios.html">🤓 Usuários</a>
+            <a href="./configuracoes.html">⚙️ Configurações</a>
+            <button onclick="handleLogout()">🚪 Sair</button>
+        </nav>
+    </div>
 
         <!-- Main Content -->
         <main class="main">
@@ -561,45 +587,56 @@
             }).format(value);
         }
 
-        // Generate mock cash flow data
-        function generateMockData() {
+        // Load real cash flow data from Supabase
+        async function generateRealData() {
             const today = new Date();
-            const data = {
-                current_balance: 85000,
+            const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+            const monthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+
+            // Fetch contas a receber (entradas), contas a pagar (saidas), and saldo bancario
+            const [recRes, pagRes, bancoRes] = await Promise.all([
+                supabase.from('contas_receber').select('*').gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                supabase.from('contas_pagar').select('*').gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                supabase.from('contas_bancarias').select('*')
+            ]);
+
+            const recebimentos = (recRes.data || []).map(r => ({
+                name: r.descricao || r.numero_documento || 'Recebimento',
+                value: r.valor || 0,
+                date: new Date(r.data_vencimento),
+                status: r.status
+            }));
+
+            const pagamentos = (pagRes.data || []).map(p => ({
+                name: p.descricao || p.numero_documento || 'Pagamento',
+                value: p.valor || 0,
+                date: new Date(p.data_vencimento),
+                status: p.status
+            }));
+
+            const saldoBancario = (bancoRes.data || []).reduce((sum, c) => sum + (c.saldo || c.saldo_inicial || 0), 0);
+
+            const monthly_inflows = recebimentos.reduce((s, r) => s + r.value, 0);
+            const monthly_outflows = pagamentos.reduce((s, p) => s + p.value, 0);
+
+            return {
+                current_balance: saldoBancario,
                 operacional: {
-                    recebimentos: [
-                        { name: 'Cliente ABC Ltda', value: 25000, date: today },
-                        { name: 'Cliente XYZ SA', value: 18500, date: new Date(today.getTime() - 2*24*60*60*1000) },
-                        { name: 'Cliente 123', value: 12000, date: new Date(today.getTime() - 5*24*60*60*1000) }
-                    ],
-                    pagamentos: [
-                        { name: 'Fornecedor A', value: 8000, date: new Date(today.getTime() + 3*24*60*60*1000) },
-                        { name: 'Fornecedor B', value: 5500, date: new Date(today.getTime() + 7*24*60*60*1000) }
-                    ],
-                    salarios: [
-                        { name: 'Folha de Pessoal', value: 18000, date: new Date(today.getTime() + 4*24*60*60*1000) }
-                    ]
+                    recebimentos: recebimentos.slice(0, 10),
+                    pagamentos: pagamentos.filter(p => !p.name.toLowerCase().includes('salário') && !p.name.toLowerCase().includes('folha')).slice(0, 10),
+                    salarios: pagamentos.filter(p => p.name.toLowerCase().includes('salário') || p.name.toLowerCase().includes('folha')).slice(0, 5)
                 },
                 investimentos: {
-                    aquisicoes: [
-                        { name: 'Equipamento Servidor', value: 15000, date: new Date(today.getTime() + 15*24*60*60*1000) }
-                    ],
-                    vendas: [
-                        { name: 'Venda Equipamento Antigo', value: 3000, date: new Date(today.getTime() + 10*24*60*60*1000) }
-                    ]
+                    aquisicoes: [],
+                    vendas: []
                 },
                 financiamento: {
-                    emprestimos: [
-                        { name: 'Empréstimo Banco ABC', value: 30000, date: new Date(today.getTime() + 20*24*60*60*1000) }
-                    ],
-                    distribuicao: [
-                        { name: 'Distribuição Lucros Sócios', value: 12000, date: new Date(today.getTime() + 25*24*60*60*1000) }
-                    ]
+                    emprestimos: [],
+                    distribuicao: []
                 },
-                monthly_inflows: 55500,
-                monthly_outflows: 43500
+                monthly_inflows,
+                monthly_outflows
             };
-            return data;
         }
 
         // Render transaction items
@@ -712,7 +749,7 @@
         // Load and render data
         async function loadData() {
             try {
-                const data = generateMockData();
+                const data = await generateRealData();
 
                 // Update summary
                 updateSummary(data);
@@ -776,6 +813,8 @@
         }
 
         init();
-    </script>
+    
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

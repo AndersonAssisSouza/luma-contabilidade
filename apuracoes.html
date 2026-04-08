@@ -86,7 +86,7 @@
         }
 
         /* Main Content */
-        .main-content {
+        .main-content { margin-left: 250px;
             flex: 1;
             margin-left: 260px;
             padding: 30px;
@@ -384,39 +384,49 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+    
+        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
+        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
+        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
+        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">LUMA</div>
-            </div>
-            <nav>
-                <div class="nav-item" onclick="navigateTo('dashboard.html')">
-                    <span class="nav-icon">📊</span>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item active" onclick="navigateTo('apuracoes.html')">
-                    <span class="nav-icon">📈</span>
-                    <span>Apurações Fiscais</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('calendario_fiscal.html')">
-                    <span class="nav-icon">📅</span>
-                    <span>Calendário Fiscal</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('plano_contas.html')">
-                    <span class="nav-icon">📋</span>
-                    <span>Plano de Contas</span>
-                </div>
-                <div class="nav-item" onclick="navigateTo('empresas.html')">
-                    <span class="nav-icon">🏢</span>
-                    <span>Empresas</span>
-                </div>
-            </nav>
-            <button class="logout-btn" onclick="logout()">Sair</button>
-        </div>
+            <div class="sidebar">
+        <div class="logo">📊 LUMA</div>
+        <nav>
+            <a href="./dashboard.html">📊 Dashboard</a>
+            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+            <a href="./relatorios.html">📈 Relatórios</a>
+            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+            <a href="./contas_receber.html">💰 Contas a Receber</a>
+            <a href="./conciliacao.html">🏦 Conciliação</a>
+            <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
+            <a href="./lancamentos.html">📝 Lançamentos</a>
+            <a href="./plano_contas.html">📑 Plano de Contas</a>
+            <a href="./balancete.html">📋 Balancete</a>
+            <a href="./dre.html">📊 DRE</a>
+            <a href="./apuracoes.html" class="active">🧮 Apurações</a>
+            <a href="./retencoes.html">🛡️ Retenções</a>
+            <a href="./darfs.html">📄 DARFs</a>
+            <a href="./obrigacoes.html">✓ Obrigações</a>
+            <a href="./clientes.html">👥 Clientes</a>
+            <a href="./fornecedores.html">🏭 Fornecedores</a>
+            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+            <a href="./categorias.html">🏷️ Categorias</a>
+            <a href="./centros_custo.html">💼 Centros de Custo</a>
+            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+            <a href="./usuarios.html">🤓 Usuários</a>
+            <a href="./configuracoes.html">⚙️ Configurações</a>
+            <button onclick="handleLogout()">🚪 Sair</button>
+        </nav>
+    </div>
 
         <!-- Main Content -->
         <div class="main-content">
@@ -520,58 +530,98 @@
 
         async function loadApuracoes() {
             try {
-                const periodo = document.getElementById('filterPeriodo').value || '2026-01';
-                const trimestre = document.getElementById('filterTrimestre').value || 'Q1';
+                // Fetch real apurações from Supabase
+                const { data: apuracoes, error } = await supabase
+                    .from('apuracoes_fiscais')
+                    .select('*')
+                    .order('competencia', { ascending: false });
 
-                // Mock data for current quarter
+                if (error) throw error;
+
+                // Fetch receita bruta from notas fiscais for current quarter
+                const now = new Date();
+                const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+                const qEnd = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3 + 3, 0);
+                const qStartStr = qStart.toISOString().split('T')[0];
+                const qEndStr = qEnd.toISOString().split('T')[0];
+
+                const { data: nfs } = await supabase
+                    .from('notas_fiscais')
+                    .select('valor_total, tipo')
+                    .eq('tipo', 'SAIDA')
+                    .gte('data', qStartStr)
+                    .lte('data', qEndStr);
+
+                const receitaBruta = (nfs || []).reduce((s, nf) => s + (nf.valor_total || 0), 0);
+
+                // Fetch retenções for current quarter
+                const { data: retencoes } = await supabase
+                    .from('retencoes')
+                    .select('tipo, valor')
+                    .gte('data', qStartStr)
+                    .lte('data', qEndStr);
+
+                const retencoesByTipo = {};
+                (retencoes || []).forEach(r => {
+                    retencoesByTipo[r.tipo] = (retencoesByTipo[r.tipo] || 0) + (r.valor || 0);
+                });
+
+                // Build tax cards from real data or calculated defaults
+                const rb = receitaBruta || 0;
                 currentTaxCards = {
                     irpj: {
                         nome: 'IRPJ',
-                        receita_bruta: 500000,
-                        base_calculo: 160000, // 32% de Lucro Presumido
+                        receita_bruta: rb,
+                        base_calculo: rb * 0.32, // Lucro Presumido 32% serviços
                         aliquota: 0.15,
-                        retenções: 5000,
-                        status: 'Pendente'
+                        retenções: retencoesByTipo['IRRF'] || 0,
+                        status: getApuracaoStatus(apuracoes, 'IRPJ')
                     },
                     csll: {
                         nome: 'CSLL',
-                        receita_bruta: 500000,
-                        base_calculo: 120000, // 24% de Lucro Presumido
+                        receita_bruta: rb,
+                        base_calculo: rb * 0.32, // Lucro Presumido 32% serviços
                         aliquota: 0.09,
-                        retenções: 3000,
-                        status: 'Pendente'
+                        retenções: retencoesByTipo['CSLL'] || 0,
+                        status: getApuracaoStatus(apuracoes, 'CSLL')
                     },
                     pis: {
                         nome: 'PIS (Cumulativo)',
-                        receita_bruta: 500000,
-                        base_calculo: 500000,
+                        receita_bruta: rb,
+                        base_calculo: rb,
                         aliquota: 0.0065,
-                        retenções: 1000,
-                        status: 'Entregue'
+                        retenções: retencoesByTipo['PIS'] || 0,
+                        status: getApuracaoStatus(apuracoes, 'PIS')
                     },
                     cofins: {
                         nome: 'COFINS (Cumulativo)',
-                        receita_bruta: 500000,
-                        base_calculo: 500000,
+                        receita_bruta: rb,
+                        base_calculo: rb,
                         aliquota: 0.03,
-                        retenções: 2000,
-                        status: 'Pendente'
+                        retenções: retencoesByTipo['COFINS'] || 0,
+                        status: getApuracaoStatus(apuracoes, 'COFINS')
                     },
                     iss: {
                         nome: 'ISS',
-                        receita_bruta: 150000,
-                        base_calculo: 150000,
+                        receita_bruta: rb,
+                        base_calculo: rb,
                         aliquota: 0.05,
-                        retenções: 0,
-                        status: 'Entregue'
+                        retenções: retencoesByTipo['ISS'] || 0,
+                        status: getApuracaoStatus(apuracoes, 'ISS')
                     }
                 };
 
                 renderTaxCards();
-                loadHistoricalApuracoes();
+                loadHistoricalApuracoes(apuracoes);
             } catch (error) {
                 showMessage('Erro ao carregar apurações: ' + error.message, 'error');
             }
+        }
+
+        function getApuracaoStatus(apuracoes, tipo) {
+            const current = (apuracoes || []).find(a => a.tipo === tipo && a.status);
+            if (!current) return 'Pendente';
+            return current.status === 'PAGO' ? 'Entregue' : current.status === 'finalizada' ? 'Entregue' : 'Pendente';
         }
 
         function renderTaxCards() {
@@ -668,58 +718,35 @@
             document.getElementById('darfModal').classList.remove('active');
         }
 
-        async function loadHistoricalApuracoes() {
+        async function loadHistoricalApuracoes(apuracoes) {
             const tbody = document.querySelector('#apuracoesTable tbody');
             tbody.innerHTML = '';
 
-            const historicalData = [
-                {
-                    periodo: 'Q4 2025',
-                    imposto: 'IRPJ',
-                    receita_bruta: 480000,
-                    base_calculo: 153600,
-                    aliquota: 0.15,
-                    valor_imposto: 23040,
-                    retenções: 4500,
-                    valor_devido: 18540,
-                    status_darf: 'Entregue'
-                },
-                {
-                    periodo: 'Q4 2025',
-                    imposto: 'CSLL',
-                    receita_bruta: 480000,
-                    base_calculo: 115200,
-                    aliquota: 0.09,
-                    valor_imposto: 10368,
-                    retenções: 2000,
-                    valor_devido: 8368,
-                    status_darf: 'Entregue'
-                },
-                {
-                    periodo: 'Q3 2025',
-                    imposto: 'PIS',
-                    receita_bruta: 450000,
-                    base_calculo: 450000,
-                    aliquota: 0.0065,
-                    valor_imposto: 2925,
-                    retenções: 500,
-                    valor_devido: 2425,
-                    status_darf: 'Entregue'
-                }
-            ];
+            const historicalData = apuracoes || [];
+
+            if (historicalData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center" style="color:#999;padding:20px;">Nenhuma apuração registrada</td></tr>';
+                return;
+            }
 
             historicalData.forEach(row => {
+                const valorImposto = row.valor_imposto || (row.base_calculo || 0) * (row.aliquota || 0);
+                const retencoes = row.retencoes || 0;
+                const valorDevido = row.valor_devido || (valorImposto - retencoes);
+                const statusClass = row.status === 'PAGO' || row.status === 'finalizada' ? 'status-ok' : 'status-pending';
+                const statusLabel = row.status === 'PAGO' || row.status === 'finalizada' ? 'Entregue' : 'Pendente';
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${row.periodo}</td>
-                    <td>${row.imposto}</td>
-                    <td>R$ ${row.receita_bruta.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td>R$ ${row.base_calculo.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td>${(row.aliquota * 100).toFixed(2)}%</td>
-                    <td>R$ ${row.valor_imposto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td>R$ ${row.retenções.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td><strong>R$ ${row.valor_devido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</strong></td>
-                    <td><span class="tax-status status-ok">${row.status_darf}</span></td>
+                    <td>${row.competencia || '-'}</td>
+                    <td>${row.tipo || '-'}</td>
+                    <td>R$ ${(row.receita_bruta || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td>R$ ${(row.base_calculo || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td>${((row.aliquota || 0) * 100).toFixed(2)}%</td>
+                    <td>R$ ${valorImposto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td>R$ ${retencoes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    <td><strong>R$ ${valorDevido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</strong></td>
+                    <td><span class="tax-status ${statusClass}">${statusLabel}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -739,6 +766,8 @@
         document.getElementById('filterTrimestre').addEventListener('change', loadApuracoes);
 
         window.addEventListener('load', initPage);
-    </script>
+    
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>
