@@ -5,617 +5,450 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plano de Contas - LUMA Contabilidade</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background-color: #1a237e;
-            color: white;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            padding: 0 20px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .nav-item.active {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-left: 4px solid white;
-            padding-left: 16px;
-        }
-
-        .nav-icon {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-
-        .logout-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Main Content */
-        .main { margin-left: 250px;
-            margin-left: 260px;
-            flex: 1;
-            padding: 20px;
-        }
-
-        .header {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            margin: 0;
-        }
-
-        /* Table Styles */
-        .table-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background-color: #1a237e;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .status-ativo {
-            color: #4caf50;
-            font-weight: 600;
-        }
-
-        .status-inativo {
-            color: #f44336;
-            font-weight: 600;
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-
-        .btn-edit {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background-color: #1976D2;
-        }
-
-        .btn-delete {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background-color: #da190b;
-        }
-
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .pagination button {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background-color: white;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        .pagination button.active {
-            background-color: #1a237e;
-            color: white;
-            border-color: #1a237e;
-        }
-
-        .pagination button:hover:not(.active) {
-            border-color: #1a237e;
-        }
-
-        /* Search and Filter */
-        .search-container {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-container input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .search-container button {
-            padding: 10px 20px;
-            background-color: #1a237e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .search-container button:hover {
-            background-color: #0d1b5a;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-        }
-
-        .close-modal {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-modal:hover {
-            color: #000;
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #1a237e;
-            box-shadow: 0 0 5px rgba(26, 35, 126, 0.2);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn-submit {
-            background-color: #4caf50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-submit:hover {
-            background-color: #45a049;
-        }
-
-        .btn-cancel {
-            background-color: #ccc;
-            color: #333;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-cancel:hover {
-            background-color: #bbb;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            .main {
-                margin-left: 200px;
-            }
-            table {
-                font-size: 12px;
-            }
-            th, td {
-                padding: 8px;
-            }
-        }
-    
-        .sidebar { width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
-        .sidebar .logo { font-size: 20px; font-weight: 700; margin-bottom: 40px; }
-        .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
-        .sidebar nav a, .sidebar nav button { display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%; }
-        .sidebar nav a:hover, .sidebar nav button:hover { background: rgba(255,255,255,0.1); color: white; }
-        .sidebar nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333;}
+        .container {display: flex; min-height: 100vh;}
+        .sidebar {width: 250px; background: #1a237e; color: white; padding: 20px; position: fixed; height: 100vh; overflow-y: auto; z-index: 100;}
+        .sidebar .logo {font-size: 20px; font-weight: 700; margin-bottom: 40px;}
+        .sidebar nav {display: flex; flex-direction: column; gap: 4px;}
+        .sidebar nav a, .sidebar nav button {display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%;}
+        .sidebar nav a:hover, .sidebar nav button:hover {background: rgba(255,255,255,0.1); color: white;}
+        .sidebar nav a.active {background: rgba(255,255,255,0.2); color: white; font-weight: 600;}
+        .main {flex: 1; margin-left: 250px; padding: 30px;}
+        .header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+        .header h1 {font-size: 24px; color: #1a237e;}
+        .header-actions {display: flex; gap: 10px;}
+        .btn {padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s; font-weight: 500;}
+        .btn-primary {background: #1a237e; color: white;}
+        .btn-primary:hover {background: #0d1653;}
+        .btn-secondary {background: #e8eaf6; color: #1a237e; border: 1px solid #c5cae9;}
+        .btn-secondary:hover {background: #c5cae9;}
+        .btn-danger {background: #d32f2f; color: white;}
+        .btn-danger:hover {background: #b71c1c;}
+        .btn-sm {padding: 6px 12px; font-size: 12px;}
+        .toolbar {margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;}
+        .toolbar input {flex: 1; min-width: 200px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;}
+        .toolbar select {padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;}
+        .table-container {background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto;}
+        table {width: 100%; border-collapse: collapse;}
+        thead {background: #f5f7fa; border-bottom: 2px solid #e0e0e0;}
+        th {padding: 12px 15px; text-align: left; font-weight: 600; color: #1a237e; font-size: 13px; white-space: nowrap;}
+        td {padding: 10px 15px; border-bottom: 1px solid #f0f0f0; font-size: 13px;}
+        tbody tr:hover {background: #fafafa;}
+        .row-nivel-1 {font-weight: 700; background: #e8eaf6;}
+        .row-nivel-2 {font-weight: 600; background: #f0f1fa;}
+        .row-nivel-3 td:first-child {padding-left: 30px;}
+        .row-nivel-4 td:first-child {padding-left: 50px;}
+        .badge {display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;}
+        .badge-ativo {background: #e8f5e9; color: #2e7d32;}
+        .badge-passivo {background: #e3f2fd; color: #1565c0;}
+        .badge-receita {background: #f1f8e9; color: #558b2f;}
+        .badge-despesa {background: #fce4ec; color: #c62828;}
+        .badge-patrimonio {background: #f3e5f5; color: #7b1fa2;}
+        .badge-active {background: #e8f5e9; color: #2e7d32;}
+        .badge-inactive {background: #fbe9e7; color: #bf360c;}
+        .badge-analitica {background: #fff3e0; color: #e65100; font-size: 10px;}
+        .badge-sintetica {background: #eceff1; color: #546e7a; font-size: 10px;}
+        .action-cell {display: flex; gap: 5px;}
+        .empty-state {text-align: center; padding: 40px; color: #999;}
+        .stats-bar {display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;}
+        .stat-item {background: white; padding: 15px 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-width: 120px;}
+        .stat-item .stat-value {font-size: 20px; font-weight: 700; color: #1a237e;}
+        .stat-item .stat-label {font-size: 11px; color: #999; margin-top: 2px;}
+        .modal {display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;}
+        .modal.active {display: flex;}
+        .modal-content {background: white; border-radius: 4px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2);}
+        .modal-header {padding: 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;}
+        .modal-header h2 {font-size: 18px; color: #1a237e;}
+        .modal-close {background: none; border: none; font-size: 24px; cursor: pointer; color: #999;}
+        .modal-body {padding: 20px;}
+        .form-group {margin-bottom: 15px;}
+        .form-group label {display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; color: #333;}
+        .form-group input, .form-group select {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;}
+        .form-row {display: flex; gap: 15px;}
+        .form-row .form-group {flex: 1;}
+        .modal-footer {padding: 20px; border-top: 1px solid #e0e0e0; display: flex; gap: 10px; justify-content: flex-end;}
+        .toast {position: fixed; bottom: 20px; right: 20px; padding: 15px 20px; background: #323232; color: white; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 2000; animation: slideIn 0.3s ease-out;}
+        .toast.success {background: #2e7d32;}
+        .toast.error {background: #c62828;}
+        @keyframes slideIn {from {transform: translateX(400px); opacity: 0;} to {transform: translateX(0); opacity: 1;}}
+        .loading {display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3000;}
+        .loading.active {display: block;}
+        .spinner {border: 4px solid #f3f3f3; border-top: 4px solid #1a237e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;}
+        @keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
+        @media (max-width: 768px) {.sidebar {width: 100%; height: auto; position: relative;} .main {margin-left: 0; padding: 15px;} .container {flex-direction: column;} .form-row {flex-direction: column; gap: 0;}}
     </style>
 </head>
 <body>
     <div class="container">
-            <div class="sidebar">
-        <div class="logo">📊 LUMA</div>
-        <nav>
-            <a href="./dashboard.html">📊 Dashboard</a>
-            <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
-            <a href="./relatorios.html">📈 Relatórios</a>
-            <a href="./contas_pagar.html">💳 Contas a Pagar</a>
-            <a href="./contas_receber.html">💰 Contas a Receber</a>
-            <a href="./conciliacao.html">🏦 Conciliação</a>
-            <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
-            <a href="./lancamentos.html">📝 Lançamentos</a>
-            <a href="./plano_contas.html" class="active">📑 Plano de Contas</a>
-            <a href="./balancete.html">📋 Balancete</a>
-            <a href="./dre.html">📊 DRE</a>
-            <a href="./apuracoes.html">🧮 Apurações</a>
-            <a href="./retencoes.html">🛡️ Retenções</a>
-            <a href="./darfs.html">📄 DARFs</a>
-            <a href="./obrigacoes.html">✓ Obrigações</a>
-            <a href="./clientes.html">👥 Clientes</a>
-            <a href="./fornecedores.html">🏭 Fornecedores</a>
-            <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
-            <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
-            <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
-            <a href="./categorias.html">🏷️ Categorias</a>
-            <a href="./centros_custo.html">💼 Centros de Custo</a>
-            <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
-            <a href="./usuarios.html">🤓 Usuários</a>
-            <a href="./configuracoes.html">⚙️ Configurações</a>
-            <button onclick="handleLogout()">🚪 Sair</button>
-        </nav>
-    </div>
+        <div class="sidebar">
+            <div class="logo">📊 LUMA</div>
+            <nav>
+                <a href="./dashboard.html">📊 Dashboard</a>
+                <a href="./calendario_fiscal.html">📅 Calendário Fiscal</a>
+                <a href="./relatorios.html">📈 Relatórios</a>
+                <a href="./contas_pagar.html">💳 Contas a Pagar</a>
+                <a href="./contas_receber.html">💰 Contas a Receber</a>
+                <a href="./conciliacao.html">🏦 Conciliação</a>
+                <a href="./fluxo_caixa.html">📊 Fluxo de Caixa</a>
+                <a href="./lancamentos.html">📝 Lançamentos</a>
+                <a href="./plano_contas.html" class="active">📑 Plano de Contas</a>
+                <a href="./balancete.html">📋 Balancete</a>
+                <a href="./dre.html">📊 DRE</a>
+                <a href="./apuracoes.html">🧮 Apurações</a>
+                <a href="./retencoes.html">🛡️ Retenções</a>
+                <a href="./darfs.html">📄 DARFs</a>
+                <a href="./obrigacoes.html">✓ Obrigações</a>
+                <a href="./clientes.html">👥 Clientes</a>
+                <a href="./fornecedores.html">🏭 Fornecedores</a>
+                <a href="./notas_fiscais.html">🧾 Notas Fiscais</a>
+                <a href="./pedidos_venda.html">🛒 Pedidos de Venda</a>
+                <a href="./produtos_servicos.html">📦 Produtos/Serviços</a>
+                <a href="./categorias.html">🏷️ Categorias</a>
+                <a href="./centros_custo.html">💼 Centros de Custo</a>
+                <a href="./contas_bancarias.html">🏦 Contas Bancárias</a>
+                <a href="./usuarios.html">🤓 Usuários</a>
+                <a href="./configuracoes.html">⚙️ Configurações</a>
+                <button onclick="handleLogout()">🚪 Sair</button>
+            </nav>
+        </div>
 
         <div class="main">
             <div class="header">
                 <h1>Plano de Contas</h1>
-                <p>Gestão e visualização de contas contábeis</p>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="newContaBtn">+ Nova Conta</button>
+                </div>
             </div>
 
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Buscar por código ou descrição...">
-                <button onclick="searchAccounts()">Buscar</button>
+            <div class="stats-bar" id="statsBar"></div>
+
+            <div class="toolbar">
+                <input type="text" id="searchInput" placeholder="Buscar por código ou nome...">
+                <select id="filterTipo">
+                    <option value="">Todos os tipos</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="passivo">Passivo</option>
+                    <option value="patrimonio">Patrimônio Líquido</option>
+                    <option value="receita">Receita</option>
+                    <option value="despesa">Despesa</option>
+                </select>
+                <select id="filterStatus">
+                    <option value="">Ativos e Inativos</option>
+                    <option value="true" selected>Somente Ativos</option>
+                    <option value="false">Somente Inativos</option>
+                </select>
             </div>
 
             <div class="table-container">
-                <table id="accountsTable">
+                <table>
                     <thead>
                         <tr>
                             <th>Código</th>
-                            <th>Descrição</th>
+                            <th>Nome</th>
                             <th>Tipo</th>
-                            <th>Saldo</th>
+                            <th>Natureza</th>
                             <th>Status</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>1000</td>
-                            <td>Caixa</td>
-                            <td>Ativo</td>
-                            <td>R$ 5.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1001</td>
-                            <td>Banco</td>
-                            <td>Ativo</td>
-                            <td>R$ 15.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2000</td>
-                            <td>Fornecedores</td>
-                            <td>Passivo</td>
-                            <td>R$ 8.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2001</td>
-                            <td>Empréstimos</td>
-                            <td>Passivo</td>
-                            <td>R$ 20.000,00</td>
-                            <td><span class="status-inativo">Inativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3000</td>
-                            <td>Capital Social</td>
-                            <td>Patrimônio Líquido</td>
-                            <td>R$ 100.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4000</td>
-                            <td>Receita de Vendas</td>
-                            <td>Receita</td>
-                            <td>R$ 50.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>5000</td>
-                            <td>Custo de Mercadoria</td>
-                            <td>Despesa</td>
-                            <td>R$ 25.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>5001</td>
-                            <td>Despesas Operacionais</td>
-                            <td>Despesa</td>
-                            <td>R$ 10.000,00</td>
-                            <td><span class="status-ativo">Ativo</span></td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="btn btn-edit" onclick="editAccount(this)">Editar</button>
-                                    <button class="btn btn-delete" onclick="deleteAccount(this)">Deletar</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="contasBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
 
-            <div class="pagination">
-                <button class="active">1</button>
-                <button>2</button>
-                <button>3</button>
+    <div class="modal" id="contaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nova Conta</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero">Código *</label>
+                        <input type="text" id="numero" placeholder="Ex: 1.1.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo *</label>
+                        <select id="tipo" required>
+                            <option value="">Selecione</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="passivo">Passivo</option>
+                            <option value="patrimonio">Patrimônio Líquido</option>
+                            <option value="receita">Receita</option>
+                            <option value="despesa">Despesa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="nome">Nome *</label>
+                    <input type="text" id="nome" placeholder="Nome da conta contábil" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contaPai">Conta Pai</label>
+                        <select id="contaPai">
+                            <option value="">Nenhuma (conta raiz)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="analitica">Natureza *</label>
+                        <select id="analitica" required>
+                            <option value="true">Analítica (aceita lançamentos)</option>
+                            <option value="false">Sintética (agrupadora)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ativo">Status</label>
+                    <select id="ativo">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                <button class="btn btn-primary" id="saveBtn">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div class="modal-header">Editar Conta</div>
-            <form>
-                <div class="form-group">
-                    <label>Código</label>
-                    <input type="text" id="accountCode" required>
-                </div>
-                <div class="form-group">
-                    <label>Descrição</label>
-                    <input type="text" id="accountDesc" required>
-                </div>
-                <div class="form-group">
-                    <label>Tipo</label>
-                    <select id="accountType" required>
-                        <option>Ativo</option>
-                        <option>Passivo</option>
-                        <option>Patrimônio Líquido</option>
-                        <option>Receita</option>
-                        <option>Despesa</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Saldo</label>
-                    <input type="text" id="accountBalance" required>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-submit">Salvar</button>
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <div class="loading" id="loading"><div class="spinner"></div></div>
 
-    <script>
-        function searchAccounts() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const table = document.getElementById('accountsTable');
-            const rows = table.querySelectorAll('tbody tr');
+    <script type="module">
+        import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
-            rows.forEach(row => {
-                const code = row.cells[0].textContent.toLowerCase();
-                const desc = row.cells[1].textContent.toLowerCase();
-                if (code.includes(searchTerm) || desc.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+        let allContas = [];
+        let currentContaId = null;
+
+        const tipoLabels = {
+            ativo: 'Ativo', passivo: 'Passivo', patrimonio: 'Patrimônio Líquido',
+            receita: 'Receita', despesa: 'Despesa'
+        };
+
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        function getNivel(numero) {
+            if (!numero) return 4;
+            const parts = numero.replace(/\./g, '.').split('.');
+            return Math.min(parts.length, 4);
+        }
+
+        async function loadContas() {
+            try {
+                showLoading(true);
+                const { data, error } = await supabase
+                    .from('plano_contas')
+                    .select('*')
+                    .order('numero');
+
+                if (error) throw error;
+                allContas = data || [];
+                applyFilters();
+                renderStats();
+                populateContaPaiSelect();
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao carregar plano de contas', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderStats() {
+            const active = allContas.filter(c => c.ativo !== false);
+            const analiticas = allContas.filter(c => c.analitica === true);
+            const tipos = {};
+            active.forEach(c => { tipos[c.tipo] = (tipos[c.tipo] || 0) + 1; });
+
+            document.getElementById('statsBar').innerHTML = `
+                <div class="stat-item"><div class="stat-value">${allContas.length}</div><div class="stat-label">Total de Contas</div></div>
+                <div class="stat-item"><div class="stat-value">${active.length}</div><div class="stat-label">Ativas</div></div>
+                <div class="stat-item"><div class="stat-value">${analiticas.length}</div><div class="stat-label">Analíticas</div></div>
+                ${Object.entries(tipos).map(([k, v]) => `<div class="stat-item"><div class="stat-value">${v}</div><div class="stat-label">${tipoLabels[k] || k}</div></div>`).join('')}
+            `;
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const tipo = document.getElementById('filterTipo').value;
+            const status = document.getElementById('filterStatus').value;
+
+            let filtered = allContas.filter(c => {
+                if (search && !c.numero?.toLowerCase().includes(search) && !c.nome?.toLowerCase().includes(search)) return false;
+                if (tipo && c.tipo !== tipo) return false;
+                if (status === 'true' && c.ativo === false) return false;
+                if (status === 'false' && c.ativo !== false) return false;
+                return true;
+            });
+
+            renderContas(filtered);
+        }
+
+        function renderContas(contas) {
+            const tbody = document.getElementById('contasBody');
+            if (contas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nenhuma conta encontrada</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = contas.map(c => {
+                const nivel = getNivel(c.numero);
+                const tipoBadge = `badge-${c.tipo || 'ativo'}`;
+                const statusBadge = c.ativo === false ? 'badge-inactive' : 'badge-active';
+                const naturezaBadge = c.analitica ? 'badge-analitica' : 'badge-sintetica';
+
+                return `<tr class="row-nivel-${nivel}">
+                    <td><strong>${c.numero || '-'}</strong></td>
+                    <td>${c.nome}</td>
+                    <td><span class="badge ${tipoBadge}">${tipoLabels[c.tipo] || c.tipo || '-'}</span></td>
+                    <td><span class="badge ${naturezaBadge}">${c.analitica ? 'Analítica' : 'Sintética'}</span></td>
+                    <td><span class="badge ${statusBadge}">${c.ativo === false ? 'Inativo' : 'Ativo'}</span></td>
+                    <td><div class="action-cell">
+                        <button class="btn btn-sm btn-secondary" data-edit="${c.id}">Editar</button>
+                        <button class="btn btn-sm btn-danger" data-delete="${c.id}">Excluir</button>
+                    </div></td>
+                </tr>`;
+            }).join('');
+
+            tbody.querySelectorAll('[data-edit]').forEach(btn => {
+                btn.addEventListener('click', () => editConta(btn.dataset.edit));
+            });
+            tbody.querySelectorAll('[data-delete]').forEach(btn => {
+                btn.addEventListener('click', () => deleteConta(btn.dataset.delete));
             });
         }
 
-        function editAccount(btn) {
-            const row = btn.closest('tr');
-            document.getElementById('accountCode').value = row.cells[0].textContent;
-            document.getElementById('accountDesc').value = row.cells[1].textContent;
-            document.getElementById('accountType').value = row.cells[2].textContent;
-            document.getElementById('accountBalance').value = row.cells[3].textContent;
-            document.getElementById('editModal').style.display = 'block';
+        function populateContaPaiSelect() {
+            const select = document.getElementById('contaPai');
+            const sinteticas = allContas.filter(c => !c.analitica && c.ativo !== false);
+            select.innerHTML = '<option value="">Nenhuma (conta raiz)</option>' +
+                sinteticas.map(c => `<option value="${c.id}">${c.numero} - ${c.nome}</option>`).join('');
         }
 
-        function deleteAccount(btn) {
-            if (confirm('Tem certeza que deseja deletar esta conta?')) {
-                btn.closest('tr').remove();
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('filterTipo').addEventListener('change', applyFilters);
+        document.getElementById('filterStatus').addEventListener('change', applyFilters);
+
+        document.getElementById('newContaBtn').addEventListener('click', () => {
+            currentContaId = null;
+            document.getElementById('modalTitle').textContent = 'Nova Conta';
+            resetForm();
+            document.getElementById('contaModal').classList.add('active');
+        });
+
+        function resetForm() {
+            document.getElementById('numero').value = '';
+            document.getElementById('nome').value = '';
+            document.getElementById('tipo').value = '';
+            document.getElementById('contaPai').value = '';
+            document.getElementById('analitica').value = 'true';
+            document.getElementById('ativo').value = 'true';
+        }
+
+        async function editConta(id) {
+            const conta = allContas.find(c => c.id === id);
+            if (!conta) return;
+
+            currentContaId = id;
+            document.getElementById('modalTitle').textContent = 'Editar Conta';
+            document.getElementById('numero').value = conta.numero || '';
+            document.getElementById('nome').value = conta.nome || '';
+            document.getElementById('tipo').value = conta.tipo || '';
+            document.getElementById('contaPai').value = conta.conta_pai_id || '';
+            document.getElementById('analitica').value = conta.analitica ? 'true' : 'false';
+            document.getElementById('ativo').value = conta.ativo === false ? 'false' : 'true';
+            document.getElementById('contaModal').classList.add('active');
+        }
+
+        async function deleteConta(id) {
+            const conta = allContas.find(c => c.id === id);
+            if (!confirm(`Excluir a conta "${conta?.nome}"?`)) return;
+
+            try {
+                showLoading(true);
+                const { error } = await supabase.from('plano_contas').delete().eq('id', id);
+                if (error) throw error;
+                showToast('Conta excluída com sucesso');
+                await loadContas();
+            } catch (error) {
+                showToast('Erro ao excluir: ' + (error.message || 'verifique se não há lançamentos vinculados'), 'error');
+            } finally {
+                showLoading(false);
             }
         }
 
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const numero = document.getElementById('numero').value.trim();
+            const nome = document.getElementById('nome').value.trim();
+            const tipo = document.getElementById('tipo').value;
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+            if (!numero || !nome || !tipo) {
+                showToast('Preencha código, nome e tipo', 'error');
+                return;
             }
+
+            const dados = {
+                numero,
+                nome,
+                tipo,
+                conta_pai_id: document.getElementById('contaPai').value || null,
+                analitica: document.getElementById('analitica').value === 'true',
+                ativo: document.getElementById('ativo').value === 'true'
+            };
+
+            try {
+                showLoading(true);
+                if (currentContaId) {
+                    const { error } = await supabase.from('plano_contas').update(dados).eq('id', currentContaId);
+                    if (error) throw error;
+                    showToast('Conta atualizada com sucesso');
+                } else {
+                    const profile = await getProfile();
+                    dados.tenant_id = profile?.tenant_id;
+                    const { error } = await supabase.from('plano_contas').insert([dados]);
+                    if (error) throw error;
+                    showToast('Conta criada com sucesso');
+                }
+                document.getElementById('contaModal').classList.remove('active');
+                await loadContas();
+            } catch (error) {
+                showToast('Erro ao salvar: ' + (error.message || 'tente novamente'), 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('contaModal').classList.remove('active');
+        });
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('contaModal').classList.remove('active');
+        });
+
+        window.handleLogout = async function() {
+            await logout();
+            window.location.href = './login.html';
         };
-    
-window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
-</script>
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await getSession();
+            if (!session?.user) { window.location.href = './login.html'; return; }
+            await loadContas();
+        });
+    </script>
 </body>
-                </html>
+</html>
