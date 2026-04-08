@@ -96,6 +96,84 @@ serve(async (req: Request) => {
       case "contas_pagar": return await runSingleSync(supabase, token, empresaId, "contas_pagar", syncContasPagar);
       case "vendas": return await runSingleSync(supabase, token, empresaId, "vendas", syncVendas);
 
+      case "incremental": {
+        // Sync incremental: only financial data that changed recently
+        const results: Record<string, any> = {};
+        const incrementalFunctions = [
+          { name: "contas_financeiras", fn: () => syncContasFinanceiras(supabase, token, empresaId) },
+          { name: "contas_receber", fn: () => syncContasReceber(supabase, token, empresaId) },
+          { name: "contas_pagar", fn: () => syncContasPagar(supabase, token, empresaId) },
+        ];
+        for (const { name, fn } of incrementalFunctions) {
+          const logId = await startSyncLog(supabase, empresaId, "incremental", name);
+          try {
+            const count = await fn();
+            results[name] = { status: "ok", registros: count };
+            await finishSyncLog(supabase, logId, "success", count);
+          } catch (err: any) {
+            results[name] = { status: "error", error: err.message };
+            await finishSyncLog(supabase, logId, "error", 0, err.message);
+          }
+        }
+        return jsonResponse({ success: true, type: "incremental", results });
+      }
+
+      case "scheduled": {
+        // Scheduled sync: token already refreshed by getValidToken above
+        // Full sync at 3am and 6am UTC, incremental every other hour
+        const now = new Date();
+        const hour = now.getUTCHours();
+        const isFullSync = hour === 3 || hour === 6;
+
+        if (isFullSync) {
+          const results: Record<string, any> = {};
+          const allFunctions = [
+            { name: "categorias", fn: () => syncCategorias(supabase, token, empresaId) },
+            { name: "categorias_dre", fn: () => syncCategoriasDre(supabase, token, empresaId) },
+            { name: "centro_custos", fn: () => syncCentroCustos(supabase, token, empresaId) },
+            { name: "contas_financeiras", fn: () => syncContasFinanceiras(supabase, token, empresaId) },
+            { name: "pessoas", fn: () => syncPessoas(supabase, token, empresaId) },
+            { name: "produtos", fn: () => syncProdutos(supabase, token, empresaId) },
+            { name: "servicos", fn: () => syncServicos(supabase, token, empresaId) },
+            { name: "contas_receber", fn: () => syncContasReceber(supabase, token, empresaId) },
+            { name: "contas_pagar", fn: () => syncContasPagar(supabase, token, empresaId) },
+            { name: "vendas", fn: () => syncVendas(supabase, token, empresaId) },
+          ];
+          for (const { name, fn } of allFunctions) {
+            const logId = await startSyncLog(supabase, empresaId, "scheduled_full", name);
+            try {
+              const count = await fn();
+              results[name] = { status: "ok", registros: count };
+              await finishSyncLog(supabase, logId, "success", count);
+            } catch (err: any) {
+              results[name] = { status: "error", error: err.message };
+              await finishSyncLog(supabase, logId, "error", 0, err.message);
+            }
+          }
+          return jsonResponse({ success: true, type: "scheduled_full", results });
+        } else {
+          // Incremental: only financial data
+          const results: Record<string, any> = {};
+          const incFunctions = [
+            { name: "contas_financeiras", fn: () => syncContasFinanceiras(supabase, token, empresaId) },
+            { name: "contas_receber", fn: () => syncContasReceber(supabase, token, empresaId) },
+            { name: "contas_pagar", fn: () => syncContasPagar(supabase, token, empresaId) },
+          ];
+          for (const { name, fn } of incFunctions) {
+            const logId = await startSyncLog(supabase, empresaId, "scheduled_incremental", name);
+            try {
+              const count = await fn();
+              results[name] = { status: "ok", registros: count };
+              await finishSyncLog(supabase, logId, "success", count);
+            } catch (err: any) {
+              results[name] = { status: "error", error: err.message };
+              await finishSyncLog(supabase, logId, "error", 0, err.message);
+            }
+          }
+          return jsonResponse({ success: true, type: "scheduled_incremental", results });
+        }
+      }
+
       case "query": {
         const endpoint = url.searchParams.get("endpoint");
         if (!endpoint) return jsonResponse({ error: "endpoint obrigatorio" }, 400);
