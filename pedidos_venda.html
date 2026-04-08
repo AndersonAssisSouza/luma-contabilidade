@@ -4,13 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos de Venda - LUMA Contabilidade</title>
-    <style>        .sidebar a.active {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            font-weight: 600;
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar
+
+        .main {
+            flex: 1;
+            
+            padding: 30px;
+        }
 
         .header {
             display: flex;
@@ -29,41 +47,106 @@
             gap: 10px;
         }
 
-        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
 
-        
+        .btn-primary {
+            background: #1a237e;
+            color: white;
+        }
 
-        
+        .btn-primary:hover {
+            background: #0d1653;
+        }
 
-        
+        .btn-secondary {
+            background: #e8eaf6;
+            color: #1a237e;
+            border: 1px solid #1a237e;
+        }
 
-        
+        .btn-secondary:hover {
+            background: #c5cae9;
+        }
 
-        
+        .btn-success {
+            background: #2e7d32;
+            color: white;
+        }
 
-        
+        .btn-success:hover {
+            background: #1b5e20;
+        }
 
-        
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+        }
 
-        
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
 
-        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
 
-        
+        .search-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
 
-        
+        .search-section input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
 
-        
+        .table-container {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
 
-        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-        
+        thead {
+            background: #f5f7fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
 
-        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 13px;
+        }
 
-        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
 
-        
+        tbody tr:hover {
+            background: #fafafa;
+        }
 
         .status {
             display: inline-block;
@@ -93,22 +176,57 @@
             color: #c62828;
         }
 
-        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
 
-        
+        .modal.active {
+            display: flex;
+        }
 
-        
+        .modal-content {
+            background: white;
+            border-radius: 4px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
 
-        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
         .modal-header h2 {
             font-size: 18px;
             color: #1a237e;
         }
 
-        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
 
-        .modal-
+        .modal-body {
+            padding: 20px;
+        }
 
         .form-section {
             margin-bottom: 20px;
@@ -123,49 +241,122 @@
             border-bottom: 1px solid #e0e0e0;
         }
 
-        
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #333;
+        }
 
-        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
 
-        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
 
-        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
 
         .form-row.full {
             grid-template-columns: 1fr;
         }
 
-        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
 
         .action-cell {
             display: flex;
             gap: 5px;
         }
 
-        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
 
         .empty-state p {
             font-size: 14px;
         }
 
-        
-
-        
-
-        
-
-        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #323232;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
         }
 
-        
+        .toast.success {
+            background: #2e7d32;
+        }
 
-        
+        .toast.error {
+            background: #c62828;
+        }
 
-        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
 
-        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a237e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -175,11 +366,18 @@
                 position: relative;
             }
 
-            
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
 
-            
+            .container {
+                flex-direction: column;
+            }
 
-            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
 
             .header {
                 flex-direction: column;
@@ -204,6 +402,7 @@
             overflow-y: auto;
             padding: 24px 0;
             min-height: 100vh;
+            position: relative;
         }
         .sidebar-section { margin-bottom: 20px; }
         .sidebar-section-title {
@@ -247,7 +446,6 @@
             font-size: 14px;
         }
     </style>
-    <link rel="stylesheet" href="./styles/common.css">
 </head>
 <body>
     <div class="container">
@@ -374,7 +572,6 @@
                 </a>
             </div>
             <div class="sidebar-section">
-                <div class="sidebar-section-title"></div>
                 <a href="#" class="sidebar-item" onclick="event.preventDefault(); handleLogout();">
                     <span class="sidebar-icon">🚪</span>
                     <span>Sair</span>
@@ -491,24 +688,8 @@
         import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
-        let caConnected = false;
-        let caEmpresaId = null;
         let currentPedidoId = null;
         let clientes = [];
-
-        async function checkContaAzul() {
-            try {
-                const { data: profile } = await getProfile();
-                if (!profile?.tenant_id) return;
-                caEmpresaId = profile.tenant_id;
-                const { data } = await supabase.from('contaazul_tokens')
-                    .select('status, token_expires_at')
-                    .eq('empresa_id', caEmpresaId).single();
-                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
-                    caConnected = true;
-                }
-            } catch (e) { /* CA not configured */ }
-        }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -555,53 +736,14 @@
         async function loadPedidos() {
             try {
                 showLoading(true);
+                const { data, error } = await supabase
+                    .from('pedidos_venda')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-                if (caConnected && caEmpresaId) {
-                    // Load vendas from Conta Azul
-                    const { data: vendas, error } = await supabase
-                        .from('ca_vendas')
-                        .select('*')
-                        .eq('empresa_id', caEmpresaId)
-                        .order('data_venda', { ascending: false });
+                if (error) throw error;
 
-                    if (error) throw error;
-
-                    // Try to get pessoa names for display
-                    let pessoasMap = {};
-                    try {
-                        const pessoaIds = [...new Set((vendas || []).map(v => v.pessoa_id).filter(Boolean))];
-                        if (pessoaIds.length > 0) {
-                            const { data: pessoas } = await supabase
-                                .from('ca_pessoas')
-                                .select('id, nome')
-                                .eq('empresa_id', caEmpresaId)
-                                .in('id', pessoaIds);
-                            (pessoas || []).forEach(p => { pessoasMap[p.id] = p.nome; });
-                        }
-                    } catch (e) { /* ignore */ }
-
-                    const pedidos = (vendas || []).map(v => ({
-                        id: v.id,
-                        numero: v.numero || '-',
-                        cliente_id: v.pessoa_id,
-                        data_pedido: v.data_venda,
-                        valor_total: v.valor_total || 0,
-                        status: v.status || 'PENDENTE',
-                        _clienteNome: pessoasMap[v.pessoa_id] || 'N/A',
-                        _source: 'contaazul'
-                    }));
-                    renderPedidos(pedidos);
-                    showToast('Pedidos carregados da Conta Azul', 'success');
-                } else {
-                    const { data, error } = await supabase
-                        .from('pedidos_venda')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-
-                    if (error) throw error;
-
-                    renderPedidos(data || []);
-                }
+                renderPedidos(data || []);
             } catch (error) {
                 console.error('Erro ao carregar pedidos:', error);
                 showToast('Erro ao carregar pedidos', 'error');
@@ -618,11 +760,11 @@
             }
 
             tbody.innerHTML = pedidos.map(pedido => {
-                const clienteNome = pedido._clienteNome || (clientes.find(c => c.id === pedido.cliente_id)?.nome) || 'N/A';
+                const cliente = clientes.find(c => c.id === pedido.cliente_id);
                 return `
                     <tr>
                         <td>${pedido.numero}</td>
-                        <td>${clienteNome}</td>
+                        <td>${cliente?.nome || 'N/A'}</td>
                         <td>${formatDate(pedido.data_pedido)}</td>
                         <td>${formatCurrency(pedido.valor_total)}</td>
                         <td><span class="status status-${pedido.status.toLowerCase()}">
@@ -788,16 +930,18 @@
             }
         }
 
+        window.handleLogout = async function() {
+            await logout();
+            window.location.href = './login.html';
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
             currentUser = session.user;
-            await checkContaAzul();
             await loadClientes();
             await loadPedidos();
         });
-
-window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
-</script>
+    </script>
 </body>
 </html>
