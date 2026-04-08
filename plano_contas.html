@@ -389,9 +389,9 @@
             document.getElementById('loading').classList.toggle('active', show);
         }
 
-        function getNivel(numero) {
-            if (!numero) return 4;
-            const parts = numero.replace(/\./g, '.').split('.');
+        function getNivel(codigo) {
+            if (!codigo) return 4;
+            const parts = codigo.replace(/\./g, '.').split('.');
             return Math.min(parts.length, 4);
         }
 
@@ -401,7 +401,7 @@
                 const { data, error } = await supabase
                     .from('plano_contas')
                     .select('*')
-                    .order('numero');
+                    .order('codigo');
 
                 if (error) throw error;
                 allContas = data || [];
@@ -436,7 +436,7 @@
             const status = document.getElementById('filterStatus').value;
 
             let filtered = allContas.filter(c => {
-                if (search && !c.numero?.toLowerCase().includes(search) && !c.nome?.toLowerCase().includes(search)) return false;
+                if (search && !c.codigo?.toLowerCase().includes(search) && !c.descricao?.toLowerCase().includes(search)) return false;
                 if (tipo && c.tipo !== tipo) return false;
                 if (status === 'true' && c.ativo === false) return false;
                 if (status === 'false' && c.ativo !== false) return false;
@@ -454,14 +454,14 @@
             }
 
             tbody.innerHTML = contas.map(c => {
-                const nivel = getNivel(c.numero);
+                const nivel = getNivel(c.codigo);
                 const tipoBadge = `badge-${c.tipo || 'ativo'}`;
                 const statusBadge = c.ativo === false ? 'badge-inactive' : 'badge-active';
                 const naturezaBadge = c.analitica ? 'badge-analitica' : 'badge-sintetica';
 
                 return `<tr class="row-nivel-${nivel}">
-                    <td><strong>${c.numero || '-'}</strong></td>
-                    <td>${c.nome}</td>
+                    <td><strong>${c.codigo || '-'}</strong></td>
+                    <td>${c.descricao}</td>
                     <td><span class="badge ${tipoBadge}">${tipoLabels[c.tipo] || c.tipo || '-'}</span></td>
                     <td><span class="badge ${naturezaBadge}">${c.analitica ? 'Analítica' : 'Sintética'}</span></td>
                     <td><span class="badge ${statusBadge}">${c.ativo === false ? 'Inativo' : 'Ativo'}</span></td>
@@ -484,7 +484,7 @@
             const select = document.getElementById('contaPai');
             const sinteticas = allContas.filter(c => !c.analitica && c.ativo !== false);
             select.innerHTML = '<option value="">Nenhuma (conta raiz)</option>' +
-                sinteticas.map(c => `<option value="${c.id}">${c.numero} - ${c.nome}</option>`).join('');
+                sinteticas.map(c => `<option value="${c.id}">${c.codigo} - ${c.descricao}</option>`).join('');
         }
 
         document.getElementById('searchInput').addEventListener('input', applyFilters);
@@ -513,8 +513,8 @@
 
             currentContaId = id;
             document.getElementById('modalTitle').textContent = 'Editar Conta';
-            document.getElementById('numero').value = conta.numero || '';
-            document.getElementById('nome').value = conta.nome || '';
+            document.getElementById('numero').value = conta.codigo || '';
+            document.getElementById('nome').value = conta.descricao || '';
             document.getElementById('tipo').value = conta.tipo || '';
             document.getElementById('contaPai').value = conta.conta_pai_id || '';
             document.getElementById('analitica').value = conta.analitica ? 'true' : 'false';
@@ -524,7 +524,7 @@
 
         async function deleteConta(id) {
             const conta = allContas.find(c => c.id === id);
-            if (!confirm(`Excluir a conta "${conta?.nome}"?`)) return;
+            if (!confirm(`Excluir a conta "${conta?.descricao}"?`)) return;
 
             try {
                 showLoading(true);
@@ -550,8 +550,8 @@
             }
 
             const dados = {
-                numero,
-                nome,
+                codigo: numero,
+                descricao: nome,
                 tipo,
                 conta_pai_id: document.getElementById('contaPai').value || null,
                 analitica: document.getElementById('analitica').value === 'true',
