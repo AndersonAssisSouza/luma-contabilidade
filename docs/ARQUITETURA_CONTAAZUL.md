@@ -89,9 +89,9 @@ Integracao entre o sistema LUMA Contabilidade (GitHub Pages + Supabase) e o ERP 
 - Sync completo agendado diariamente
 - Sync sob demanda via botao no frontend
 
-## Credenciais (Desenvolvimento)
-- client_id: 4va0nsbptdp2lnlnsstan8nlm0
-- Redirect URI: https://contaazul.com
+## Credenciais (Producao)
+- client_id: 1bf9tnjpjaf5j6j4bf4kf65c45
+- Redirect URI: https://wjoxsyyyqohaqknymqdg.supabase.co/functions/v1/contaazul-auth
 - Auth endpoint: https://auth.contaazul.com
 - Token endpoint: https://auth.contaazul.com/oauth2/token
 - API base: https://api-v2.contaazul.com
