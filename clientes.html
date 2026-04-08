@@ -909,7 +909,6 @@
                         .from('ca_pessoas')
                         .select('*')
                         .eq('empresa_id', caEmpresaId)
-                        .eq('ativo', true)
                         .order('nome');
 
                     if (error) throw error;
