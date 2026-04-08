@@ -204,7 +204,7 @@
                     <div class="card-value" id="totalEntradas">R$ 0,00</div>
                 </div>
                 <div class="card">
-                    <div class="card-title">Total Saídas (Mpì®às)</div>
+                    <div class="card-title">Total Saídas (Mês)</div>
                     <div class="card-value" id="totalSaidas">R$ 0,00</div>
                 </div>
                 <div class="card">
@@ -355,7 +355,7 @@
                             <label for="icms">ICMS (R$)</label>
                             <input type="number" id="icms" step="0.01" value="0.00">
                         </div>
-                        <divclass="form-group">
+                        <div class="form-group">
                             <label for="ipi">IPI (R$)</label>
                             <input type="number" id="ipi" step="0.01" value="0.00">
                         </div>
@@ -444,11 +444,27 @@
     </div>
 
     <script type="module">
-        import { supabase, getSession, logout } from './scripts/supabase_client_contab.js';
+        import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
 
         let currentNFId = null;
+
+        async function checkContaAzul() {
+            try {
+                const { data: profile } = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -506,15 +522,44 @@
         async function loadNotas() {
             try {
                 showLoading(true);
-                const { data, error } = await supabase
-                    .from('notas_fiscais')
-                    .select('*')
-                    .order('data_emissao', { ascending: false });
+                await checkContaAzul();
 
-                if (error) throw error;
+                if (caConnected && caEmpresaId) {
+                    const { data, error } = await supabase
+                        .from('ca_notas_fiscais')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .order('data_emissao', { ascending: false });
 
-                renderNotas(data || []);
-                updateSummary(data || []);
+                    if (error) throw error;
+
+                    const notas = (data || []).map(nf => ({
+                        id: nf.id,
+                        numero: nf.numero || '-',
+                        serie: nf.serie || '',
+                        tipo: nf.tipo || 'Saida',
+                        emitente_destinatario: '-',
+                        valor_total: nf.valor_total || 0,
+                        data_emissao: nf.data_emissao,
+                        status: nf.status || 'Processada',
+                        chave: nf.chave || '',
+                        irrf: 0, inss: 0, outra_retencao: 0,
+                        _source: 'contaazul'
+                    }));
+                    renderNotas(notas);
+                    updateSummary(notas);
+                    showToast('Notas fiscais carregadas da Conta Azul', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('notas_fiscais')
+                        .select('*')
+                        .order('data_emissao', { ascending: false });
+
+                    if (error) throw error;
+
+                    renderNotas(data || []);
+                    updateSummary(data || []);
+                }
             } catch (error) {
                 console.error('Erro ao carregar notas:', error);
                 showToast('Erro ao carregar notas', 'error');
@@ -887,10 +932,7 @@
             });
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await logout();
-            window.location.href = 'login.html';
-        });
+        // Logout handled by sidebar onclick="handleLogout()"
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {

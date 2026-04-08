@@ -438,7 +438,7 @@
 
         document.getElementById('gerarBtn').addEventListener('click', gerarBalancete);
 
-        async function handleLogout() {
+        window.handleLogout = async function() {
             await logout();
             window.location.href = './login.html';
         }

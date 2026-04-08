@@ -502,7 +502,23 @@
         import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
         let currentProdutoId = null;
+
+        async function checkContaAzul() {
+            try {
+                const { data: profile } = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -531,14 +547,63 @@
         async function loadProdutos() {
             try {
                 showLoading(true);
-                const { data, error } = await supabase
-                    .from('produtos_servicos')
-                    .select('*')
-                    .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (caConnected && caEmpresaId) {
+                    // Load from ca_produtos and ca_servicos
+                    let allItems = [];
 
-                renderProdutos(data || []);
+                    const { data: produtos, error: errProd } = await supabase
+                        .from('ca_produtos')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .order('nome');
+
+                    if (!errProd && produtos) {
+                        allItems = allItems.concat(produtos.map(p => ({
+                            id: p.id,
+                            codigo: p.codigo || '-',
+                            descricao: p.nome || '-',
+                            tipo: p.tipo_item || 'PRODUTO',
+                            unidade: p.unidade || '-',
+                            preco_unitario: p.valor || 0,
+                            ncm: '-',
+                            status: p.ativo !== false ? 'Ativo' : 'Inativo',
+                            _source: 'contaazul'
+                        })));
+                    }
+
+                    const { data: servicos, error: errServ } = await supabase
+                        .from('ca_servicos')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .order('nome');
+
+                    if (!errServ && servicos) {
+                        allItems = allItems.concat(servicos.map(s => ({
+                            id: s.id,
+                            codigo: s.codigo || '-',
+                            descricao: s.nome || '-',
+                            tipo: 'SERVICO',
+                            unidade: s.unidade || '-',
+                            preco_unitario: s.valor || 0,
+                            ncm: '-',
+                            status: s.ativo !== false ? 'Ativo' : 'Inativo',
+                            _source: 'contaazul'
+                        })));
+                    }
+
+                    renderProdutos(allItems);
+                    showToast('Produtos/Servicos carregados da Conta Azul', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('produtos_servicos')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    renderProdutos(data || []);
+                }
             } catch (error) {
                 console.error('Erro ao carregar produtos:', error);
                 showToast('Erro ao carregar produtos', 'error');
@@ -710,17 +775,15 @@
             }
         }
 
-        async function handleLogout() {
-            await logout();
-            window.location.href = './login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
             currentUser = session.user;
+            await checkContaAzul();
             await loadProdutos();
         });
-    </script>
+
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

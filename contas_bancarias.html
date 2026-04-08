@@ -342,7 +342,23 @@
         import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
         let currentContaId = null;
+
+        async function checkContaAzul() {
+            try {
+                const { data: profile } = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -363,13 +379,38 @@
         async function loadContas() {
             try {
                 showLoading(true);
-                const { data, error } = await supabase
-                    .from('contas_bancarias')
-                    .select('*')
-                    .order('nome');
 
-                if (error) throw error;
-                renderContas(data || []);
+                if (caConnected && caEmpresaId) {
+                    const { data, error } = await supabase
+                        .from('ca_contas_financeiras')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .order('nome');
+
+                    if (error) throw error;
+
+                    const contas = (data || []).map(c => ({
+                        id: c.id,
+                        nome: c.nome || '-',
+                        banco: c.banco || '-',
+                        agencia: c.agencia || '-',
+                        conta: c.numero || '-',
+                        tipo: c.tipo || '-',
+                        saldo_inicial: c.saldo_atual || 0,
+                        status: c.ativo !== false ? 'Ativo' : 'Inativo',
+                        _source: 'contaazul'
+                    }));
+                    renderContas(contas);
+                    showToast('Contas carregadas da Conta Azul', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('contas_bancarias')
+                        .select('*')
+                        .order('nome');
+
+                    if (error) throw error;
+                    renderContas(data || []);
+                }
             } catch (error) {
                 console.error('Erro:', error);
                 showToast('Erro ao carregar contas', 'error');
@@ -524,17 +565,15 @@
             }
         }
 
-        async function handleLogout() {
-            await logout();
-            window.location.href = './login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
             currentUser = session.user;
+            await checkContaAzul();
             await loadContas();
         });
-    </script>
+
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

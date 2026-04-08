@@ -305,7 +305,23 @@
         import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
         let currentCategoriaId = null;
+
+        async function checkContaAzul() {
+            try {
+                const { data: profile } = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -322,13 +338,34 @@
         async function loadCategorias() {
             try {
                 showLoading(true);
-                const { data, error } = await supabase
-                    .from('categorias')
-                    .select('*')
-                       .order('nome');
 
-                if (error) throw error;
-                renderCategorias(data || []);
+                if (caConnected && caEmpresaId) {
+                    const { data, error } = await supabase
+                        .from('ca_categorias')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .order('nome');
+
+                    if (error) throw error;
+
+                    const categorias = (data || []).map(cat => ({
+                        id: cat.id,
+                        nome: cat.nome || '-',
+                        tipo: cat.tipo || '-',
+                        descricao: cat.descricao || '-',
+                        _source: 'contaazul'
+                    }));
+                    renderCategorias(categorias);
+                    showToast('Categorias carregadas da Conta Azul', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('categorias')
+                        .select('*')
+                        .order('nome');
+
+                    if (error) throw error;
+                    renderCategorias(data || []);
+                }
             } catch (error) {
                 console.error('Erro:', error);
                 showToast('Erro ao carregar categorias', 'error');
@@ -352,7 +389,7 @@
                     <td>
                         <div class="action-cell">
                             <button class="btn btn-sm btn-secondary" onclick="editCategoria(${cat.id})">âï¸</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCategoria(${cat.id})">ðï¸</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCategoria(${cat.id})">🗑ï¸</button>
                         </div>
                     </td>
                 </tr>
@@ -462,17 +499,15 @@
             }
         }
 
-        async function handleLogout() {
-            await logout();
-            window.location.href = './login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
             currentUser = session.user;
+            await checkContaAzul();
             await loadCategorias();
         });
-    </script>
+
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

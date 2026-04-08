@@ -751,13 +751,7 @@
             showToast('Funcionalidade de exportação em desenvolvimento', 'success');
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            const session = await getSession();
-                if (!session || !session.user) { window.location.href = './login.html'; return; }
-                currentUser = session.user;
-            await auth.logout();
-            window.location.href = 'login.html';
-        });
+        // Logout handled by sidebar onclick="handleLogout()"
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {

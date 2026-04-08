@@ -377,17 +377,14 @@
             }
         }
 
-        async function handleLogout() {
-            await logout();
-            window.location.href = './login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
             currentUser = session.user;
             await loadObrigacoes();
         });
-    </script>
+
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>

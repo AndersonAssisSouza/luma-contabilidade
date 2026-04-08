@@ -312,7 +312,7 @@
             });
         });
 
-        async function handleLogout() {
+        window.handleLogout = async function() {
             await logout();
             window.location.href = './login.html';
         }

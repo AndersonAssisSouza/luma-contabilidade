@@ -491,12 +491,7 @@
     }
 
     function updateUserInfo() {
-      if (currentUser?.user_metadata?.full_name) {
-        const name = currentUser.user_metadata.full_name;
-        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-        document.getElementById('usernameSidebar').textContent = name;
-        document.getElementById('userAvatarSidebar').textContent = initials;
-      }
+      // User info is handled by the sidebar
     }
 
     function loadCompanyData() {

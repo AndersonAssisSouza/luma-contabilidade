@@ -585,7 +585,7 @@
         }
 
         // Event listeners
-        document.getElementById('load-account').addEventListener('click', () => {
+        document.getElementById('load-account').addEventListener('click', async () => {
             const accountId = document.getElementById('bank-account').value;
             if (!accountId) {
                 showMessage('Selecione uma conta bancária', 'error');

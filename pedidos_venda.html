@@ -491,8 +491,24 @@
         import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
 
         let currentUser = null;
+        let caConnected = false;
+        let caEmpresaId = null;
         let currentPedidoId = null;
         let clientes = [];
+
+        async function checkContaAzul() {
+            try {
+                const { data: profile } = await getProfile();
+                if (!profile?.tenant_id) return;
+                caEmpresaId = profile.tenant_id;
+                const { data } = await supabase.from('contaazul_tokens')
+                    .select('status, token_expires_at')
+                    .eq('empresa_id', caEmpresaId).single();
+                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
+                    caConnected = true;
+                }
+            } catch (e) { /* CA not configured */ }
+        }
 
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
@@ -539,14 +555,53 @@
         async function loadPedidos() {
             try {
                 showLoading(true);
-                const { data, error } = await supabase
-                    .from('pedidos_venda')
-                    .select('*')
-                    .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (caConnected && caEmpresaId) {
+                    // Load vendas from Conta Azul
+                    const { data: vendas, error } = await supabase
+                        .from('ca_vendas')
+                        .select('*')
+                        .eq('empresa_id', caEmpresaId)
+                        .order('data_venda', { ascending: false });
 
-                renderPedidos(data || []);
+                    if (error) throw error;
+
+                    // Try to get pessoa names for display
+                    let pessoasMap = {};
+                    try {
+                        const pessoaIds = [...new Set((vendas || []).map(v => v.pessoa_id).filter(Boolean))];
+                        if (pessoaIds.length > 0) {
+                            const { data: pessoas } = await supabase
+                                .from('ca_pessoas')
+                                .select('id, nome')
+                                .eq('empresa_id', caEmpresaId)
+                                .in('id', pessoaIds);
+                            (pessoas || []).forEach(p => { pessoasMap[p.id] = p.nome; });
+                        }
+                    } catch (e) { /* ignore */ }
+
+                    const pedidos = (vendas || []).map(v => ({
+                        id: v.id,
+                        numero: v.numero || '-',
+                        cliente_id: v.pessoa_id,
+                        data_pedido: v.data_venda,
+                        valor_total: v.valor_total || 0,
+                        status: v.status || 'PENDENTE',
+                        _clienteNome: pessoasMap[v.pessoa_id] || 'N/A',
+                        _source: 'contaazul'
+                    }));
+                    renderPedidos(pedidos);
+                    showToast('Pedidos carregados da Conta Azul', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('pedidos_venda')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    renderPedidos(data || []);
+                }
             } catch (error) {
                 console.error('Erro ao carregar pedidos:', error);
                 showToast('Erro ao carregar pedidos', 'error');
@@ -563,11 +618,11 @@
             }
 
             tbody.innerHTML = pedidos.map(pedido => {
-                const cliente = clientes.find(c => c.id === pedido.cliente_id);
+                const clienteNome = pedido._clienteNome || (clientes.find(c => c.id === pedido.cliente_id)?.nome) || 'N/A';
                 return `
                     <tr>
                         <td>${pedido.numero}</td>
-                        <td>${cliente?.nome || 'N/A'}</td>
+                        <td>${clienteNome}</td>
                         <td>${formatDate(pedido.data_pedido)}</td>
                         <td>${formatCurrency(pedido.valor_total)}</td>
                         <td><span class="status status-${pedido.status.toLowerCase()}">
@@ -733,18 +788,16 @@
             }
         }
 
-        async function handleLogout() {
-            await logout();
-            window.location.href = './login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
             currentUser = session.user;
+            await checkContaAzul();
             await loadClientes();
             await loadPedidos();
         });
-    </script>
+
+window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+</script>
 </body>
 </html>
