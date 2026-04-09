@@ -880,12 +880,12 @@
 
                     return {
                         id: ob.id,
-                        obrigacao: ob.titulo || ob.nome || 'Obrigação',
-                        competencia: ob.competencia || ob.data_competencia || '-',
+                        obrigacao: ob.obrigacao || ob.descricao || 'Obrigação',
+                        competencia: ob.competencia || ob.competencia || '-',
                         vencimento: venc,
                         responsavel: ob.responsavel || '-',
                         status: status,
-                        data_conclusao: ob.data_conclusao ? new Date(ob.data_conclusao) : null
+                        data_entrega: ob.data_entrega ? new Date(ob.data_entrega) : null
                     };
                 });
 
@@ -1051,8 +1051,8 @@
 
             document.getElementById('statusObrigacao').value = ob.obrigacao;
             document.getElementById('statusSelect').value = ob.status;
-            document.getElementById('statusData').value = ob.data_conclusao
-                ? ob.data_conclusao.toISOString().split('T')[0]
+            document.getElementById('statusData').value = ob.data_entrega
+                ? ob.data_entrega.toISOString().split('T')[0]
                 : new Date().toISOString().split('T')[0];
 
             document.getElementById('statusModal').dataset.obligacaoId = id;
@@ -1071,7 +1071,7 @@
 
             if (ob) {
                 ob.status = document.getElementById('statusSelect').value;
-                ob.data_conclusao = new Date(document.getElementById('statusData').value);
+                ob.data_entrega = new Date(document.getElementById('statusData').value);
 
                 closeStatusModal();
                 renderListView();
