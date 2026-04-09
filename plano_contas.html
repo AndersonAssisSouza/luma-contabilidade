@@ -8,11 +8,8 @@
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333;}
         .container {display: flex; min-height: 100vh;}
-        .sidebar
-        .sidebar nav a, .sidebar nav button {display: block; padding: 10px 14px; color: rgba(255,255,255,0.8); text-decoration: none; border: none; background: none; cursor: pointer; border-radius: 4px; font-size: 13px; text-align: left; width: 100%;}
-        .sidebar nav a:hover, .sidebar nav button:hover {background: rgba(255,255,255,0.1); color: white;}
-        .sidebar nav a.active {background: rgba(255,255,255,0.2); color: white; font-weight: 600;}
-        .main {flex: 1;  padding: 30px;}
+        .main {
+            margin-left: 260px;flex: 1;  padding: 30px;}
         .header {display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
         .header h1 {font-size: 24px; color: #1a237e;}
         .header-actions {display: flex; gap: 10px;}
@@ -74,17 +71,32 @@
         .loading.active {display: block;}
         .spinner {border: 4px solid #f3f3f3; border-top: 4px solid #1a237e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;}
         @keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
-        @media (max-width: 768px) {.sidebar {width: 100%; height: auto; position: relative;} .main {margin-left: 0; padding: 15px;} .container {flex-direction: column;} .form-row {flex-direction: column; gap: 0;}}
+        @media (max-width: 768px) {.sidebar {
+            width: 260px;
+            min-width: 260px;
+            background-color: #1a237e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 0;
+            z-index: 90;
+        } .main {
+            margin-left: 260px;padding: 15px;} .container {flex-direction: column;} .form-row {flex-direction: column; gap: 0;}}
     
         /* Sidebar - Dashboard Style */
         .sidebar {
             width: 260px;
             min-width: 260px;
             background-color: #1a237e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
             overflow-y: auto;
             padding: 24px 0;
-            min-height: 100vh;
-            position: relative;
+            z-index: 90;
         }
         .sidebar-section { margin-bottom: 20px; }
         .sidebar-section-title {
@@ -126,6 +138,20 @@
             align-items: center;
             justify-content: center;
             font-size: 14px;
+        }
+    
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>

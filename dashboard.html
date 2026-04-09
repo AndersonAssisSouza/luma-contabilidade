@@ -183,10 +183,13 @@
         .sidebar {
             width: 280px;
             background-color: var(--primary-dark);
+            position: fixed;
+            top: 64px;
+            left: 0;
+            height: calc(100vh - 64px);
             overflow-y: auto;
             padding: 24px 0;
             transition: var(--transition);
-            position: relative;
             z-index: 90;
         }
 
@@ -239,6 +242,7 @@
 
         /* Content Area */
         .content {
+            margin-left: 280px;
             flex: 1;
             overflow-y: auto;
             background-color: var(--gray-100);
