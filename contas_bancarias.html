@@ -420,11 +420,11 @@
 
             tbody.innerHTML = contas.map(c => `
                 <tr>
-                    <td>${c.nome}</td>
-                    <td>${c.banco}</td>
-                    <td>${c.agencia}</td>
-                    <td>${c.conta}</td>
-                    <td>${c.tipo}</td>
+                    <td>${c.nome || "-"}</td>
+                    <td>${c.banco || "-"}</td>
+                    <td>${c.agencia || "-"}</td>
+                    <td>${c.conta || "-"}</td>
+                    <td>${c.tipo || "-"}</td>
                     <td>${formatCurrency(c.saldo_inicial)}</td>
                     <td><span class="status status-${c.status.toLowerCase()}">
                         ${c.status}
