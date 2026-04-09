@@ -569,9 +569,9 @@
                         <td>${getStatusBadge(status)}</td>
                         <td>
                             <div class="actions">
-                                ${status !== 'pago' ? `<button class="btn btn-success btn-small" onclick="openModalPagamento(${conta.id})">Pagar</button>` : ''}
-                                <button class="btn btn-primary btn-small" onclick="openModalEditar(${conta.id})">Editar</button>
-                                <button class="btn btn-danger btn-small" onclick="deleteConta(${conta.id})">Deletar</button>
+                                ${status !== 'pago' ? `<button class="btn btn-success btn-small" onclick="openModalPagamento('${conta.id}')">Pagar</button>` : ''}
+                                <button class="btn btn-primary btn-small" onclick="openModalEditar('${conta.id}')">Editar</button>
+                                <button class="btn btn-danger btn-small" onclick="deleteConta('${conta.id}')">Deletar</button>
                             </div>
                         </td>
                     </tr>
