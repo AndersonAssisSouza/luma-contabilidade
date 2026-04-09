@@ -71,18 +71,8 @@
         .loading.active {display: block;}
         .spinner {border: 4px solid #f3f3f3; border-top: 4px solid #1a237e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;}
         @keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
-        @media (max-width: 768px) {.sidebar {
-            width: 260px;
-            min-width: 260px;
-            background-color: #1a237e;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 24px 0;
-            z-index: 90;
-        } .main {
+        @media (max-width: 768px) {.sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .main {
             margin-left: 260px;padding: 15px;} .container {flex-direction: column;} .form-row {flex-direction: column; gap: 0;}}
     
         /* Sidebar - Dashboard Style */
