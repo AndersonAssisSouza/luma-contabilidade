@@ -750,14 +750,14 @@
                 recebimentos = (caRecRes.data || []).map(r => ({
                     name: r.descricao || 'Recebimento',
                     value: parseFloat(r.nao_pago) || parseFloat(r.total) || 0,
-                    date: new Date(r.data_vencimento),
+                    date: new Date(r.data_vencimento + 'T00:00:00'),
                     status: r.status
                 }));
 
                 pagamentos = (caPagRes.data || []).map(p => ({
                     name: p.descricao || 'Pagamento',
                     value: parseFloat(p.nao_pago) || parseFloat(p.total) || 0,
-                    date: new Date(p.data_vencimento),
+                    date: new Date(p.data_vencimento + 'T00:00:00'),
                     status: p.status
                 }));
 
@@ -773,14 +773,14 @@
                 recebimentos = (recRes.data || []).map(r => ({
                     name: r.descricao || r.numero_documento || 'Recebimento',
                     value: r.valor || 0,
-                    date: new Date(r.data_vencimento),
+                    date: new Date(r.data_vencimento + 'T00:00:00'),
                     status: r.status
                 }));
 
                 pagamentos = (pagRes.data || []).map(p => ({
                     name: p.descricao || p.numero_documento || 'Pagamento',
                     value: p.valor || 0,
-                    date: new Date(p.data_vencimento),
+                    date: new Date(p.data_vencimento + 'T00:00:00'),
                     status: p.status
                 }));
 
