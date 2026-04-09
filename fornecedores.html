@@ -928,13 +928,29 @@
                     renderFornecedores(fornecedores);
                     showToast('Fornecedores carregados da Conta Azul', 'success');
                 } else {
-                    const { data, error } = await supabase
-                        .from('fornecedores')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-
-                    if (error) throw error;
-                    renderFornecedores(data || []);
+                    // Paginated fetch to handle >1000 records
+                    let allFornecedores = [];
+                    let page = 0;
+                    const pageSize = 1000;
+                    let hasMore = true;
+                    while (hasMore) {
+                        const from = page * pageSize;
+                        const to = from + pageSize - 1;
+                        const { data, error } = await supabase
+                            .from('fornecedores')
+                            .select('*')
+                            .order('criado_em', { ascending: false })
+                            .range(from, to);
+                        if (error) throw error;
+                        if (data && data.length > 0) {
+                            allFornecedores = allFornecedores.concat(data);
+                            hasMore = data.length === pageSize;
+                        } else {
+                            hasMore = false;
+                        }
+                        page++;
+                    }
+                    renderFornecedores(allFornecedores);
                 }
             } catch (error) {
                 console.error('Erro ao carregar fornecedores:', error);
@@ -957,14 +973,14 @@
                     <td>${fornecedor.cpf_cnpj}</td>
                     <td>${fornecedor.email}</td>
                     <td>${fornecedor.telefone}</td>
-                    <td>${fornecedor.cidade}/${fornecedor.uf}</td>
-                    <td><span class="status ${fornecedor.ativo ? 'status-ativo' : 'status-inativo'}">
-                        ${fornecedor.ativo ? 'Ativo' : 'Inativo'}
+                    <td>${fornecedor.endereco_cidade || '-'}/${fornecedor.endereco_uf || '-'}</td>
+                    <td><span class="status ${fornecedor.status === 'ATIVO' ? 'status-ativo' : 'status-inativo'}">
+                        ${fornecedor.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
                     </span></td>
                     <td>
                         <div class="action-cell">
-                            <button class="btn btn-sm btn-secondary" onclick="editFornecedor(${fornecedor.id})">✏️</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${fornecedor.id})">🗑️</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editFornecedor('${fornecedor.id}')">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteFornecedor('${fornecedor.id}')">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -1045,13 +1061,13 @@
                 document.getElementById('inscricaoMun').value = data.inscricao_municipal || '';
                 document.getElementById('email').value = data.email;
                 document.getElementById('telefone').value = data.telefone;
-                document.getElementById('logradouro').value = data.logradouro || '';
-                document.getElementById('numero').value = data.numero || '';
-                document.getElementById('complemento').value = data.complemento || '';
-                document.getElementById('bairro').value = data.bairro || '';
-                document.getElementById('cidade').value = data.cidade || '';
-                document.getElementById('uf').value = data.uf || '';
-                document.getElementById('cep').value = data.cep || '';
+                document.getElementById('logradouro').value = data.endereco_logradouro || '';
+                document.getElementById('numero').value = data.endereco_numero || '';
+                document.getElementById('complemento').value = data.endereco_complemento || '';
+                document.getElementById('bairro').value = data.endereco_bairro || '';
+                document.getElementById('cidade').value = data.endereco_cidade || '';
+                document.getElementById('uf').value = data.endereco_uf || '';
+                document.getElementById('cep').value = data.endereco_cep || '';
                 document.getElementById('observacoes').value = data.observacoes || '';
 
                 const tipo = data.tipo_pessoa || 'PF';
@@ -1090,15 +1106,15 @@
                 inscricao_municipal: document.getElementById('inscricaoMun').value,
                 email: document.getElementById('email').value,
                 telefone: document.getElementById('telefone').value,
-                logradouro: document.getElementById('logradouro').value,
-                numero: document.getElementById('numero').value,
-                complemento: document.getElementById('complemento').value,
-                bairro: document.getElementById('bairro').value,
-                cidade: document.getElementById('cidade').value,
-                uf: document.getElementById('uf').value,
-                cep: document.getElementById('cep').value,
+                endereco_logradouro: document.getElementById('logradouro').value,
+                endereco_numero: document.getElementById('numero').value,
+                endereco_complemento: document.getElementById('complemento').value,
+                endereco_bairro: document.getElementById('bairro').value,
+                endereco_cidade: document.getElementById('cidade').value,
+                endereco_uf: document.getElementById('uf').value,
+                endereco_cep: document.getElementById('cep').value,
                 observacoes: document.getElementById('observacoes').value,
-                ativo: true
+                status: 'ATIVO'
             };
 
             try {
