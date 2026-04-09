@@ -989,10 +989,10 @@
 
             tbody.innerHTML = fornecedores.map(fornecedor => `
                 <tr>
-                    <td>${fornecedor.nome}</td>
-                    <td>${fornecedor.cpf_cnpj}</td>
-                    <td>${fornecedor.email}</td>
-                    <td>${fornecedor.telefone}</td>
+                    <td>${fornecedor.nome || "-"}</td>
+                    <td>${fornecedor.cpf_cnpj || "-"}</td>
+                    <td>${fornecedor.email || "-"}</td>
+                    <td>${fornecedor.telefone || "-"}</td>
                     <td>${fornecedor.endereco_cidade || '-'}/${fornecedor.endereco_uf || '-'}</td>
                     <td><span class="status ${fornecedor.status === 'ATIVO' ? 'status-ativo' : 'status-inativo'}">
                         ${fornecedor.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
