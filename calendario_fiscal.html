@@ -846,10 +846,14 @@
         window.navigateTo = navigateTo;
 
 
-        function switchView(view) {
-            currentView = view;
-            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        function switchView(v) {
+            currentView = v;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((v === 'calendar' && btn.textContent.trim() === 'Calendário') || (v === 'list' && btn.textContent.trim() === 'Lista')) {
+                    btn.classList.add('active');
+                }
+            });
 
             if (view === 'calendar') {
                 document.getElementById('calendarView').style.display = 'block';
@@ -873,8 +877,8 @@
                 const today = new Date();
 
                 obligations = (data || []).map(ob => {
-                    const venc = new Date(ob.data_vencimento);
-                    let status = ob.status || 'pendente';
+                    const venc = new Date(ob.data_vencimento + 'T00:00:00');
+                    let status = (ob.status || 'pendente').toLowerCase();
                     if (status !== 'entregue' && venc < today) status = 'atrasado';
 
                     return {
@@ -884,7 +888,7 @@
                         vencimento: venc,
                         responsavel: ob.responsavel || '-',
                         status: status,
-                        data_entrega: ob.data_entrega ? new Date(ob.data_entrega) : null
+                        data_entrega: ob.data_entrega ? new Date(ob.data_entrega + 'T00:00:00') : null
                     };
                 });
 
@@ -984,7 +988,7 @@
 
             if (!isOtherMonth && observations.length > 0) {
                 observations.forEach(obs => {
-                    const statusClass = `status-${obs.status}`;
+                    const statusClass = obs.status === 'entregue' ? 'status-ok' : obs.status === 'atrasado' ? 'status-overdue' : 'status-pending';
                     html += `<div class="day-indicator ${statusClass}" title="${obs.obrigacao}"></div>`;
                 });
             }
@@ -1037,7 +1041,7 @@
                     <td>${ob.responsavel}</td>
                     <td><span class="${statusClass}">${statusText}</span></td>
                     <td class="table-actions">
-                        <button class="btn btn-primary" onclick="openStatusModal(${ob.id})">Atualizar Status</button>
+                        <button class="btn btn-primary" onclick="openStatusModal('${ob.id}')">Atualizar Status</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1062,20 +1066,24 @@
             document.getElementById('statusModal').classList.remove('active');
         }
 
-        function saveStatus(event) {
+        async function saveStatus(event) {
             event.preventDefault();
 
-            const obligacaoId = parseInt(document.getElementById('statusModal').dataset.obligacaoId);
-            const ob = obligations.find(o => o.id === obligacaoId);
+            const obligacaoId = document.getElementById('statusModal').dataset.obligacaoId;
+            const novoStatus = document.getElementById('statusSelect').value.toUpperCase();
+            const dataEntrega = document.getElementById('statusData').value;
 
-            if (ob) {
-                ob.status = document.getElementById('statusSelect').value;
-                ob.data_entrega = new Date(document.getElementById('statusData').value);
-
+            try {
+                const { error } = await supabase
+                    .from('calendario_obrigacoes')
+                    .update({ status: novoStatus, data_entrega: dataEntrega || null })
+                    .eq('id', obligacaoId);
+                if (error) throw error;
                 closeStatusModal();
-                renderListView();
-                renderCalendar();
-                renderAlerts();
+                await loadObligations();
+            } catch(e) {
+                console.error('Erro ao salvar status:', e);
+                alert('Erro ao salvar status');
             }
         }
 
@@ -1085,6 +1093,22 @@
 
         window.addEventListener('load', initPage);
     
+
+        async function marcarEntregue(id) {
+            try {
+                const hoje = new Date().toISOString().split('T')[0];
+                const { error } = await supabase
+                    .from('calendario_obrigacoes')
+                    .update({ status: 'ENTREGUE', data_entrega: hoje })
+                    .eq('id', id);
+                if (error) throw error;
+                await loadObligations();
+            } catch(e) {
+                console.error('Erro ao marcar entregue:', e);
+                alert('Erro ao atualizar status');
+            }
+        }
+
 window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
     window.nextMonth = nextMonth;
     window.previousMonth = previousMonth;
