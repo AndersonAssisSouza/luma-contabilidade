@@ -1351,9 +1351,9 @@
                     // === CONTA AZUL DATA ===
                     const [contasFinRes, caReceberRes, caPagarRes, obrigRes] = await Promise.all([
                         supabase.from('ca_contas_financeiras').select('nome, saldo_atual, tipo').eq('empresa_id', caEmpresaId).eq('ativo', true),
-                        supabase.from('ca_contas_receber').select('descricao, total, nao_pago, status, data_vencimento, pessoa_id').eq('empresa_id', caEmpresaId).in('status', ['PENDING', 'PARTIALLY_RECEIVED', 'pendente']),
-                        supabase.from('ca_contas_pagar').select('descricao, total, nao_pago, status, data_vencimento, pessoa_id').eq('empresa_id', caEmpresaId).in('status', ['PENDING', 'PARTIALLY_PAID', 'pendente']),
-                        supabase.from('calendario_obrigacoes').select('*').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
+                        supabase.from('ca_contas_receber').select('descricao, total, nao_pago, status, data_vencimento, pessoa_id').eq('empresa_id', caEmpresaId).in('status', ['PENDING', 'PARTIALLY_RECEIVED', 'PENDENTE']),
+                        supabase.from('ca_contas_pagar').select('descricao, total, nao_pago, status, data_vencimento, pessoa_id').eq('empresa_id', caEmpresaId).in('status', ['PENDING', 'PARTIALLY_PAID', 'PENDENTE']),
+                        supabase.from('calendario_obrigacoes').select('*').eq('status', 'PENDENTE').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
                     ]);
 
                     saldoTotal = (contasFinRes.data || []).reduce((s, c) => s + (parseFloat(c.saldo_atual) || 0), 0);
@@ -1368,15 +1368,15 @@
                 } else {
                     // === LUMA NATIVE DATA ===
                     const [bancosRes, receberRes, pagarRes, receberVencRes, pagarVencRes, obrigRes] = await Promise.all([
-                        supabase.from('contas_bancarias').select('saldo, saldo_inicial'),
-                        supabase.from('contas_receber').select('valor, status').eq('status', 'pendente').lte('data_vencimento', em30d),
-                        supabase.from('contas_pagar').select('valor, status').eq('status', 'pendente').lte('data_vencimento', em30d),
-                        supabase.from('contas_receber').select('valor, descricao, data_vencimento').eq('status', 'pendente').lt('data_vencimento', hoje),
-                        supabase.from('contas_pagar').select('valor, descricao, data_vencimento').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento'),
-                        supabase.from('calendario_obrigacoes').select('*').eq('status', 'pendente').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
+                        supabase.from('contas_bancarias').select('saldo_inicial, status'),
+                        supabase.from('contas_receber').select('valor, status').eq('status', 'PENDENTE').lte('data_vencimento', em30d),
+                        supabase.from('contas_pagar').select('valor, status').eq('status', 'PENDENTE').lte('data_vencimento', em30d),
+                        supabase.from('contas_receber').select('valor, descricao, data_vencimento').eq('status', 'PENDENTE').lt('data_vencimento', hoje),
+                        supabase.from('contas_pagar').select('valor, descricao, data_vencimento').eq('status', 'PENDENTE').lte('data_vencimento', em30d).order('data_vencimento'),
+                        supabase.from('calendario_obrigacoes').select('*').eq('status', 'PENDENTE').lte('data_vencimento', em30d).order('data_vencimento').limit(4)
                     ]);
 
-                    saldoTotal = (bancosRes.data || []).reduce((s, c) => s + (c.saldo || c.saldo_inicial || 0), 0);
+                    saldoTotal = (bancosRes.data || []).reduce((s, c) => s + (c.saldo_inicial || c.saldo_inicial || 0), 0);
                     totalReceber = (receberRes.data || []).reduce((s, c) => s + (c.valor || 0), 0);
                     totalPagar = (pagarRes.data || []).reduce((s, c) => s + (c.valor || 0), 0);
 
