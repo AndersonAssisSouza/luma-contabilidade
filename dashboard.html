@@ -1426,7 +1426,7 @@
                 document.querySelectorAll('.card .table-wrapper table tbody')[0];
             if (obrigTbody && obrigData) {
                 obrigTbody.innerHTML = (obrigData || []).map(ob => {
-                    const venc = new Date(ob.data_vencimento);
+                    const venc = new Date(ob.data_vencimento + 'T00:00:00');
                     const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
                     const statusClass = diasAte < 0 ? 'status-vencido' : diasAte < 7 ? 'status-vencendo' : 'status-normal';
                     const statusText = diasAte < 0 ? 'Vencido' : diasAte < 7 ? 'Próximo' : 'Agendado';
@@ -1439,7 +1439,7 @@
             if (contasTbody) {
                 const contasVenc = pagarData.slice(0, 4);
                 contasTbody.innerHTML = contasVenc.map(c => {
-                    const venc = new Date(c.data_vencimento);
+                    const venc = new Date(c.data_vencimento + 'T00:00:00');
                     const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
                     const statusClass = diasAte < 0 ? 'status-vencido' : diasAte === 0 ? 'status-vencendo' : 'status-normal';
                     const statusText = diasAte < 0 ? 'Vencido' : diasAte === 0 ? 'Hoje' : `Em ${diasAte} dias`;
