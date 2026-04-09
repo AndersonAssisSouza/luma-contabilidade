@@ -773,9 +773,9 @@
                         <td>
                             <div class="action-cell">
                                 ${pedido.status !== 'FATURADO' && pedido.status !== 'CANCELADO' ?
-                                    `<button class="btn btn-sm btn-success" onclick="faturarPedido(${pedido.id})">✓</button>` : ''}
-                                <button class="btn btn-sm btn-secondary" onclick="editPedido(${pedido.id})">✏️</button>
-                                <button class="btn btn-sm btn-danger" onclick="deletePedido(${pedido.id})">🗑️</button>
+                                    `<button class="btn btn-sm btn-success" onclick="faturarPedido('${pedido.id}')">✓</button>` : ''}
+                                <button class="btn btn-sm btn-secondary" onclick="editPedido('${pedido.id}')">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deletePedido('${pedido.id}')">🗑️</button>
                             </div>
                         </td>
                     </tr>
