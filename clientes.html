@@ -929,13 +929,29 @@
                     renderClientes(clientes);
                     showToast('Clientes carregados da Conta Azul', 'success');
                 } else {
-                    const { data, error } = await supabase
-                        .from('clientes')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-
-                    if (error) throw error;
-                    renderClientes(data || []);
+                    // Paginated fetch to handle >1000 records
+                    let allClientes = [];
+                    let page = 0;
+                    const pageSize = 1000;
+                    let hasMore = true;
+                    while (hasMore) {
+                        const from = page * pageSize;
+                        const to = from + pageSize - 1;
+                        const { data, error } = await supabase
+                            .from('clientes')
+                            .select('*')
+                            .order('criado_em', { ascending: false })
+                            .range(from, to);
+                        if (error) throw error;
+                        if (data && data.length > 0) {
+                            allClientes = allClientes.concat(data);
+                            hasMore = data.length === pageSize;
+                        } else {
+                            hasMore = false;
+                        }
+                        page++;
+                    }
+                    renderClientes(allClientes);
                 }
             } catch (error) {
                 console.error('Erro ao carregar clientes:', error);
@@ -958,14 +974,14 @@
                     <td>${cliente.cpf_cnpj}</td>
                     <td>${cliente.email}</td>
                     <td>${cliente.telefone}</td>
-                    <td>${cliente.cidade}/${cliente.uf}</td>
-                    <td><span class="status ${cliente.ativo ? 'status-ativo' : 'status-inativo'}">
-                        ${cliente.ativo ? 'Ativo' : 'Inativo'}
+                    <td>${cliente.endereco_cidade || '-'}/${cliente.endereco_uf || '-'}</td>
+                    <td><span class="status ${cliente.status === 'ATIVO' ? 'status-ativo' : 'status-inativo'}">
+                        ${cliente.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
                     </span></td>
                     <td>
                         <div class="action-cell">
-                            <button class="btn btn-sm btn-secondary" onclick="editCliente(${cliente.id})">✏️</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCliente(${cliente.id})">🗑️</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editCliente('${cliente.id}')">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCliente('${cliente.id}')">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -1046,13 +1062,13 @@
                 document.getElementById('inscricaoMun').value = data.inscricao_municipal || '';
                 document.getElementById('email').value = data.email;
                 document.getElementById('telefone').value = data.telefone;
-                document.getElementById('logradouro').value = data.logradouro || '';
-                document.getElementById('numero').value = data.numero || '';
-                document.getElementById('complemento').value = data.complemento || '';
-                document.getElementById('bairro').value = data.bairro || '';
-                document.getElementById('cidade').value = data.cidade || '';
-                document.getElementById('uf').value = data.uf || '';
-                document.getElementById('cep').value = data.cep || '';
+                document.getElementById('logradouro').value = data.endereco_logradouro || '';
+                document.getElementById('numero').value = data.endereco_numero || '';
+                document.getElementById('complemento').value = data.endereco_complemento || '';
+                document.getElementById('bairro').value = data.endereco_bairro || '';
+                document.getElementById('cidade').value = data.endereco_cidade || '';
+                document.getElementById('uf').value = data.endereco_uf || '';
+                document.getElementById('cep').value = data.endereco_cep || '';
                 document.getElementById('observacoes').value = data.observacoes || '';
 
                 const tipo = data.tipo_pessoa || 'PF';
@@ -1091,15 +1107,15 @@
                 inscricao_municipal: document.getElementById('inscricaoMun').value,
                 email: document.getElementById('email').value,
                 telefone: document.getElementById('telefone').value,
-                logradouro: document.getElementById('logradouro').value,
-                numero: document.getElementById('numero').value,
-                complemento: document.getElementById('complemento').value,
-                bairro: document.getElementById('bairro').value,
-                cidade: document.getElementById('cidade').value,
-                uf: document.getElementById('uf').value,
-                cep: document.getElementById('cep').value,
+                endereco_logradouro: document.getElementById('logradouro').value,
+                endereco_numero: document.getElementById('numero').value,
+                endereco_complemento: document.getElementById('complemento').value,
+                endereco_bairro: document.getElementById('bairro').value,
+                endereco_cidade: document.getElementById('cidade').value,
+                endereco_uf: document.getElementById('uf').value,
+                endereco_cep: document.getElementById('cep').value,
                 observacoes: document.getElementById('observacoes').value,
-                ativo: true
+                status: 'ATIVO'
             };
 
             try {
