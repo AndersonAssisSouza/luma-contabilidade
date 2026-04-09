@@ -990,10 +990,10 @@
 
             tbody.innerHTML = clientes.map(cliente => `
                 <tr>
-                    <td>${cliente.nome}</td>
-                    <td>${cliente.cpf_cnpj}</td>
-                    <td>${cliente.email}</td>
-                    <td>${cliente.telefone}</td>
+                    <td>${cliente.nome || "-"}</td>
+                    <td>${cliente.cpf_cnpj || "-"}</td>
+                    <td>${cliente.email || "-"}</td>
+                    <td>${cliente.telefone || "-"}</td>
                     <td>${cliente.endereco_cidade || '-'}/${cliente.endereco_uf || '-'}</td>
                     <td><span class="status ${cliente.status === 'ATIVO' ? 'status-ativo' : 'status-inativo'}">
                         ${cliente.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
