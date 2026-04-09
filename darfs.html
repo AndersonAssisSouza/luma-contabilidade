@@ -343,7 +343,7 @@
                         ${darf.status}
                     </span></td>
                     <td>
-                        ${darf.status !== 'PAGO' ? `<button class="btn btn-sm btn-primary" onclick="window._marcarPago(${darf.id})">Pagar</button>` : '-'}
+                        ${darf.status !== 'PAGO' ? `<button class="btn btn-sm btn-primary" onclick="window._marcarPago('${darf.id}')">Pagar</button>` : '-'}
                     </td>
                 </tr>
             `).join('');
