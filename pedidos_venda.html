@@ -717,7 +717,7 @@
         }
 
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('pt-BR');
+            return new Date(date + 'T00:00:00').toLocaleDateString('pt-BR');
         }
 
         function showLoading(show) {
@@ -940,6 +940,10 @@
                 showLoading(false);
             }
         }
+
+        window.faturarPedido = faturarPedido;
+        window.editPedido = editPedido;
+        window.deletePedido = deletePedido;
 
         window.handleLogout = async function() {
             await logout();
