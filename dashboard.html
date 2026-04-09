@@ -1430,7 +1430,7 @@
                     const diasAte = Math.ceil((venc - new Date()) / (1000*60*60*24));
                     const statusClass = diasAte < 0 ? 'status-vencido' : diasAte < 7 ? 'status-vencendo' : 'status-normal';
                     const statusText = diasAte < 0 ? 'Vencido' : diasAte < 7 ? 'Próximo' : 'Agendado';
-                    return `<tr><td>${ob.titulo || ob.nome || '-'}</td><td>${venc.toLocaleDateString('pt-BR')}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
+                    return `<tr><td>${ob.obrigacao || ob.descricao || '-'}</td><td>${venc.toLocaleDateString('pt-BR')}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
                 }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999;">Nenhuma obrigação pendente</td></tr>';
             }
 
