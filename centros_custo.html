@@ -518,6 +518,9 @@
             window.location.href = './login.html';
         }
 
+        window.editCentro = editCentro;
+        window.deleteCentro = deleteCentro;
+
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
             if (!session?.user) window.location.href = './login.html';
