@@ -915,7 +915,8 @@
                         conta_debito:plano_contas!conta_debito_id(codigo, descricao),
                         conta_credito:plano_contas!conta_credito_id(codigo, descricao)
                     `)
-                    .order('data_lancamento', { ascending: false });
+                    .order('data_lancamento', { ascending: false })
+                    .range(0, 4999);
 
                 lancamentos = response.data || [];
                 lancamentosOriginal = JSON.parse(JSON.stringify(lancamentos));
