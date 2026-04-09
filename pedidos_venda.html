@@ -729,7 +729,6 @@
                 const { data, error } = await supabase
                     .from('clientes')
                     .select('id, nome')
-                    .eq('ativo', true)
                     .order('nome');
 
                 if (error) throw error;
@@ -750,7 +749,7 @@
                 const { data, error } = await supabase
                     .from('pedidos_venda')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .order('criado_em', { ascending: false });
 
                 if (error) throw error;
 
@@ -885,7 +884,7 @@
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const pedidoData = {
                 numero: document.getElementById('numero').value,
-                cliente_id: parseInt(document.getElementById('clienteId').value),
+                cliente_id: document.getElementById('clienteId').value,
                 data_emissao: document.getElementById('dataEmissao').value,
                 data_pedido: document.getElementById('dataPedido').value,
                 valor_total: parseFloat(document.getElementById('valorTotal').value),
