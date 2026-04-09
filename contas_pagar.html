@@ -554,8 +554,8 @@
 
         function getStatus(conta) {
             const hoje = new Date();
-            const vencimento = new Date(conta.data_vencimento);
-            const emissao = new Date(conta.data_emissao);
+            const vencimento = new Date(conta.data_vencimento + 'T00:00:00');
+            const emissao = new Date(conta.data_emissao + 'T00:00:00');
 
             if (conta.data_pagamento) return 'pago';
             if (vencimento < hoje) return 'vencido';
@@ -582,7 +582,7 @@
         }
 
         function formatData(data) {
-            return new Date(data).toLocaleDateString('pt-BR');
+            return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
         }
 
         function renderTabela() {
