@@ -908,17 +908,33 @@
 
         async function fetchLancamentos() {
             try {
-                const response = await supabase
-                    .from('lancamentos')
-                    .select(`
-                        *,
-                        conta_debito:plano_contas!conta_debito_id(codigo, descricao),
-                        conta_credito:plano_contas!conta_credito_id(codigo, descricao)
-                    `)
-                    .order('data_lancamento', { ascending: false })
-                    .range(0, 4999);
-
-                lancamentos = response.data || [];
+                // Fetch paginado para superar limite de 1000 do PostgREST
+                let allData = [];
+                let page = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+                while (hasMore) {
+                    const from = page * pageSize;
+                    const to = from + pageSize - 1;
+                    const { data, error } = await supabase
+                        .from('lancamentos')
+                        .select(`
+                            *,
+                            conta_debito:plano_contas!conta_debito_id(codigo, descricao),
+                            conta_credito:plano_contas!conta_credito_id(codigo, descricao)
+                        `)
+                        .order('data_lancamento', { ascending: false })
+                        .range(from, to);
+                    if (error) throw error;
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data);
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                    page++;
+                }
+                lancamentos = allData;
                 lancamentosOriginal = JSON.parse(JSON.stringify(lancamentos));
                 renderTabela();
                 updateSummary();
