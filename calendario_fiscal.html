@@ -1087,6 +1087,14 @@
         window.addEventListener('load', initPage);
     
 window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+    window.nextMonth = nextMonth;
+    window.previousMonth = previousMonth;
+    window.currentMonth = currentMonth;
+    window.switchView = switchView;
+    window.closeStatusModal = closeStatusModal;
+    window.openStatusModal = openStatusModal;
+    window.marcarEntregue = marcarEntregue;
+
 </script>
 </body>
 </html>
