@@ -946,3 +946,5 @@ function jsonResponse(data: any, status = 200) {
     status, headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+// fix
