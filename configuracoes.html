@@ -1269,6 +1269,8 @@
     window.addEventListener('load', init);
   
 window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+window.changeUserRole = typeof changeUserRole !== 'undefined' ? changeUserRole : function(id, role) { alert('Funcionalidade em desenvolvimento'); };
+window.removeUser = typeof removeUser !== 'undefined' ? removeUser : function(id) { alert('Funcionalidade em desenvolvimento'); };
 </script>
 </body>
 </html>
