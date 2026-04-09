@@ -722,7 +722,7 @@
         }
 
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('pt-BR');
+            return new Date(date + 'T00:00:00').toLocaleDateString('pt-BR');
         }
 
         async function loadRetencoes() {
@@ -922,6 +922,8 @@
             }
         }
 
+        window.editRetencao = editRetencao;
+        window.deleteRetencao = deleteRetencao;
         window.handleLogout = async function() {
             await logout();
             window.location.href = './login.html';
