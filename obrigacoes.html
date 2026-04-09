@@ -333,7 +333,7 @@
             try {
                 showLoading(true);
                 const { data, error } = await supabase
-                    .from('calendario_fiscal')
+                    .from('calendario_obrigacoes')
                     .select('*')
                     .order('data_vencimento');
 
@@ -341,8 +341,8 @@
 
                 allObrigacoes = (data || []).map(ob => ({
                     id: ob.id,
-                    obrigacao: ob.titulo || 'Obrigação',
-                    competencia: ob.data_competencia || ob.data_vencimento,
+                    obrigacao: ob.obrigacao || 'Obrigação',
+                    competencia: ob.competencia || ob.data_vencimento,
                     vencimento: ob.data_vencimento,
                     status: getStatusClass(ob.data_vencimento, ob.status),
                     responsavel: ob.responsavel || '-'
@@ -395,7 +395,7 @@
             try {
                 showLoading(true);
                 const { error } = await supabase
-                    .from('calendario_fiscal')
+                    .from('calendario_obrigacoes')
                     .update({ status: 'ENTREGUE' })
                     .eq('id', id);
 
