@@ -977,7 +977,7 @@
         }
 
         function formatData(data) {
-            return new Date(data).toLocaleDateString('pt-BR');
+            return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
         }
 
         function renderTabela() {
@@ -1002,8 +1002,8 @@
                         <td>${getStatusBadge(lance.status)}</td>
                         <td>
                             <div class="actions">
-                                ${lance.status !== 'ESTORNADO' ? `<button class="btn btn-danger btn-small" onclick="estornarLancamento(${lance.id})">Estornar</button>` : ''}
-                                <button class="btn btn-primary btn-small" onclick="openModalEditar(${lance.id})">Editar</button>
+                                ${lance.status !== 'ESTORNADO' ? `<button class="btn btn-danger btn-small" onclick="estornarLancamento('${lance.id}')">Estornar</button>` : ''}
+                                <button class="btn btn-primary btn-small" onclick="openModalEditar('${lance.id}')">Editar</button>
                             </div>
                         </td>
                     </tr>
