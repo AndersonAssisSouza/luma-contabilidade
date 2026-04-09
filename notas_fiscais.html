@@ -1046,13 +1046,13 @@
                     <td>${nf.numero}${nf.serie ? '/' + nf.serie : ''}</td>
                     <td>${nf.emitente_destinatario || '-'}</td>
                     <td>${formatCurrency(nf.valor_total)}</td>
-                    <td>${new Date(nf.data_emissao).toLocaleDateString('pt-BR')}</td>
+                    <td>${new Date(nf.data_emissao + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
                     <td><span class="status status-${nf.status.toLowerCase()}">${nf.status}</span></td>
                     <td>
                         <div class="action-cell">
-                            <button class="btn btn-sm btn-secondary" onclick="viewDetail(${nf.id})">👁️</button>
-                            <button class="btn btn-sm btn-secondary" onclick="editNF(${nf.id})">✏️</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteNF(${nf.id})">🗑️</button>
+                            <button class="btn btn-sm btn-secondary" onclick="viewDetail('${nf.id}')">👁️</button>
+                            <button class="btn btn-sm btn-secondary" onclick="editNF('${nf.id}')">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteNF('${nf.id}')">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -1063,20 +1063,20 @@
             const currentMonth = new Date();
             const entradas = notas.filter(n =>
                 n.tipo === 'Entrada' &&
-                new Date(n.data_emissao).getMonth() === currentMonth.getMonth() &&
-                new Date(n.data_emissao).getFullYear() === currentMonth.getFullYear()
+                new Date(n.data_emissao + 'T00:00:00').getMonth() === currentMonth.getMonth() &&
+                new Date(n.data_emissao + 'T00:00:00').getFullYear() === currentMonth.getFullYear()
             );
             const saidas = notas.filter(n =>
                 n.tipo === 'Saída' &&
-                new Date(n.data_emissao).getMonth() === currentMonth.getMonth() &&
-                new Date(n.data_emissao).getFullYear() === currentMonth.getFullYear()
+                new Date(n.data_emissao + 'T00:00:00').getMonth() === currentMonth.getMonth() &&
+                new Date(n.data_emissao + 'T00:00:00').getFullYear() === currentMonth.getFullYear()
             );
 
             const totalEntradas = entradas.reduce((sum, n) => sum + (n.valor_total || 0), 0);
             const totalSaidas = saidas.reduce((sum, n) => sum + (n.valor_total || 0), 0);
             const totalRetencoes = notas.filter(n =>
-                new Date(n.data_emissao).getMonth() === currentMonth.getMonth() &&
-                new Date(n.data_emissao).getFullYear() === currentMonth.getFullYear()
+                new Date(n.data_emissao + 'T00:00:00').getMonth() === currentMonth.getMonth() &&
+                new Date(n.data_emissao + 'T00:00:00').getFullYear() === currentMonth.getFullYear()
             ).reduce((sum, n) => sum + ((n.irrf || 0) + (n.inss || 0) + (n.outra_retencao || 0)), 0);
 
             document.getElementById('totalEntradas').textContent = formatCurrency(totalEntradas);
@@ -1208,11 +1208,11 @@
                     <div class="detail-row">
                         <div class="detail-item">
                             <div class="detail-label">Data Emissão</div>
-                            <div class="detail-value">${new Date(data.data_emissao).toLocaleDateString('pt-BR')}</div>
+                            <div class="detail-value">${new Date(data.data_emissao + 'T00:00:00').toLocaleDateString('pt-BR')}</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Data Competência</div>
-                            <div class="detail-value">${data.data_competencia ? new Date(data.data_competencia).toLocaleDateString('pt-BR') : '-'}</div>
+                            <div class="detail-value">${data.data_competencia ? new Date(data.data_competencia + 'T00:00:00').toLocaleDateString('pt-BR') : '-'}</div>
                         </div>
                    </div>
                     <div class="detail-row">
@@ -1406,6 +1406,10 @@
             await loadNotas();
         });
     
+        window.viewDetail = viewDetail;
+        window.editNF = editNF;
+        window.deleteNF = deleteNF;
+
 window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
 </script>
 </body>
