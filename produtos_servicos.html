@@ -778,7 +778,7 @@
                     const { data, error } = await supabase
                         .from('produtos_servicos')
                         .select('*')
-                        .order('created_at', { ascending: false });
+                        .order('criado_em', { ascending: false });
 
                     if (error) throw error;
                     renderProdutos(data || []);
@@ -958,6 +958,10 @@
             await logout();
             window.location.href = './login.html';
         }
+
+        window.editProduto = editProduto;
+        window.deleteProduto = deleteProduto;
+        window.handleTipoChange = handleTipoChange;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const session = await getSession();
