@@ -769,7 +769,7 @@
             const bankTransactions = (extratosRes.data || []).map(e => ({
                 id: 'bank_' + e.id,
                 realId: e.id,
-                date: new Date(e.data),
+                date: new Date(e.data + 'T00:00:00'),
                 description: e.descricao || e.memo || 'Transação',
                 amount: e.valor || 0,
                 status: e.conciliado ? 'conciliado' : 'pendente'
@@ -778,7 +778,7 @@
             const systemTransactions = (lancamentosRes.data || []).map(l => ({
                 id: 'sys_' + l.id,
                 realId: l.id,
-                date: new Date(l.data),
+                date: new Date(l.data + 'T00:00:00'),
                 description: l.descricao || l.historico || 'Lançamento',
                 amount: l.valor || 0,
                 status: 'pendente'
