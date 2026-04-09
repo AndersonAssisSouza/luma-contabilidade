@@ -303,7 +303,7 @@
         }
 
         function formatDate(date) {
-            return new Date(date).toLocaleDateString('pt-BR');
+            return new Date(date + 'T00:00:00').toLocaleDateString('pt-BR');
         }
 
         function showLoading(show) {
@@ -313,7 +313,7 @@
         function getStatusClass(vencimento, status) {
             if (status === 'ENTREGUE') return 'ENTREGUE';
             const hoje = new Date();
-            const venc = new Date(vencimento);
+            const venc = new Date(vencimento + 'T00:00:00');
             if (venc < hoje) return 'VENCIDA';
             return 'PENDENTE';
         }
@@ -410,6 +410,8 @@
             currentUser = session.user;
             await loadObrigacoes();
         });
+    window.marcarEntregue = marcarEntregue;
+    window.filterObrigacoes = filterObrigacoes;
     </script>
 </body>
 </html>
