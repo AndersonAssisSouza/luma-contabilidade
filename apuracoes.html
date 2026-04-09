@@ -878,7 +878,10 @@
 
         window.addEventListener('load', initPage);
     
-window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+window.calcularApuracao = calcularApuracao;
+    window.gerarDarf = gerarDarf;
+    window.closeDarfModal = closeDarfModal;
+    window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
 </script>
 </body>
 </html>
