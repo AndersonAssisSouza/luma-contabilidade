@@ -487,7 +487,7 @@ function computeDRE(pagar, receber, months) {
 
     // ── 04.1 Despesas Comerciais ──────────────
     const r31 = ng(pv('Patrocínio / doações / confraternizações / presentes'));
-    const r32 = ng(sm(pv('Tráfego pago'), pv('Site'),
+    const r32 = ng(sm(pv('Site'),
                       pv('social media / videomaker / locação / produções / alimentação / transporte')));
     const r33 = ng(pv('Agência de publicidade'));
     const r34 = ng(pv('Viagens e Representações'));
@@ -495,7 +495,7 @@ function computeDRE(pagar, receber, months) {
     // ── 04.2 Despesas Administrativas ─────────
     const r36 = months.map(m => m.endsWith('-11') ? -(pagar['13º Salário']?.[m]||0) : 0);
     const r37 = months.map(m => m.endsWith('-12') ? -(pagar['13º Salário']?.[m]||0) : 0);
-    const r38 = ng(sm(pv('Aluguel'), pv('Condomínio'), pv('IPTU'), pv('Manutenção predial')));
+    const r38 = ng(sm(pv('Aluguel'), pv('Condomínio'), pv('IPTU'), pv('Manutenção predial'), pv('Água e Saneamento')));
     const r39 = ng(pv('Auxílio Home Office'));
     const r40 = z();
     const r41 = ng(pv('Cartão de Crédito'));
@@ -522,7 +522,7 @@ function computeDRE(pagar, receber, months) {
                       pv('Manutenção de Equipamentos')));
     const r59 = ng(pv('Telefonia e Internet'));
     const r60 = ng(pv('Celular'));
-    const r61 = ng(sm(pv('IOF Internacional'), pv('Água e Saneamento')));
+    const r61 = ng(pv('Tráfego pago'));
     const r62 = ng(pv('Vale-Alimentação'));
     const r63 = ng(pv('Vale-Transporte'));
 
@@ -531,7 +531,7 @@ function computeDRE(pagar, receber, months) {
 
     // ── 05 Financeiro ─────────────────────────
     const r69 = z();
-    const r71 = ng(sm(pv('Tarifas Bancárias'), pv('Tarifas TED / PIX'), pv('Juros sob empréstimos')));
+    const r71 = ng(sm(pv('Tarifas Bancárias'), pv('Tarifas TED / PIX'), pv('Juros sob empréstimos'), pv('IOF Internacional')));
     const r72 = ng(sm(pv('Tarifas de Boletos'), pv('Taxas Boletos')));
     const r73 = ng(pv('Taxa OAB'));
 
@@ -580,7 +580,7 @@ function computeDRE(pagar, receber, months) {
         { type:'group',    label:'01 Receitas Operacionais',                               vals:g01    },
         { type:'subgroup', label:'01.1 Receita de Vendas de Produtos e Serviços',          vals:sg011  },
         { type:'detail',   label:'Receita de Guias dos Clientes',                          vals:r05    },
-        { type:'detail',   label:'Receitas de Alvarás Judiciais',                          vals:r06    },
+        { type:'detail',   label:'Receitas de Alvarás Judicias',                           vals:r06    },
         { type:'detail',   label:'Receitas de Vendas',                                     vals:r07    },
         { type:'subgroup', label:'01.2 Receita de Fretes e Entregas',                      vals:sg012  },
         { type:'detail',   label:'Sem lançamentos',                                        vals:r09    },
@@ -610,8 +610,8 @@ function computeDRE(pagar, receber, months) {
         { type:'detail',   label:'Serviço Terceiro Marketing',                             vals:r33    },
         { type:'detail',   label:'Viagens e Representações',                               vals:r34    },
         { type:'subgroup', label:'04.2 Despesas Administrativas',                          vals:sg042  },
-        { type:'detail',   label:'13º Salário — 1ª Parcela',                               vals:r36    },
-        { type:'detail',   label:'13º Salário — 2ª Parcela',                               vals:r37    },
+        { type:'detail',   label:'13º Salário - 1ª Parcela',                                vals:r36    },
+        { type:'detail',   label:'13º Salário - 2ª Parcela',                                vals:r37    },
         { type:'detail',   label:'Aluguel',                                                vals:r38    },
         { type:'detail',   label:'Auxílio Home Office',                                    vals:r39    },
         { type:'detail',   label:'Bolsa Estágio',                                          vals:r40    },
@@ -620,15 +620,15 @@ function computeDRE(pagar, receber, months) {
         { type:'detail',   label:'Honorários (outros)',                                    vals:r43    },
         { type:'detail',   label:'Honorários Advocatícios',                                vals:r44    },
         { type:'detail',   label:'Honorários Contábeis',                                   vals:r45    },
-        { type:'detail',   label:'IRRF s/ Salários — DARF 0561',                           vals:r46    },
+        { type:'detail',   label:'IRRF s/ Salários - DARF 0561',                            vals:r46    },
         { type:'detail',   label:'Lanches e Refeições',                                    vals:r47    },
         { type:'detail',   label:'Materiais de Consumo',                                   vals:r48    },
         { type:'detail',   label:'Materiais de Limpeza e de Higiene',                      vals:r49    },
         { type:'detail',   label:'Remuneração de Autônomos',                               vals:r50    },
         { type:'detail',   label:'Rescisões',                                              vals:r51    },
-        { type:'detail',   label:'Retenção — Darf 1708 — IRRF',                            vals:r52    },
-        { type:'detail',   label:'Retenção — Darf 5952 — PIS/COFINS/CSLL',                 vals:r53    },
-        { type:'detail',   label:'Retenção — GPS 2631 — INSS',                             vals:r54    },
+        { type:'detail',   label:'Retenção - Darf 1708 - IRRF',                             vals:r52    },
+        { type:'detail',   label:'Retenção - Darf 5952 - PIS/COFINS/CSLL',                  vals:r53    },
+        { type:'detail',   label:'Retenção - GPS 2631 - INSS',                              vals:r54    },
         { type:'detail',   label:'Salários',                                               vals:r55    },
         { type:'detail',   label:'Seguro de Imóveis',                                      vals:r56    },
         { type:'detail',   label:'Seguro de Vida',                                         vals:r57    },
@@ -639,7 +639,7 @@ function computeDRE(pagar, receber, months) {
         { type:'detail',   label:'Vale-Alimentação',                                       vals:r62    },
         { type:'detail',   label:'Vale-Transporte',                                        vals:r63    },
         { type:'subgroup', label:'04.3 Despesas Operacionais',                             vals:sg043  },
-        { type:'detail',   label:'Combustível e Translado',                                vals:r65    },
+        { type:'detail',   label:'Combustivel e Translado',                                 vals:r65    },
         { type:'total',    label:'04T Lucro / Prejuízo Operacional',                       vals:t04    },
         { type:'group',    label:'05 Receitas e Despesas Financeiras',                     vals:g05    },
         { type:'subgroup', label:'05.1 Receitas e Rendimentos Financeiros',                vals:sg051  },
@@ -658,7 +658,7 @@ function computeDRE(pagar, receber, months) {
         { type:'group',    label:'07 Despesas com Investimentos e Empréstimos',            vals:g07    },
         { type:'subgroup', label:'07.1 Investimentos em Imobilizado',                      vals:sg071  },
         { type:'detail',   label:'Computadores e Periféricos',                             vals:r83    },
-        { type:'detail',   label:'Máquinas, Equipamentos e Instalações',                   vals:r84    },
+        { type:'detail',   label:'Máquinas, Equipamentos e Instalações Industriais',        vals:r84    },
         { type:'detail',   label:'Software / Licença de Uso',                             vals:r85    },
         { type:'subgroup', label:'07.2 Empréstimos e Dívidas',                             vals:sg072  },
         { type:'detail',   label:'Amortização de Empréstimos',                             vals:r87    },
