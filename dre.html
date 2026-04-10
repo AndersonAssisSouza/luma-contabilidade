@@ -312,6 +312,12 @@
             <label>Até:</label>
             <select id="sel-to-month"></select>
             <select id="sel-to-year"></select>
+            <span class="sep">|</span>
+            <label>Regime:</label>
+            <select id="sel-regime" onchange="window._dreRegime = this.value" style="min-width:160px">
+                <option value="competencia" selected>Competência (padrão CA)</option>
+                <option value="caixa">Caixa (somente pagos)</option>
+            </select>
             <button class="btn btn-primary" onclick="aplicar()">Aplicar</button>
         </div>
 
@@ -334,6 +340,9 @@
 import { supabase, logout, getSession } from './scripts/supabase_client_contab.js';
 
 window.handleLogout = async () => { await logout(); window.location.href = './login.html'; };
+
+// Regime padrão: competência (igual ao CA)
+window._dreRegime = 'competencia';
 
 // ══════════════════════════════════════════════
 // HELPERS
@@ -412,24 +421,58 @@ function getFromTo() {
 
 // Busca TODOS os registros paginando de 1.000 em 1.000
 // (o Supabase limita por padrão a 1.000 linhas por query)
+// ── Regime de DRE ──────────────────────────────────────────────────────────
+// 'competencia' : usa data_competencia (com fallback para data_emissao e
+//                 data_vencimento). Inclui TODOS os status (padrão CA).
+// 'caixa'       : usa data_vencimento, filtra só ACQUITTED (caixa puro).
+// O toggle na UI define window._dreRegime (default: 'competencia').
+// ────────────────────────────────────────────────────────────────────────────
+
 async function fetchAllRows(table, dtFrom, dtTo) {
+    const regime = window._dreRegime || 'competencia';
     const PAGE = 1000;
     let allRows = [];
-    let offset = 0;
+    let offset  = 0;
+
     while (true) {
-        const { data, error } = await supabase
+        let q = supabase
             .from(table)
-            .select('categoria_id, data_vencimento, total')
-            .eq('status', 'ACQUITTED')
-            .gte('data_vencimento', dtFrom)
-            .lte('data_vencimento', dtTo)
-            .range(offset, offset + PAGE - 1);
+            .select('categoria_id, data_vencimento, data_emissao, data_competencia, total, status');
+
+        if (regime === 'caixa') {
+            // Regime de caixa: só pagos, filtro por data de vencimento
+            q = q.eq('status', 'ACQUITTED')
+                 .gte('data_vencimento', dtFrom)
+                 .lte('data_vencimento', dtTo);
+        } else {
+            // Regime de competência: todos os status
+            // Filtra por data_competencia quando preenchida,
+            // caso contrário cai no data_vencimento (registros antigos sem competência)
+            q = q.or(
+                `and(data_competencia.gte.${dtFrom},data_competencia.lte.${dtTo}),` +
+                `and(data_competencia.is.null,data_vencimento.gte.${dtFrom},data_vencimento.lte.${dtTo})`
+            );
+        }
+
+        q = q.range(offset, offset + PAGE - 1);
+
+        const { data, error } = await q;
         if (error) throw new Error(table + ': ' + error.message);
         allRows = allRows.concat(data || []);
-        if ((data || []).length < PAGE) break; // última página
+        if ((data || []).length < PAGE) break;
         offset += PAGE;
     }
     return allRows;
+}
+
+// Retorna o mês (YYYY-MM) correto de acordo com o regime
+function mesDaRow(row) {
+    const regime = window._dreRegime || 'competencia';
+    if (regime === 'caixa') {
+        return (row.data_vencimento || '').substring(0, 7);
+    }
+    // Competência: preferência data_competencia > data_emissao > data_vencimento
+    return (row.data_competencia || row.data_emissao || row.data_vencimento || '').substring(0, 7);
 }
 
 async function carregarDados(from, to) {
@@ -441,7 +484,7 @@ async function carregarDados(from, to) {
     const { data: cats, error: e0 } = await supabase
         .from('ca_categorias').select('id, nome');
     if (e0) throw new Error('Categorias: ' + e0.message);
-    // trim() evita quebra por espaço no final do nome (ex: "Honorários... Simuladores ")
+    // trim() evita quebra por espaço no final do nome
     const catMap = Object.fromEntries((cats||[]).map(c => [c.id, (c.nome||'').trim()]));
 
     // Busca paginada — pagar e receber em paralelo
@@ -455,13 +498,15 @@ async function carregarDados(from, to) {
 
     for (const row of pagarRows) {
         const cat = catMap[row.categoria_id] || 'Sem categoria';
-        const mes = (row.data_vencimento||'').substring(0,7);
+        const mes = mesDaRow(row);
+        if (!mes) continue;
         if (!pagar[cat]) pagar[cat] = {};
         pagar[cat][mes] = (pagar[cat][mes]||0) + Number(row.total||0);
     }
     for (const row of receberRows) {
         const cat = (catMap[row.categoria_id] || 'Sem categoria').trim();
-        const mes = (row.data_vencimento||'').substring(0,7);
+        const mes = mesDaRow(row);
+        if (!mes) continue;
         if (!receber[cat]) receber[cat] = {};
         receber[cat][mes] = (receber[cat][mes]||0) + Number(row.total||0);
     }

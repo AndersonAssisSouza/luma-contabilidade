@@ -328,16 +328,21 @@ async function syncContasReceber(supabase: any, token: string, empresaId: string
     hasMore = items.length >= PAGE_SIZE;
     pagina++;
   }
-  const records = allItems.map((item: any) => ({
-    id: item.id, empresa_id: empresaId, descricao: item.descricao || null, status: item.status,
-    status_traduzido: item.status_traduzido || null, total: item.total || 0,
-    pago: item.pago || 0, nao_pago: item.nao_pago || 0, data_vencimento: item.data_vencimento || null,
-    data_criacao: item.data_criacao || null, data_alteracao: item.data_alteracao || null,
-    pessoa_id: item.pessoa?.id || item.cliente?.id || null,
-    categoria_id: item.categorias?.[0]?.id || item.categoria?.id || null,
-    conta_financeira_id: item.conta_financeira?.id || null,
-    dados_raw: item, sync_at: new Date().toISOString(),
-  }));
+  const records = allItems.map((item: any) => {
+    const emissao = item.data_emissao || null;
+    const competencia = item.data_competencia || item.data_emissao || null;
+    return {
+      id: item.id, empresa_id: empresaId, descricao: item.descricao || null, status: item.status,
+      status_traduzido: item.status_traduzido || null, total: item.total || 0,
+      pago: item.pago || 0, nao_pago: item.nao_pago || 0, data_vencimento: item.data_vencimento || null,
+      data_emissao: emissao, data_competencia: competencia,
+      data_criacao: item.data_criacao || null, data_alteracao: item.data_alteracao || null,
+      pessoa_id: item.pessoa?.id || item.cliente?.id || null,
+      categoria_id: item.categorias?.[0]?.id || item.categoria?.id || null,
+      conta_financeira_id: item.conta_financeira?.id || null,
+      dados_raw: item, sync_at: new Date().toISOString(),
+    };
+  });
   if (records.length > 0) {
     for (let i = 0; i < records.length; i += 500) {
       const batch = records.slice(i, i + 500);
@@ -375,16 +380,21 @@ async function syncContasPagar(supabase: any, token: string, empresaId: string):
     hasMore = items.length >= PAGE_SIZE;
     pagina++;
   }
-  const records = allItems.map((item: any) => ({
-    id: item.id, empresa_id: empresaId, descricao: item.descricao || null, status: item.status,
-    status_traduzido: item.status_traduzido || null, total: item.total || 0,
-    pago: item.pago || 0, nao_pago: item.nao_pago || 0, data_vencimento: item.data_vencimento || null,
-    data_criacao: item.data_criacao || null, data_alteracao: item.data_alteracao || null,
-    pessoa_id: item.fornecedor?.id || item.pessoa?.id || null,
-    categoria_id: item.categorias?.[0]?.id || item.categoria?.id || null,
-    conta_financeira_id: item.conta_financeira?.id || null,
-    dados_raw: item, sync_at: new Date().toISOString(),
-  }));
+  const records = allItems.map((item: any) => {
+    const emissao = item.data_emissao || null;
+    const competencia = item.data_competencia || item.data_emissao || null;
+    return {
+      id: item.id, empresa_id: empresaId, descricao: item.descricao || null, status: item.status,
+      status_traduzido: item.status_traduzido || null, total: item.total || 0,
+      pago: item.pago || 0, nao_pago: item.nao_pago || 0, data_vencimento: item.data_vencimento || null,
+      data_emissao: emissao, data_competencia: competencia,
+      data_criacao: item.data_criacao || null, data_alteracao: item.data_alteracao || null,
+      pessoa_id: item.fornecedor?.id || item.pessoa?.id || null,
+      categoria_id: item.categorias?.[0]?.id || item.categoria?.id || null,
+      conta_financeira_id: item.conta_financeira?.id || null,
+      dados_raw: item, sync_at: new Date().toISOString(),
+    };
+  });
   if (records.length > 0) {
     for (let i = 0; i < records.length; i += 500) {
       const batch = records.slice(i, i + 500);
