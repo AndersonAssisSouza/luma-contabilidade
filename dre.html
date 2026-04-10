@@ -564,6 +564,10 @@ function computeDRE(pagar, receber, months) {
                       pv('Cartório'), pv('Alvará de Funcionamento'), pv('Aluguel de equipamentos')));
     const r44 = ng(pv('Honorários Advocatícios'));
     const r45 = ng(pv('Honorários Contabilidade'));
+    // ⚠️  L46 — IRRF s/ Salários (DARF 0561): zero intencional.
+    //     O CA usa a categoria "IRRF" para todos os tipos de IRRF (DARF 0561, 1708 etc.)
+    //     sem distinção. Para popular esta linha, crie no Conta Azul uma categoria separada
+    //     chamada "IRRF sobre Salários" e recategorize os DARFs 0561.
     const r46 = z();
     const r47 = ng(sm(pv('Padaria'), pv('Atestados médicos'), pv('Lanche e refeição')));
     const r48 = ng(sm(pv('Materiais de Consumo'), pv('Materiais de Escritório'), pv('Correios')));
@@ -573,7 +577,12 @@ function computeDRE(pagar, receber, months) {
     const r51 = ng(sm(pv('Rescisão'), pv('Férias + 1/3 férias'),
                       pv('Rescisão - CLT'), pv('Férias + 1/3 - CLT'),
                       pv('Antecipação de férias - CLT'), pv('Multa rescisória - CLT')));
+    // ⚠️  r52: a categoria "IRRF" no CA agrega IRRF DARF 1708 (serviços) + DARF 0561 (salários).
+    //     Em alguns meses o time também lançou IRPJ, CSLL e PIS nesta categoria por engano.
+    //     Para corrigir: recategorize os pagamentos de IRPJ → "IRPJ" e CSLL → "CSLL" no CA.
     const r52 = ng(sm(pv('IRRF'), pv('IRRF sobre Pró-labore')));
+    // ⚠️  r53: IRPJ e CSLL ficam zero nos meses em que foram lançados como "IRRF" no CA.
+    //     Correção necessária no Conta Azul: criar categorias "IRPJ" e "CSLL" e relançar.
     const r53 = ng(sm(pv('COFINS sobre Faturamento'), pv('PIS sobre Faturamento'),
                       pv('CSLL'), pv('IRPJ'), pv('ISS sobre Faturamento'),
                       pv('Parcelamento do Simples Nacional')));
@@ -607,13 +616,19 @@ function computeDRE(pagar, receber, months) {
     // ── 06 Outras ─────────────────────────────
     const r76 = rv('Empréstimos de Sócios');
     const r78 = ng(pv('Devoluções para Clientes'));
-    // Perdas: categorias de prejuízo (Pagamento de Alvará do Cliente é repasse ao cliente, não entra na DRE)
+    // Perdas: categorias de prejuízo.
+    // EXCLUÍDOS da DRE (repasses ao cliente, não são despesa da empresa):
+    //   - "Pagamento de Alvará do Cliente"  (guias tributárias repassadas ao cliente)
+    //   - "Pagamento de Guia do Cliente"    (custas judiciais repassadas ao cliente — Tribunal RJ etc.)
     const r79 = ng(sm(pv('Prejuízo com Golpe'), pv('Prejuízos / golpes'), pv('Prejuízos Diversos')));
 
     // ── 07 Investimentos ──────────────────────
     const r83 = ng(sm(pv('Investimento em equipamentos'), pv('Investimento em veículos')));
     const r84 = ng(sm(pv('Investimento em móveis e utensílios'), pv('Investimento em imóveis'),
                       pv('Investimento em novos projetos - LUMA Plataforma')));
+    // L85: zero intencional. Softwares SaaS (assinaturas mensais) estão em r58 como despesa
+    // operacional. L85 seria apenas para compras de licença perpétua (capex), que não existem
+    // nos dados atuais do CA. Se houver, criar categoria "Software / Licença de Uso (Investimento)".
     const r85 = z();
     const r87 = ng(pv('Amortização de empréstimos'));
 
