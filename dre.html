@@ -280,7 +280,7 @@ async function carregarDados(from, to) {
     // Contas a pagar ACQUITTED
     const { data: pagarRows, error: e1 } = await supabase
         .from('ca_contas_pagar')
-        .select('categoria_id, data_vencimento, valor')
+        .select('categoria_id, data_vencimento, total')
         .eq('status', 'ACQUITTED')
         .gte('data_vencimento', dtFrom)
         .lte('data_vencimento', dtTo);
@@ -289,7 +289,7 @@ async function carregarDados(from, to) {
     // Contas a receber ACQUITTED
     const { data: receberRows, error: e2 } = await supabase
         .from('ca_contas_receber')
-        .select('categoria_id, data_vencimento, valor')
+        .select('categoria_id, data_vencimento, total')
         .eq('status', 'ACQUITTED')
         .gte('data_vencimento', dtFrom)
         .lte('data_vencimento', dtTo);
@@ -302,13 +302,13 @@ async function carregarDados(from, to) {
         const cat = catMap[row.categoria_id] || 'Sem categoria';
         const mes = (row.data_vencimento||'').substring(0,7);
         if (!pagar[cat]) pagar[cat] = {};
-        pagar[cat][mes] = (pagar[cat][mes]||0) + Number(row.valor||0);
+        pagar[cat][mes] = (pagar[cat][mes]||0) + Number(row.total||0);
     }
     for (const row of (receberRows||[])) {
         const cat = catMap[row.categoria_id] || 'Sem categoria';
         const mes = (row.data_vencimento||'').substring(0,7);
         if (!receber[cat]) receber[cat] = {};
-        receber[cat][mes] = (receber[cat][mes]||0) + Number(row.valor||0);
+        receber[cat][mes] = (receber[cat][mes]||0) + Number(row.total||0);
     }
 
     return { pagar, receber };
