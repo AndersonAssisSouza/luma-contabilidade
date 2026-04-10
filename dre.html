@@ -568,9 +568,7 @@ function computeDRE(pagar, receber, months) {
     const r45 = ng(pv('Honorários Contabilidade'));
     // L46 — IRRF s/ Salários (DARF 0561)
     // Mapeado para a categoria "IRRF sobre Salários" que o usuário criou no CA (seção 4.1.2).
-    // Enquanto os lançamentos históricos não forem recategorizados no CA, mostrará zero nos
-    // meses anteriores à criação da categoria.
-    const r46 = ng(pv('IRRF sobre Salários'));
+    const r46 = z(); // IRRF s/ Salários (DARF 0561) — não aplicável
     const r47 = ng(sm(pv('Padaria'), pv('Atestados médicos'), pv('Lanche e refeição')));
     const r48 = ng(sm(pv('Materiais de Consumo'), pv('Materiais de Escritório'), pv('Correios')));
     const r49 = ng(pv('Materiais de Limpeza e de Higiene'));
