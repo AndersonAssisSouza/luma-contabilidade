@@ -436,17 +436,23 @@ async function syncVendas(supabase: any, token: string, empresaId: string): Prom
 // =========================================
 
 async function fetchAllPages(token: string, endpoint: string, itemsKey: string): Promise<any[]> {
-  let allItems: any[] = []; let page = 0; let hasMore = true;
+  let allItems: any[] = []; let pagina = 1; let hasMore = true;
+  const seenIds = new Set<string>();
   while (hasMore) {
     await rateLimiter.waitIfNeeded();
-    const response = await fetch(`${CONTAAZUL_API_BASE}${endpoint}?page=${page}&size=${PAGE_SIZE}`, { headers: { "Authorization": `Bearer ${token}` } });
+    // CA API uses pagina/tamanho_pagina (1-based) for most endpoints
+    const response = await fetch(`${CONTAAZUL_API_BASE}${endpoint}?pagina=${pagina}&tamanho_pagina=${PAGE_SIZE}`, { headers: { "Authorization": `Bearer ${token}` } });
     if (!response.ok) break;
     const data = await response.json();
     const items = data[itemsKey] || data.itens || data.items || [];
-    allItems = allItems.concat(items);
     const totalItems = data.totalItems || data.itens_totais || 0;
-    hasMore = items.length >= PAGE_SIZE && allItems.length < totalItems;
-    page++;
+    // Dedup by id to avoid infinite loops when API ignores pagination params
+    const newItems = items.filter((it: any) => it.id && !seenIds.has(it.id));
+    newItems.forEach((it: any) => seenIds.add(it.id));
+    if (newItems.length === 0) break;
+    allItems = allItems.concat(newItems);
+    hasMore = allItems.length < totalItems && newItems.length > 0;
+    pagina++;
   }
   return allItems;
 }
