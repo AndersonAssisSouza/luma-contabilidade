@@ -480,7 +480,7 @@ function computeDRE(pagar, receber, months) {
     const r13 = ng(pv('Pagamento de Guia do Cliente'));
     const r15 = ng(pv('Comissões de Vendedores'));
     const r17 = ng(rv('Descontos incondicionais concedidos'));
-    const r19 = ng(pv('Devoluções para Clientes'));
+    const r19 = z(); // Devoluções para Clientes → movido para r78 (Distrato Contratos)
 
     // ── 03 Custos (zero) ──────────────────────
     const r23 = z(); const r25 = z(); const r27 = z();
@@ -549,8 +549,7 @@ function computeDRE(pagar, receber, months) {
 
     // ── 06 Outras ─────────────────────────────
     const r76 = rv('Empréstimos de Sócios');
-    // r78 Distrato Contratos — categoria CA não identificada; manter z()
-    const r78 = z();
+    const r78 = ng(pv('Devoluções para Clientes'));
     // Perdas: categorias de prejuízo (Pagamento de Alvará do Cliente é repasse ao cliente, não entra na DRE)
     const r79 = ng(sm(pv('Prejuízo com Golpe'), pv('Prejuízos / golpes'), pv('Prejuízos Diversos')));
 
