@@ -205,6 +205,7 @@ serve(async (req: Request) => {
 // =========================================
 
 async function syncCategorias(supabase: any, token: string, empresaId: string): Promise<number> {
+  // 1) Fetch from CA API (returns top-level tree nodes)
   const allItems = await fetchAllPages(token, "/v1/categorias", "itens");
   const records = allItems.map((item: any) => ({
     id: item.id, empresa_id: empresaId, versao: item.versao || 0, nome: item.nome,
@@ -213,6 +214,10 @@ async function syncCategorias(supabase: any, token: string, empresaId: string): 
     dados_raw: item, sync_at: new Date().toISOString(),
   }));
   if (records.length > 0) await supabase.from("ca_categorias").upsert(records, { onConflict: "id" });
+
+  // 2) Extract inline categories from dados_raw of contas (catches sub-categories not returned by /v1/categorias)
+  await supabase.rpc("upsert_categorias_from_contas_raw", { p_empresa_id: empresaId });
+
   return records.length;
 }
 
