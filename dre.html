@@ -5,990 +5,596 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DRE - LUMA Contabilidade</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f5f6fa; color: #333; }
+        .container { display: flex; min-height: 100vh; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
+        /* ── Sidebar ── */
+        .sidebar { width: 260px; min-width: 260px; background: #1a237e; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; padding: 24px 0; z-index: 90; }
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-section-title { padding: 0 24px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.5); margin-bottom: 8px; }
+        .sidebar-item { padding: 10px 24px; color: rgba(255,255,255,.7); cursor: pointer; font-size: 13px; transition: all .3s; border-left: 4px solid transparent; display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .sidebar-item:hover { background: rgba(255,255,255,.05); color: #fff; border-left-color: #ffd600; }
+        .sidebar-item.active { background: #3949ab; color: #ffd600; border-left-color: #ffd600; font-weight: 600; }
+        .sidebar-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 3px; }
 
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
+        /* ── Main ── */
+        .main { margin-left: 260px; flex: 1; padding: 28px 32px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+        .page-header h1 { font-size: 22px; font-weight: 700; color: #1a237e; }
 
-        /* Sidebar */
-        /* Main content */
-        .main {
-            margin-left: 220px; 
-            
-            flex: 1;
-            padding: 30px;
-        }
+        /* ── Controls ── */
+        .controls { background: #fff; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+        .controls label { font-size: 13px; font-weight: 600; color: #555; }
+        .controls select { padding: 6px 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; background: #fff; cursor: pointer; }
+        .controls select:focus { outline: none; border-color: #1a237e; }
+        .btn { padding: 7px 18px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background .2s; }
+        .btn-primary { background: #1a237e; color: #fff; }
+        .btn-primary:hover { background: #283593; }
+        .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .sep { color: #ccc; font-size: 18px; }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        /* ── Mensagens ── */
+        .msg { padding: 12px 16px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; }
+        .msg-error { background: #ffebee; border: 1px solid #ef9a9a; color: #c62828; }
+        .msg-loading { background: #e3f2fd; border: 1px solid #90caf9; color: #1565c0; }
 
-        .header h1 {
-            font-size: 28px;
-            color: #1a237e;
-        }
+        /* ── DRE Table wrapper ── */
+        .dre-wrapper { background: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.1); overflow: hidden; }
+        .dre-scroll { overflow-x: auto; }
 
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
+        /* ── DRE Table ── */
+        table.dre { border-collapse: collapse; font-size: 13px; width: 100%; }
+        table.dre th, table.dre td { padding: 0; white-space: nowrap; }
 
-        .control-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        /* Col A - sticky */
+        table.dre td.cat, table.dre th.cat { position: sticky; left: 0; z-index: 2; background: #fff; min-width: 280px; max-width: 340px; padding: 5px 10px; border-right: 1px solid #e8eaf6; overflow: hidden; text-overflow: ellipsis; }
+        table.dre th.cat { background: #f1f4f9; z-index: 3; }
 
-        .control-group label {
-            font-weight: 500;
-            color: #555;
-            font-size: 14px;
-        }
+        /* Value cells */
+        table.dre td.val, table.dre th.val { text-align: right; padding: 5px 10px; min-width: 110px; font-family: 'Courier New', Courier, monospace; font-size: 12px; }
+        table.dre th.val { text-align: center; font-family: inherit; font-size: 12px; }
 
-        select, input[type="date"] {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: white;
-            cursor: pointer;
-        }
+        /* Row header (cabeçalho meses) */
+        table.dre tr.row-header th { background: #f1f4f9; color: #1a237e; font-weight: 700; font-size: 12px; padding: 7px 10px; border-bottom: 2px solid #c5cae9; }
 
-        select:focus, input[type="date"]:focus {
-            outline: none;
-            border-color: #1a237e;
-            box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
-        }
+        /* Row title */
+        table.dre tr.row-title td { background: #fff; padding: 8px 10px; border-bottom: 1px solid #e8eaf6; }
+        table.dre tr.row-title td.cat { font-weight: 700; color: #1a237e; font-size: 14px; }
 
-        button {
-            padding: 8px 16px;
-            background-color: #1a237e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
+        /* Row group */
+        table.dre tr.row-group td { background: #e8eaf6; font-weight: 700; color: #1a237e; border-top: 2px solid #c5cae9; border-bottom: 1px solid #c5cae9; padding: 6px 10px; }
+        table.dre tr.row-group td.cat { padding-left: 10px; }
 
-        button:hover {
-            background-color: #0d1850;
-        }
+        /* Row subgroup */
+        table.dre tr.row-subgroup td { background: #f5f6ff; font-weight: 600; color: #3949ab; border-bottom: 1px solid #e8eaf6; padding: 5px 10px; }
+        table.dre tr.row-subgroup td.cat { padding-left: 22px; }
 
-        button.secondary {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-        }
+        /* Row detail */
+        table.dre tr.row-detail td { background: #fff; color: #444; border-bottom: 1px solid #f0f0f0; padding: 4px 10px; }
+        table.dre tr.row-detail td.cat { padding-left: 40px; font-size: 12.5px; }
+        table.dre tr.row-detail:hover td { background: #fafbff; }
 
-        button.secondary:hover {
-            background-color: #e0e0e0;
-        }
+        /* Row total */
+        table.dre tr.row-total td { background: #283593; color: #fff !important; font-weight: 700; border-top: 2px solid #1a237e; border-bottom: 2px solid #1a237e; padding: 7px 10px; }
+        table.dre tr.row-total td.cat { color: #fff !important; }
 
-        /* DRE Table */
-        .dre-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
+        /* Cores de valores */
+        .vpos { color: inherit; }
+        .vneg { color: #c62828; }
+        .vzero { color: #bbb; }
+        tr.row-total .vneg, tr.row-total .vpos, tr.row-total .vzero { color: #fff !important; }
 
-        .dre-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
+        /* Coluna Total */
+        table.dre td.col-total, table.dre th.col-total { background: #f0f2ff; border-left: 2px solid #c5cae9; font-weight: 700; }
+        table.dre tr.row-total td.col-total { background: #1a237e; }
+        table.dre tr.row-group td.col-total { background: #dde0f7; }
+        table.dre tr.row-subgroup td.col-total { background: #eceeff; }
 
-        .dre-table thead {
-            background-color: #f5f5f5;
-            border-bottom: 2px solid #1a237e;
-        }
-
-        .dre-table th {
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 600;
-            color: #1a237e;
-        }
-
-        .dre-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .dre-table tbody tr:hover {
-            background-color: #f9f9f9;
-        }
-
-        .dre-table tr.section-header {
-            background-color: #f0f0f0;
-            font-weight: 600;
-            color: #333;
-            border-top: 2px solid #ddd;
-        }
-
-        .dre-table tr.total-line {
-            background-color: #1a237e;
-            color: white;
-            font-weight: 600;
-        }
-
-        .dre-table tr.subtotal-line {
-            background-color: #e8eaf6;
-            font-weight: 600;
-            color: #1a237e;
-        }
-
-        .dre-table .line-item {
-            padding-left: 40px;
-            color: #555;
-        }
-
-        .dre-table .line-item.indented {
-            padding-left: 60px;
-        }
-
-        .amount-cell {
-            text-align: right;
-            font-family: 'Courier New', monospace;
-        }
-
-        .positive {
-            color: #2e7d32;
-            font-weight: 500;
-        }
-
-        .negative {
-            color: #c62828;
-            font-weight: 500;
-        }
-
-        /* Chart */
-        .chart-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .chart-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a237e;
-            margin-bottom: 20px;
-        }
-
-        .bar-chart {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 30px;
-            height: 300px;
-            margin-bottom: 20px;
-        }
-
-        .bar-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .bar {
-            width: 80px;
-            background-color: #1a237e;
-            border-radius: 4px 4px 0 0;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .bar:hover {
-            opacity: 0.8;
-        }
-
-        .bar-value {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: 600;
-            color: #333;
-            white-space: nowrap;
-            font-size: 13px;
-        }
-
-        .bar-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #555;
-            text-align: center;
-            max-width: 100px;
-        }
-
-        .bar-receita {
-            background-color: #2e7d32;
-        }
-
-        .bar-despesas {
-            background-color: #c62828;
-        }
-
-        .bar-lucro {
-            background-color: #1565c0;
-        }
-
-        /* Export and Print */
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* Print Styles */
-        @media print {
-            .sidebar, .controls, .action-buttons, .chart-container {
-                display: none;
-            }
-
-            .main {
-            margin-left: 220px;
-                padding: 20px;
-            }
-
-            .dre-container {
-                box-shadow: none;
-                page-break-inside: avoid;
-            }
-
-            .dre-table tr {
-                page-break-inside: avoid;
-            }
-
-            .header {
-                margin-bottom: 20px;
-            }
-
-            body {
-                background-color: white;
-            }
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-
-        .error {
-            background-color: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .success {
-            background-color: #e8f5e9;
-            border: 1px solid #66bb6a;
-            color: #2e7d32;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .responsive-table {
-            overflow-x: auto;
-        }
-        /* Sidebar - Dashboard Style */
-        .sidebar {
-            width: 220px;
-            min-width: 220px;
-            background-color: #1a237e;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 8px 0;
-            z-index: 90;
-        }
-        .sidebar-section { margin-bottom: 6px; }
-        .sidebar-section-title {
-            padding: 0 16px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 2px;
-        }
-        .sidebar-item {
-            padding: 5px 16px;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        .sidebar-item:hover {
-            background-color: rgba(255,255,255,0.05);
-            color: #ffffff;
-            border-left-color: #ffd600;
-        }
-        .sidebar-item.active {
-            background-color: #3949ab;
-            color: #ffd600;
-            border-left-color: #ffd600;
-            font-weight: 600;
-        }
-        .sidebar-icon {
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-    
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main {
-                margin-left: 0 !important;
-            }
-        }
-    
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            .main { margin-left: 0; padding: 16px; }
+            .sidebar { transform: translateX(-100%); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-                    <aside class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Principal</div>
-                <a href="./dashboard.html" class="sidebar-item">
-                    <span class="sidebar-icon">📊</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="./calendario_fiscal.html" class="sidebar-item">
-                    <span class="sidebar-icon">📅</span>
-                    <span>Calendário Fiscal</span>
-                </a>
-                <a href="./relatorios.html" class="sidebar-item">
-                    <span class="sidebar-icon">📈</span>
-                    <span>Relatórios</span>
-                </a>
+<div class="container">
+
+    <!-- ══ Sidebar ══ -->
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Principal</div>
+            <a href="./dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Dashboard</span></a>
+            <a href="./calendario_fiscal.html" class="sidebar-item"><span class="sidebar-icon">📅</span><span>Calendário Fiscal</span></a>
+            <a href="./relatorios.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Relatórios</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Financeiro</div>
+            <a href="./contas_pagar.html" class="sidebar-item"><span class="sidebar-icon">💳</span><span>Contas a Pagar</span></a>
+            <a href="./contas_receber.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Contas a Receber</span></a>
+            <a href="./conciliacao.html" class="sidebar-item"><span class="sidebar-icon">🏦</span><span>Conciliação Bancária</span></a>
+            <a href="./fluxo_caixa.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Fluxo de Caixa</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Contábil</div>
+            <a href="./lancamentos.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span>Lançamentos</span></a>
+            <a href="./plano_contas.html" class="sidebar-item"><span class="sidebar-icon">📑</span><span>Plano de Contas</span></a>
+            <a href="./balancete.html" class="sidebar-item"><span class="sidebar-icon">📋</span><span>Balancete</span></a>
+            <a href="./dre.html" class="sidebar-item active"><span class="sidebar-icon">📊</span><span>DRE</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Fiscal</div>
+            <a href="./apuracoes.html" class="sidebar-item"><span class="sidebar-icon">🧮</span><span>Apurações</span></a>
+            <a href="./retencoes.html" class="sidebar-item"><span class="sidebar-icon">🛡️</span><span>Retenções</span></a>
+            <a href="./darfs.html" class="sidebar-item"><span class="sidebar-icon">📄</span><span>DARFs</span></a>
+            <a href="./obrigacoes.html" class="sidebar-item"><span class="sidebar-icon">✓</span><span>Obrigações</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Comercial</div>
+            <a href="./clientes.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span>Clientes</span></a>
+            <a href="./fornecedores.html" class="sidebar-item"><span class="sidebar-icon">🏭</span><span>Fornecedores</span></a>
+            <a href="./notas_fiscais.html" class="sidebar-item"><span class="sidebar-icon">🧾</span><span>Notas Fiscais</span></a>
+            <a href="./pedidos_venda.html" class="sidebar-item"><span class="sidebar-icon">🛒</span><span>Pedidos de Venda</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Cadastros</div>
+            <a href="./produtos_servicos.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span>Produtos/Serviços</span></a>
+            <a href="./categorias.html" class="sidebar-item"><span class="sidebar-icon">🏷️</span><span>Categorias</span></a>
+            <a href="./centros_custo.html" class="sidebar-item"><span class="sidebar-icon">💼</span><span>Centros de Custo</span></a>
+            <a href="./contas_bancarias.html" class="sidebar-item"><span class="sidebar-icon">🏦</span><span>Contas Bancárias</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Configurações</div>
+            <a href="./configuracoes.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span>Configurações</span></a>
+            <a href="./usuarios.html" class="sidebar-item"><span class="sidebar-icon">🔐</span><span>Usuários</span></a>
+            <a href="#" class="sidebar-item" onclick="event.preventDefault(); handleLogout()"><span class="sidebar-icon">🚪</span><span>Sair</span></a>
+        </div>
+    </aside>
+
+    <!-- ══ Main ══ -->
+    <main class="main">
+        <div class="page-header">
+            <h1>DRE — Demonstração do Resultado do Exercício</h1>
+            <button class="btn btn-secondary" onclick="window.print()">🖨 Imprimir</button>
+        </div>
+
+        <!-- Filtros de período -->
+        <div class="controls">
+            <label>De:</label>
+            <select id="sel-from-month"></select>
+            <select id="sel-from-year"></select>
+            <span class="sep">→</span>
+            <label>Até:</label>
+            <select id="sel-to-month"></select>
+            <select id="sel-to-year"></select>
+            <button class="btn btn-primary" onclick="aplicar()">Aplicar</button>
+        </div>
+
+        <div id="msg-area"></div>
+
+        <!-- Tabela DRE -->
+        <div class="dre-wrapper">
+            <div class="dre-scroll">
+                <table class="dre" id="dre-table">
+                    <tbody id="dre-body">
+                        <tr><td colspan="3" style="padding:40px;text-align:center;color:#999">Carregando...</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Financeiro</div>
-                <a href="./contas_pagar.html" class="sidebar-item">
-                    <span class="sidebar-icon">💳</span>
-                    <span>Contas a Pagar</span>
-                </a>
-                <a href="./contas_receber.html" class="sidebar-item">
-                    <span class="sidebar-icon">💰</span>
-                    <span>Contas a Receber</span>
-                </a>
-                <a href="./conciliacao.html" class="sidebar-item">
-                    <span class="sidebar-icon">🏦</span>
-                    <span>Conciliação Bancária</span>
-                </a>
-                <a href="./fluxo_caixa.html" class="sidebar-item">
-                    <span class="sidebar-icon">📈</span>
-                    <span>Fluxo de Caixa</span>
-                </a>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Contábil</div>
-                <a href="./lancamentos.html" class="sidebar-item">
-                    <span class="sidebar-icon">📝</span>
-                    <span>Lançamentos</span>
-                </a>
-                <a href="./plano_contas.html" class="sidebar-item">
-                    <span class="sidebar-icon">📑</span>
-                    <span>Plano de Contas</span>
-                </a>
-                <a href="./balancete.html" class="sidebar-item">
-                    <span class="sidebar-icon">📋</span>
-                    <span>Balancete</span>
-                </a>
-                <a href="./dre.html" class="sidebar-item active">
-                    <span class="sidebar-icon">📊</span>
-                    <span>DRE</span>
-                </a>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Fiscal</div>
-                <a href="./apuracoes.html" class="sidebar-item">
-                    <span class="sidebar-icon">🧮</span>
-                    <span>Apurações</span>
-                </a>
-                <a href="./retencoes.html" class="sidebar-item">
-                    <span class="sidebar-icon">🛡️</span>
-                    <span>Retenções</span>
-                </a>
-                <a href="./darfs.html" class="sidebar-item">
-                    <span class="sidebar-icon">📄</span>
-                    <span>DARFs</span>
-                </a>
-                <a href="./obrigacoes.html" class="sidebar-item">
-                    <span class="sidebar-icon">✓</span>
-                    <span>Obrigações</span>
-                </a>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Comercial</div>
-                <a href="./clientes.html" class="sidebar-item">
-                    <span class="sidebar-icon">👥</span>
-                    <span>Clientes</span>
-                </a>
-                <a href="./fornecedores.html" class="sidebar-item">
-                    <span class="sidebar-icon">🏭</span>
-                    <span>Fornecedores</span>
-                </a>
-                <a href="./notas_fiscais.html" class="sidebar-item">
-                    <span class="sidebar-icon">🧾</span>
-                    <span>Notas Fiscais</span>
-                </a>
-                <a href="./pedidos_venda.html" class="sidebar-item">
-                    <span class="sidebar-icon">🛒</span>
-                    <span>Pedidos de Venda</span>
-                </a>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Cadastros</div>
-                <a href="./produtos_servicos.html" class="sidebar-item">
-                    <span class="sidebar-icon">📦</span>
-                    <span>Produtos/Serviços</span>
-                </a>
-                <a href="./categorias.html" class="sidebar-item">
-                    <span class="sidebar-icon">🏷️</span>
-                    <span>Categorias</span>
-                </a>
-                <a href="./centros_custo.html" class="sidebar-item">
-                    <span class="sidebar-icon">💼</span>
-                    <span>Centros de Custo</span>
-                </a>
-                <a href="./contas_bancarias.html" class="sidebar-item">
-                    <span class="sidebar-icon">🏦</span>
-                    <span>Contas Bancárias</span>
-                </a>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Configurações</div>
-                <a href="./configuracoes.html" class="sidebar-item">
-                    <span class="sidebar-icon">⚙️</span>
-                    <span>Configurações</span>
-                </a>
-                <a href="./usuarios.html" class="sidebar-item">
-                    <span class="sidebar-icon">🔐</span>
-                    <span>Usuários</span>
-                </a>
-            </div>
-            <div class="sidebar-section">
-                <a href="#" class="sidebar-item" onclick="event.preventDefault(); handleLogout();">
-                    <span class="sidebar-icon">🚪</span>
-                    <span>Sair</span>
-                </a>
-            </div>
-        </aside>
+        </div>
+    </main>
+</div>
 
-        <!-- Main Content -->
-        <main class="main">
-            <div class="header">
-                <h1>DRE - Demonstração do Resultado do Exercício</h1>
-            </div>
+<script type="module">
+import { supabase, logout, getSession } from './scripts/supabase_client_contab.js';
 
-            <!-- Controls -->
-            <div class="controls">
-                <div class="control-group">
-                    <label for="period-type">Período:</label>
-                    <select id="period-type">
-                        <option value="month">Mês</option>
-                        <option value="quarter">Trimestre</option>
-                        <option value="year">Ano</option>
-                        <option value="custom">Customizado</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="period-month">Mês:</label>
-                    <select id="period-month">
-                        <option value="01">Janeiro</option>
-                        <option value="02">Fevereiro</option>
-                        <option value="03">Março</option>
-                        <option value="04">Abril</option>
-                        <option value="05">Maio</option>
-                        <option value="06">Junho</option>
-                        <option value="07">Julho</option>
-                        <option value="08">Agosto</option>
-                        <option value="09">Setembro</option>
-                        <option value="10">Outubro</option>
-                        <option value="11">Novembro</option>
-                        <option value="12">Dezembro</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="period-year">Ano:</label>
-                    <select id="period-year"></select>
-                </div>
-                <button id="apply-filter">Aplicar</button>
-                <button id="export-pdf" class="secondary">Exportar PDF</button>
-                <button id="print-btn" class="secondary">Imprimir</button>
-            </div>
+window.handleLogout = async () => { await logout(); window.location.href = './login.html'; };
 
-            <div id="message-container"></div>
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+const MESES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-            <!-- DRE Table -->
-            <div class="dre-container">
-                <div class="responsive-table">
-                    <table class="dre-table">
-                        <thead>
-                            <tr>
-                                <th>Descrição</th>
-                                <th class="amount-cell">Período Atual</th>
-                                <th class="amount-cell">% Receita Bruta</th>
-                                <th class="amount-cell">Período Anterior</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dre-tbody">
-                            <tr class="loading">
-                                <td colspan="4">Carregando dados...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+function mesLabel(ym) {
+    const [y, m] = ym.split('-');
+    return MESES_PT[parseInt(m,10)-1] + '/' + y.slice(2);
+}
 
-            <!-- Chart -->
-            <div class="chart-container">
-                <div class="chart-title">Comparativo: Receita vs Despesas vs Lucro</div>
-                <div class="bar-chart" id="bar-chart">
-                    <div class="bar-item">
-                        <div class="bar bar-receita" style="height: 0px;">
-                            <div class="bar-value">R$ 0</div>
-                        </div>
-                        <div class="bar-label">Receita Bruta</div>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar bar-despesas" style="height: 0px;">
-                            <div class="bar-value">R$ 0</div>
-                        </div>
-                        <div class="bar-label">Despesas</div>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar bar-lucro" style="height: 0px;">
-                            <div class="bar-value">R$ 0</div>
-                        </div>
-                        <div class="bar-label">Lucro Líquido</div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+function fmtN(v) {
+    if (!v || v === 0) return '<span class="vzero">-</span>';
+    const abs = Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    return v < 0
+        ? `<span class="vneg">(${abs})</span>`
+        : `<span class="vpos">${abs}</span>`;
+}
 
-    <script type="module">
-        import { supabase, getSession, logout, getProfile } from './scripts/supabase_client_contab.js';
+function rangeYM(from, to) {
+    const result = [];
+    let [y, m] = from.split('-').map(Number);
+    const [ty, tm] = to.split('-').map(Number);
+    while (y < ty || (y === ty && m <= tm)) {
+        result.push(`${y}-${String(m).padStart(2,'0')}`);
+        m++; if (m > 12) { m = 1; y++; }
+    }
+    return result;
+}
 
-        // Initialize
-        let currentUser = null;
-        let dre_data = null;
-        let caConnected = false;
-        let caEmpresaId = null;
+// ══════════════════════════════════════════════
+// SELETORES DE PERÍODO
+// ══════════════════════════════════════════════
+function initSelectors() {
+    const now = new Date();
+    const cy = now.getFullYear();
+    const cm = now.getMonth() + 1;
 
-        async function checkContaAzul() {
-            try {
-                const { data: profile } = await getProfile();
-                if (!profile?.tenant_id) return;
-                caEmpresaId = profile.tenant_id;
-                const { data } = await supabase.from('contaazul_tokens')
-                    .select('status, token_expires_at')
-                    .eq('empresa_id', caEmpresaId).single();
-                if (data && data.status === 'active' && new Date(data.token_expires_at) > new Date()) {
-                    caConnected = true;
-                }
-            } catch (e) { /* CA not configured */ }
-        }
-
-        // Initialize date pickers and year selector
-        function initializeDateControls() {
-            const currentYear = new Date().getFullYear();
-            const yearSelect = document.getElementById('period-year');
-            const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-
-            // Populate years (previous 3 years, current, next 2 years)
-            for (let i = currentYear - 3; i <= currentYear + 2; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = i;
-                if (i === currentYear) option.selected = true;
-                yearSelect.appendChild(option);
-            }
-
-            document.getElementById('period-month').value = currentMonth;
-        }
-
-        // Format currency
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(value);
-        }
-
-        // Create DRE structure
-        function createDREStructure() {
-            const structure = [
-                { id: 'receita_bruta', label: '(+) Receita Bruta de Serviços', type: 'section-header', value: 0 },
-                { id: 'deducoes', label: '(-) Deduções (Impostos sobre Receita)', type: 'section-header', value: 0 },
-                { id: 'deducoes_pis', label: 'PIS', type: 'line-item', parent: 'deducoes', value: 0 },
-                { id: 'deducoes_cofins', label: 'COFINS', type: 'line-item', parent: 'deducoes', value: 0 },
-                { id: 'deducoes_iss', label: 'ISS', type: 'line-item', parent: 'deducoes', value: 0 },
-                { id: 'receita_liquida', label: '(=) Receita Líquida', type: 'subtotal', value: 0 },
-                { id: 'custos', label: '(-) Custos dos Serviços Prestados', type: 'section-header', value: 0 },
-                { id: 'lucro_bruto', label: '(=) Lucro Bruto', type: 'subtotal', value: 0 },
-                { id: 'despesas', label: '(-) Despesas Operacionais', type: 'section-header', value: 0 },
-                { id: 'despesas_admin', label: 'Despesas Administrativas', type: 'line-item', parent: 'despesas', value: 0 },
-                { id: 'despesas_pessoal', label: 'Despesas com Pessoal', type: 'line-item', parent: 'despesas', value: 0 },
-                { id: 'despesas_fin', label: 'Despesas Financeiras', type: 'line-item', parent: 'despesas', value: 0 },
-                { id: 'despesas_outras', label: 'Outras Despesas', type: 'line-item', parent: 'despesas', value: 0 },
-                { id: 'resultado_op', label: '(=) Resultado Operacional (EBITDA)', type: 'subtotal', value: 0 },
-                { id: 'depr_amort', label: '(-) Depreciação e Amortização', type: 'section-header', value: 0 },
-                { id: 'ebit', label: '(=) EBIT', type: 'subtotal', value: 0 },
-                { id: 'resultado_fin', label: '(+/-) Resultado Financeiro', type: 'section-header', value: 0 },
-                { id: 'resultado_antes_ir', label: '(=) Resultado Antes dos Impostos', type: 'subtotal', value: 0 },
-                { id: 'ir_csll', label: '(-) IRPJ + CSLL', type: 'section-header', value: 0 },
-                { id: 'lucro_liquido', label: '(=) Lucro Líquido', type: 'total', value: 0 }
-            ];
-            return structure;
-        }
-
-        // Calculate period ranges
-        function getPeriodRanges() {
-            const month = document.getElementById('period-month').value;
-            const year = document.getElementById('period-year').value;
-            const periodType = document.getElementById('period-type').value;
-            let dataInicio, dataFim, prevInicio, prevFim;
-
-            if (periodType === 'month') {
-                dataInicio = `${year}-${month}-01`;
-                const lastDay = new Date(year, parseInt(month), 0).getDate();
-                dataFim = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
-                const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1;
-                const prevYear = parseInt(month) === 1 ? parseInt(year) - 1 : parseInt(year);
-                const prevLastDay = new Date(prevYear, prevMonth, 0).getDate();
-                prevInicio = `${prevYear}-${String(prevMonth).padStart(2, '0')}-01`;
-                prevFim = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(prevLastDay).padStart(2, '0')}`;
-            } else if (periodType === 'quarter') {
-                const q = Math.ceil(parseInt(month) / 3);
-                const qStart = (q - 1) * 3 + 1;
-                dataInicio = `${year}-${String(qStart).padStart(2, '0')}-01`;
-                const qEndMonth = q * 3;
-                const qLastDay = new Date(year, qEndMonth, 0).getDate();
-                dataFim = `${year}-${String(qEndMonth).padStart(2, '0')}-${String(qLastDay).padStart(2, '0')}`;
-                prevInicio = `${parseInt(year) - 1}-${String(qStart).padStart(2, '0')}-01`;
-                prevFim = `${parseInt(year) - 1}-${String(qEndMonth).padStart(2, '0')}-${String(qLastDay).padStart(2, '0')}`;
-            } else {
-                dataInicio = `${year}-01-01`;
-                dataFim = `${year}-12-31`;
-                prevInicio = `${parseInt(year) - 1}-01-01`;
-                prevFim = `${parseInt(year) - 1}-12-31`;
-            }
-            return { dataInicio, dataFim, prevInicio, prevFim };
-        }
-
-        // Build DRE from Conta Azul data (contas_receber + contas_pagar + categorias)
-        function buildDREFromContaAzul(receber, pagar, categorias) {
-            const catMap = {};
-            (categorias || []).forEach(c => { catMap[c.id] = c; });
-
-            let receitas = 0, custos = 0, despesas_admin = 0, despesas_pessoal = 0, despesas_fin = 0, despesas_outras = 0;
-
-            // Receitas from contas a receber (paid/received)
-            (receber || []).forEach(r => {
-                receitas += parseFloat(r.pago) || 0;
-            });
-
-            // Despesas/Custos from contas a pagar (paid)
-            (pagar || []).forEach(p => {
-                const valor = parseFloat(p.pago) || 0;
-                const cat = catMap[p.categoria_id];
-                const catNome = (cat?.nome || '').toLowerCase();
-
-                if (catNome.includes('custo') || catNome.includes('csp') || catNome.includes('cmv')) {
-                    custos += valor;
-                } else if (catNome.includes('pessoal') || catNome.includes('salário') || catNome.includes('folha') || catNome.includes('rh')) {
-                    despesas_pessoal += valor;
-                } else if (catNome.includes('financ') || catNome.includes('juros') || catNome.includes('banco') || catNome.includes('tarifa')) {
-                    despesas_fin += valor;
-                } else if (catNome.includes('admin') || catNome.includes('aluguel') || catNome.includes('escritório') || catNome.includes('material')) {
-                    despesas_admin += valor;
-                } else {
-                    despesas_outras += valor;
-                }
-            });
-
-            return buildDREResult(receitas, custos, despesas_admin, despesas_pessoal, despesas_fin, despesas_outras);
-        }
-
-        function buildDREResult(receitas, custos, despesas_admin, despesas_pessoal, despesas_fin, despesas_outras) {
-            const receita_bruta = receitas;
-            const deducoes_pis = receita_bruta * 0.0065;
-            const deducoes_cofins = receita_bruta * 0.03;
-            const deducoes_iss = receita_bruta * 0.05;
-            const receita_liquida = receita_bruta - deducoes_pis - deducoes_cofins - deducoes_iss;
-            const lucro_bruto = receita_liquida - custos;
-            const despesas_total = despesas_admin + despesas_pessoal + despesas_fin + despesas_outras;
-            const resultado_op = lucro_bruto - despesas_total;
-            const depr_amort = 0;
-            const ebit = resultado_op - depr_amort;
-            const resultado_fin = -despesas_fin;
-            const resultado_antes_ir = ebit + resultado_fin;
-            const ir_csll = Math.max(0, resultado_antes_ir * 0.34);
-            const lucro_liquido = resultado_antes_ir - ir_csll;
-
-            return {
-                receita_bruta, deducoes_pis, deducoes_cofins, deducoes_iss,
-                receita_liquida, custos, lucro_bruto,
-                despesas_admin, despesas_pessoal, despesas_fin, despesas_outras, despesas: despesas_total,
-                resultado_op, depr_amort, ebit, resultado_fin,
-                resultado_antes_ir, ir_csll, lucro_liquido
-            };
-        }
-
-        // Load DRE data from Supabase (or Conta Azul when connected)
-        async function loadDREData() {
-            try {
-                const { dataInicio, dataFim, prevInicio, prevFim } = getPeriodRanges();
-                let dreData, prevData;
-
-                if (caConnected && caEmpresaId) {
-                    // === CONTA AZUL DATA ===
-                    const [curRecRes, curPagRes, prevRecRes, prevPagRes, catRes] = await Promise.all([
-                        supabase.from('ca_contas_receber').select('*').eq('empresa_id', caEmpresaId).gte('data_vencimento', dataInicio).lte('data_vencimento', dataFim).in('status', ['RECEIVED', 'PARTIALLY_RECEIVED', 'PAID', 'pago', 'recebido']),
-                        supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId).gte('data_vencimento', dataInicio).lte('data_vencimento', dataFim).in('status', ['PAID', 'PARTIALLY_PAID', 'pago']),
-                        supabase.from('ca_contas_receber').select('*').eq('empresa_id', caEmpresaId).gte('data_vencimento', prevInicio).lte('data_vencimento', prevFim).in('status', ['RECEIVED', 'PARTIALLY_RECEIVED', 'PAID', 'pago', 'recebido']),
-                        supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId).gte('data_vencimento', prevInicio).lte('data_vencimento', prevFim).in('status', ['PAID', 'PARTIALLY_PAID', 'pago']),
-                        supabase.from('ca_categorias').select('id, nome, tipo, entrada_saida').eq('empresa_id', caEmpresaId)
-                    ]);
-
-                    dreData = buildDREFromContaAzul(curRecRes.data, curPagRes.data, catRes.data);
-                    prevData = buildDREFromContaAzul(prevRecRes.data, prevPagRes.data, catRes.data);
-                } else {
-                    // === LUMA NATIVE DATA via RPC ===
-                    const [currentRes, prevRes] = await Promise.all([
-                        supabase.rpc('get_dre', { data_inicio: dataInicio, data_fim: dataFim }),
-                        supabase.rpc('get_dre', { data_inicio: prevInicio, data_fim: prevFim })
-                    ]);
-
-                    const cur = currentRes.data || {};
-                    dreData = buildDREResult(
-                        cur.receitas || 0, 0,
-                        cur.despesas_admin || 0, cur.despesas_pessoal || 0,
-                        cur.despesas_fin || 0, cur.despesas_outras || 0
-                    );
-
-                    const prev = prevRes.data || {};
-                    prevData = buildDREResult(
-                        prev.receitas || 0, 0,
-                        prev.despesas_admin || 0, prev.despesas_pessoal || 0,
-                        prev.despesas_fin || 0, prev.despesas_outras || 0
-                    );
-                }
-
-                dreData.previous_period = prevData;
-                renderDRETable(dreData);
-                updateChart(dreData);
-            } catch (error) {
-                showMessage('Erro ao carregar dados: ' + error.message, 'error');
-                console.error(error);
-            }
-        }
-
-        // Build DRE data from lancamentos contabeis
-        function buildDREFromLancamentos(lancamentos) {
-            let receitas = 0, custos = 0, despesas_admin = 0, despesas_pessoal = 0, despesas_fin = 0, despesas_outras = 0;
-
-            lancamentos.forEach(l => {
-                const valor = l.valor || 0;
-                const tipoDebito = l.plano_contas_debito?.tipo || '';
-                const tipoCredito = l.plano_contas_credito?.tipo || '';
-                const nomeDebito = (l.plano_contas_debito?.nome || '').toLowerCase();
-                const nomeCredito = (l.plano_contas_credito?.nome || '').toLowerCase();
-
-                if (tipoCredito === 'receita') receitas += valor;
-                if (tipoDebito === 'receita') receitas -= valor;
-
-                if (tipoDebito === 'custo' || nomeDebito.includes('custo')) custos += valor;
-                if (tipoCredito === 'custo' || nomeCredito.includes('custo')) custos -= valor;
-
-                if (tipoDebito === 'despesa') {
-                    if (nomeDebito.includes('pessoal') || nomeDebito.includes('salário') || nomeDebito.includes('folha')) despesas_pessoal += valor;
-                    else if (nomeDebito.includes('financ') || nomeDebito.includes('juros') || nomeDebito.includes('banco')) despesas_fin += valor;
-                    else if (nomeDebito.includes('admin') || nomeDebito.includes('aluguel') || nomeDebito.includes('escritório')) despesas_admin += valor;
-                    else despesas_outras += valor;
-                }
-            });
-
-            return buildDREResult(receitas, custos, despesas_admin, despesas_pessoal, despesas_fin, despesas_outras);
-        }
-
-        // Render DRE table
-        function renderDRETable(data) {
-            const tbody = document.getElementById('dre-tbody');
-            const structure = createDREStructure();
-            const receita_bruta = data.receita_bruta || 1; // Avoid division by zero
-
-            let html = '';
-
-            structure.forEach(item => {
-                const value = data[item.id] || 0;
-                const percentage = ((value / receita_bruta) * 100).toFixed(2);
-                const previousValue = (data.previous_period && data.previous_period[item.id]) || 0;
-
-                let rowClass = '';
-                let cellClass = 'amount-cell';
-                let valueDisplay = formatCurrency(value);
-
-                if (item.type === 'section-header') {
-                    rowClass = 'section-header';
-                } else if (item.type === 'subtotal') {
-                    rowClass = 'subtotal-line';
-                } else if (item.type === 'total') {
-                    rowClass = 'total-line';
-                } else if (item.type === 'line-item') {
-                    rowClass = '';
-                    cellClass += ' line-item';
-                }
-
-                if (value > 0 && item.id.includes('receita')) {
-                    valueDisplay = `<span class="positive">${valueDisplay}</span>`;
-                } else if (value > 0 && item.id.includes('despesa')) {
-                    valueDisplay = `<span class="negative">${valueDisplay}</span>`;
-                }
-
-                html += `
-                    <tr class="${rowClass}">
-                        <td class="${cellClass}">${item.label}</td>
-                        <td class="amount-cell">${valueDisplay}</td>
-                        <td class="amount-cell">${percentage}%</td>
-                        <td class="amount-cell">${formatCurrency(previousValue)}</td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = html;
-        }
-
-        // Update chart
-        function updateChart(data) {
-            const receita = data.receita_bruta || 0;
-            const despesas = (data.custos || 0) +
-                            (data.despesas_admin || 0) +
-                            (data.despesas_pessoal || 0) +
-                            (data.despesas_fin || 0) +
-                            (data.despesas_outras || 0) +
-                            (data.depr_amort || 0);
-            const lucro = data.lucro_liquido || 0;
-
-            const maxValue = Math.max(receita, despesas, lucro) || 1;
-            const scale = 280 / maxValue; // Max height is 280px
-
-            const bars = document.querySelectorAll('.bar');
-
-            bars[0].style.height = (receita * scale) + 'px';
-            bars[0].querySelector('.bar-value').textContent = formatCurrency(receita);
-
-            bars[1].style.height = (despesas * scale) + 'px';
-            bars[1].querySelector('.bar-value').textContent = formatCurrency(despesas);
-
-            bars[2].style.height = (lucro * scale) + 'px';
-            bars[2].querySelector('.bar-value').textContent = formatCurrency(lucro);
-        }
-
-        // Show message
-        function showMessage(text, type = 'info') {
-            const container = document.getElementById('message-container');
-            const div = document.createElement('div');
-            div.className = type;
-            div.textContent = text;
-            container.innerHTML = '';
-            container.appendChild(div);
-            setTimeout(() => div.remove(), 5000);
-        }
-
-        // Event listeners
-        document.getElementById('apply-filter').addEventListener('click', loadDREData);
-        document.getElementById('print-btn').addEventListener('click', () => window.print());
-        document.getElementById('export-pdf').addEventListener('click', () => {
-            showMessage('Exportação para PDF será implementada em breve.', 'info');
+    ['sel-from-month','sel-to-month'].forEach(id => {
+        const sel = document.getElementById(id);
+        MESES_PT.forEach((mn, i) => {
+            const opt = document.createElement('option');
+            opt.value = String(i+1).padStart(2,'0');
+            opt.textContent = mn;
+            sel.appendChild(opt);
         });
+    });
 
-        // Initialize
-        async function init() {
-            try {
-                const session = await getSession();
-                if (!session || !session.user) { window.location.href = './login.html'; return; }
-                currentUser = session.user;
-                await checkContaAzul();
-                initializeDateControls();
-                loadDREData();
-            } catch (error) {
-                showMessage('Erro de autenticação: ' + error.message, 'error');
-                window.location.href = './login.html';
-            }
+    ['sel-from-year','sel-to-year'].forEach(id => {
+        const sel = document.getElementById(id);
+        for (let y = 2024; y <= cy + 1; y++) {
+            const opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            if (y === cy) opt.selected = true;
+            sel.appendChild(opt);
+        }
+    });
+
+    // Default: Set/2024 → mês atual
+    document.getElementById('sel-from-month').value = '09';
+    document.getElementById('sel-from-year').value  = '2024';
+    document.getElementById('sel-to-month').value   = String(cm).padStart(2,'0');
+    document.getElementById('sel-to-year').value    = cy;
+}
+
+function getFromTo() {
+    return {
+        from: `${document.getElementById('sel-from-year').value}-${document.getElementById('sel-from-month').value}`,
+        to:   `${document.getElementById('sel-to-year').value}-${document.getElementById('sel-to-month').value}`
+    };
+}
+
+// ══════════════════════════════════════════════
+// CARREGAR DADOS DO SUPABASE
+// ══════════════════════════════════════════════
+async function carregarDados(from, to) {
+    const dtFrom = `${from}-01`;
+    const dtTo   = `${to}-31`;
+
+    // Categorias
+    const { data: cats, error: e0 } = await supabase
+        .from('ca_categorias').select('id, nome');
+    if (e0) throw new Error('Categorias: ' + e0.message);
+    const catMap = Object.fromEntries((cats||[]).map(c => [c.id, c.nome]));
+
+    // Contas a pagar ACQUITTED
+    const { data: pagarRows, error: e1 } = await supabase
+        .from('ca_contas_pagar')
+        .select('categoria_id, data_vencimento, valor')
+        .eq('status', 'ACQUITTED')
+        .gte('data_vencimento', dtFrom)
+        .lte('data_vencimento', dtTo);
+    if (e1) throw new Error('Pagar: ' + e1.message);
+
+    // Contas a receber ACQUITTED
+    const { data: receberRows, error: e2 } = await supabase
+        .from('ca_contas_receber')
+        .select('categoria_id, data_vencimento, valor')
+        .eq('status', 'ACQUITTED')
+        .gte('data_vencimento', dtFrom)
+        .lte('data_vencimento', dtTo);
+    if (e2) throw new Error('Receber: ' + e2.message);
+
+    // Agregar: { catNome: { 'YYYY-MM': total } }
+    const pagar = {}, receber = {};
+
+    for (const row of (pagarRows||[])) {
+        const cat = catMap[row.categoria_id] || 'Sem categoria';
+        const mes = (row.data_vencimento||'').substring(0,7);
+        if (!pagar[cat]) pagar[cat] = {};
+        pagar[cat][mes] = (pagar[cat][mes]||0) + Number(row.valor||0);
+    }
+    for (const row of (receberRows||[])) {
+        const cat = catMap[row.categoria_id] || 'Sem categoria';
+        const mes = (row.data_vencimento||'').substring(0,7);
+        if (!receber[cat]) receber[cat] = {};
+        receber[cat][mes] = (receber[cat][mes]||0) + Number(row.valor||0);
+    }
+
+    return { pagar, receber };
+}
+
+// ══════════════════════════════════════════════
+// COMPUTAR DRE — 88 linhas idênticas ao template
+// ══════════════════════════════════════════════
+function computeDRE(pagar, receber, months) {
+    const N  = months.length;
+    const pv = cat => months.map(m => pagar[cat]?.[m]   || 0);
+    const rv = cat => months.map(m => receber[cat]?.[m]  || 0);
+    const ng = arr => arr.map(v => -v);
+    const sm = (...arrs) => months.map((_,i) => arrs.reduce((s,a) => s+a[i], 0));
+    const z  = () => new Array(N).fill(0);
+
+    // ── 01 Receitas ───────────────────────────
+    const r05 = rv('2.00 Receita de Guias dos Clientes');
+    const r06 = rv('Honorários de êxito (Alvarás)');
+    const r07 = sm(rv('Honorários contratuais Iniciais'),
+                   rv('Honorários de serviços administrativos jurídicos (Planejamentos) - Parecer - Simuladores'),
+                   rv('Honorários de sucumbência'));
+    const r09 = z();
+
+    // ── 02 Deduções ───────────────────────────
+    const r13 = ng(pv('Pagamento de Guia do Cliente'));
+    const r15 = ng(pv('Comissões de Vendedores'));
+    const r17 = ng(rv('Descontos incondicionais concedidos'));
+    const r19 = ng(pv('Devoluções para Clientes'));
+
+    // ── 03 Custos (zero) ──────────────────────
+    const r23 = z(); const r25 = z(); const r27 = z();
+
+    // ── 04.1 Despesas Comerciais ──────────────
+    const r31 = ng(pv('Patrocínio / doações / confraternizações / presentes'));
+    const r32 = ng(sm(pv('Tráfego pago'), pv('Site'),
+                      pv('social media / videomaker / locação / produções / alimentação / transporte')));
+    const r33 = ng(pv('Agência de publicidade'));
+    const r34 = ng(pv('Viagens e Representações'));
+
+    // ── 04.2 Despesas Administrativas ─────────
+    const r36 = months.map(m => m.endsWith('-11') ? -(pagar['13º Salário']?.[m]||0) : 0);
+    const r37 = months.map(m => m.endsWith('-12') ? -(pagar['13º Salário']?.[m]||0) : 0);
+    const r38 = ng(sm(pv('Aluguel'), pv('Condomínio'), pv('IPTU'), pv('Manutenção predial')));
+    const r39 = ng(pv('Auxílio Home Office'));
+    const r40 = z();
+    const r41 = ng(pv('Cartão de Crédito'));
+    const r42 = z();
+    const r43 = ng(sm(pv('Honorários Consultoria'), pv('Cursos e Treinamentos'), pv('Outras Despesas')));
+    const r44 = ng(pv('Honorários Advocatícios'));
+    const r45 = ng(pv('Honorários Contabilidade'));
+    const r46 = z();
+    const r47 = ng(sm(pv('Padaria'), pv('Atestados médicos')));
+    const r48 = ng(sm(pv('Materiais de Consumo'), pv('Materiais de Escritório'), pv('Correios')));
+    const r49 = ng(pv('Materiais de Limpeza e de Higiene'));
+    const r50 = ng(sm(pv('Prestadores de serviço - PJ'), pv('Valores Repassados a Parceiros')));
+    const r51 = ng(sm(pv('Rescisão'), pv('Férias + 1/3 férias')));
+    const r52 = ng(sm(pv('IRRF'), pv('IRRF sobre Pró-labore')));
+    const r53 = ng(sm(pv('COFINS sobre Faturamento'), pv('PIS sobre Faturamento'),
+                      pv('CSLL'), pv('IRPJ'), pv('ISS sobre Faturamento')));
+    const r54 = ng(sm(pv('INSS - Salário'), pv('INSS - CLT'),
+                      pv('INSS sobre Pró-labore'), pv('FGTS')));
+    const r55 = ng(sm(pv('Salários'), pv('Salários funcionários - CLT'),
+                      pv('Pró-labore'), pv('Sindicato contribuição confederativa empregados - CLT')));
+    const r56 = ng(pv('Seguro de Imóveis'));
+    const r57 = ng(pv('Seguro de Vida'));
+    const r58 = ng(sm(pv('Sistema gerencial / aplicativos / softwares / Licenças de uso'),
+                      pv('Manutenção de Equipamentos')));
+    const r59 = ng(pv('Telefonia e Internet'));
+    const r60 = ng(pv('Celular'));
+    const r61 = ng(sm(pv('IOF Internacional'), pv('Água e Saneamento')));
+    const r62 = ng(pv('Vale-Alimentação'));
+    const r63 = ng(pv('Vale-Transporte'));
+
+    // ── 04.3 Despesas Operacionais ────────────
+    const r65 = ng(pv('Uber / Taxi'));
+
+    // ── 05 Financeiro ─────────────────────────
+    const r69 = z();
+    const r71 = ng(sm(pv('Tarifas Bancárias'), pv('Tarifas TED / PIX'), pv('Juros sob empréstimos')));
+    const r72 = ng(sm(pv('Tarifas de Boletos'), pv('Taxas Boletos')));
+    const r73 = ng(pv('Taxa OAB'));
+
+    // ── 06 Outras ─────────────────────────────
+    const r76 = rv('Empréstimos de Sócios');
+    const r78 = z();
+    const r79 = ng(pv('Pagamento de Alvará do Cliente'));
+
+    // ── 07 Investimentos ──────────────────────
+    const r83 = ng(pv('Investimento em equipamentos'));
+    const r84 = ng(sm(pv('Investimento em móveis e utensílios'), pv('Investimento em imóveis')));
+    const r85 = z();
+    const r87 = ng(pv('Amortização de empréstimos'));
+
+    // ── Subgrupos e grupos ────────────────────
+    const sg011 = sm(r05,r06,r07);
+    const sg012 = sm(r09);
+    const g01   = sm(sg011,sg012);
+    const sg021 = sm(r13); const sg022 = sm(r15); const sg023 = sm(r17); const sg024 = sm(r19);
+    const g02   = sm(sg021,sg022,sg023,sg024);
+    const sg031 = sm(r23); const sg032 = sm(r25); const sg033 = sm(r27);
+    const g03   = sm(sg031,sg032,sg033);
+    const sg041 = sm(r31,r32,r33,r34);
+    const sg042 = sm(r36,r37,r38,r39,r40,r41,r42,r43,r44,r45,r46,r47,r48,r49,r50,r51,r52,r53,r54,r55,r56,r57,r58,r59,r60,r61,r62,r63);
+    const sg043 = sm(r65);
+    const g04   = sm(sg041,sg042,sg043);
+    const sg051 = sm(r69); const sg052 = sm(r71,r72,r73);
+    const g05   = sm(sg051,sg052);
+    const sg061 = sm(r76); const sg062 = sm(r78,r79);
+    const g06   = sm(sg061,sg062);
+    const sg071 = sm(r83,r84,r85); const sg072 = sm(r87);
+    const g07   = sm(sg071,sg072);
+
+    // ── Totais encadeados ─────────────────────
+    const t01 = g01;
+    const t02 = sm(t01,g02);
+    const t03 = sm(t02,g03);
+    const t04 = sm(t03,g04);
+    const t06 = sm(t04,g05,g06);
+    const t07 = sm(t06,g07);
+
+    // ── 88 linhas ─────────────────────────────
+    return [
+        { type:'title',    label:'DRE — LUISA MORAES SOCIEDADE DE ADVOGADOS',             vals:null   },
+        { type:'header',   label:'Categoria',                                              vals:null   },
+        { type:'group',    label:'01 Receitas Operacionais',                               vals:g01    },
+        { type:'subgroup', label:'01.1 Receita de Vendas de Produtos e Serviços',          vals:sg011  },
+        { type:'detail',   label:'Receita de Guias dos Clientes',                          vals:r05    },
+        { type:'detail',   label:'Receitas de Alvarás Judiciais',                          vals:r06    },
+        { type:'detail',   label:'Receitas de Vendas',                                     vals:r07    },
+        { type:'subgroup', label:'01.2 Receita de Fretes e Entregas',                      vals:sg012  },
+        { type:'detail',   label:'Sem lançamentos',                                        vals:r09    },
+        { type:'total',    label:'01T Receita Bruta de Vendas',                            vals:t01    },
+        { type:'group',    label:'02 Deduções da Receita Bruta',                           vals:g02    },
+        { type:'subgroup', label:'02.1 Impostos Sobre Vendas',                             vals:sg021  },
+        { type:'detail',   label:'Pagamento de Guia do Cliente',                           vals:r13    },
+        { type:'subgroup', label:'02.2 Comissões Sobre Vendas',                            vals:sg022  },
+        { type:'detail',   label:'Comissões de Vendedores',                                vals:r15    },
+        { type:'subgroup', label:'02.3 Descontos Incondicionais',                          vals:sg023  },
+        { type:'detail',   label:'Descontos Incondicionais Concedidos',                    vals:r17    },
+        { type:'subgroup', label:'02.4 Devoluções de Vendas',                              vals:sg024  },
+        { type:'detail',   label:'Devoluções para Clientes',                               vals:r19    },
+        { type:'total',    label:'02T Receita Líquida de Vendas',                          vals:t02    },
+        { type:'group',    label:'03 Custos Operacionais',                                 vals:g03    },
+        { type:'subgroup', label:'03.1 Custo dos Produtos Vendidos',                       vals:sg031  },
+        { type:'detail',   label:'Custo dos produtos vendidos',                            vals:r23    },
+        { type:'subgroup', label:'03.2 Custo das Vendas de Produtos',                      vals:sg032  },
+        { type:'detail',   label:'Sem lançamentos',                                        vals:r25    },
+        { type:'subgroup', label:'03.3 Custo dos Serviços Prestados',                      vals:sg033  },
+        { type:'detail',   label:'Sem lançamentos',                                        vals:r27    },
+        { type:'total',    label:'03T Lucro Bruto',                                        vals:t03    },
+        { type:'group',    label:'04 Despesas Operacionais',                               vals:g04    },
+        { type:'subgroup', label:'04.1 Despesas Comerciais',                               vals:sg041  },
+        { type:'detail',   label:'Brindes para Clientes',                                  vals:r31    },
+        { type:'detail',   label:'Marketing e Publicidade',                                vals:r32    },
+        { type:'detail',   label:'Serviço Terceiro Marketing',                             vals:r33    },
+        { type:'detail',   label:'Viagens e Representações',                               vals:r34    },
+        { type:'subgroup', label:'04.2 Despesas Administrativas',                          vals:sg042  },
+        { type:'detail',   label:'13º Salário — 1ª Parcela',                               vals:r36    },
+        { type:'detail',   label:'13º Salário — 2ª Parcela',                               vals:r37    },
+        { type:'detail',   label:'Aluguel',                                                vals:r38    },
+        { type:'detail',   label:'Auxílio Home Office',                                    vals:r39    },
+        { type:'detail',   label:'Bolsa Estágio',                                          vals:r40    },
+        { type:'detail',   label:'Cartão de Crédito',                                      vals:r41    },
+        { type:'detail',   label:'Confraternizações',                                      vals:r42    },
+        { type:'detail',   label:'Honorários (outros)',                                    vals:r43    },
+        { type:'detail',   label:'Honorários Advocatícios',                                vals:r44    },
+        { type:'detail',   label:'Honorários Contábeis',                                   vals:r45    },
+        { type:'detail',   label:'IRRF s/ Salários — DARF 0561',                           vals:r46    },
+        { type:'detail',   label:'Lanches e Refeições',                                    vals:r47    },
+        { type:'detail',   label:'Materiais de Consumo',                                   vals:r48    },
+        { type:'detail',   label:'Materiais de Limpeza e de Higiene',                      vals:r49    },
+        { type:'detail',   label:'Remuneração de Autônomos',                               vals:r50    },
+        { type:'detail',   label:'Rescisões',                                              vals:r51    },
+        { type:'detail',   label:'Retenção — Darf 1708 — IRRF',                            vals:r52    },
+        { type:'detail',   label:'Retenção — Darf 5952 — PIS/COFINS/CSLL',                 vals:r53    },
+        { type:'detail',   label:'Retenção — GPS 2631 — INSS',                             vals:r54    },
+        { type:'detail',   label:'Salários',                                               vals:r55    },
+        { type:'detail',   label:'Seguro de Imóveis',                                      vals:r56    },
+        { type:'detail',   label:'Seguro de Vida',                                         vals:r57    },
+        { type:'detail',   label:'Softwares',                                              vals:r58    },
+        { type:'detail',   label:'Telefonia e Internet',                                   vals:r59    },
+        { type:'detail',   label:'Telefonia Móvel',                                        vals:r60    },
+        { type:'detail',   label:'Tráfego Rede',                                           vals:r61    },
+        { type:'detail',   label:'Vale-Alimentação',                                       vals:r62    },
+        { type:'detail',   label:'Vale-Transporte',                                        vals:r63    },
+        { type:'subgroup', label:'04.3 Despesas Operacionais',                             vals:sg043  },
+        { type:'detail',   label:'Combustível e Translado',                                vals:r65    },
+        { type:'total',    label:'04T Lucro / Prejuízo Operacional',                       vals:t04    },
+        { type:'group',    label:'05 Receitas e Despesas Financeiras',                     vals:g05    },
+        { type:'subgroup', label:'05.1 Receitas e Rendimentos Financeiros',                vals:sg051  },
+        { type:'detail',   label:'Juros recebidos',                                        vals:r69    },
+        { type:'subgroup', label:'05.2 Despesas Financeiras',                              vals:sg052  },
+        { type:'detail',   label:'Tarifas',                                                vals:r71    },
+        { type:'detail',   label:'Tarifas de Boletos',                                     vals:r72    },
+        { type:'detail',   label:'Taxa OAB',                                               vals:r73    },
+        { type:'group',    label:'06 Outras Receitas e Despesas Não Operacionais',         vals:g06    },
+        { type:'subgroup', label:'06.1 Outras Receitas Não Operacionais',                  vals:sg061  },
+        { type:'detail',   label:'Empréstimos de Sócios',                                  vals:r76    },
+        { type:'subgroup', label:'06.2 Outras Despesas Não Operacionais',                  vals:sg062  },
+        { type:'detail',   label:'Distrato Contratos',                                     vals:r78    },
+        { type:'detail',   label:'Perdas',                                                 vals:r79    },
+        { type:'total',    label:'06T Lucro / Prejuízo Líquido',                           vals:t06    },
+        { type:'group',    label:'07 Despesas com Investimentos e Empréstimos',            vals:g07    },
+        { type:'subgroup', label:'07.1 Investimentos em Imobilizado',                      vals:sg071  },
+        { type:'detail',   label:'Computadores e Periféricos',                             vals:r83    },
+        { type:'detail',   label:'Máquinas, Equipamentos e Instalações',                   vals:r84    },
+        { type:'detail',   label:'Software / Licença de Uso',                             vals:r85    },
+        { type:'subgroup', label:'07.2 Empréstimos e Dívidas',                             vals:sg072  },
+        { type:'detail',   label:'Amortização de Empréstimos',                             vals:r87    },
+        { type:'total',    label:'07T Lucro / Prejuízo Final',                             vals:t07    },
+    ];
+}
+
+// ══════════════════════════════════════════════
+// RENDERIZAR TABELA
+// ══════════════════════════════════════════════
+function renderDRE(rows, months) {
+    const tbody = document.getElementById('dre-body');
+    let html = '';
+
+    // Linha cabeçalho (meses)
+    html += `<tr class="row-header">
+        <th class="cat">Categoria</th>`;
+    for (const m of months) html += `<th class="val">${mesLabel(m)}</th>`;
+    html += `<th class="val col-total">Total</th></tr>`;
+
+    for (const row of rows) {
+        if (row.type === 'header') continue; // já escrito acima
+        const cls = 'row-' + row.type;
+
+        if (row.type === 'title') {
+            html += `<tr class="${cls}"><td class="cat" colspan="${months.length + 2}">${row.label}</td></tr>`;
+            continue;
         }
 
-        init();
-    
-window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
+        html += `<tr class="${cls}"><td class="cat">${row.label}</td>`;
+        if (row.vals) {
+            let total = 0;
+            for (let j = 0; j < months.length; j++) {
+                const v = row.vals[j] || 0;
+                total += v;
+                html += `<td class="val">${fmtN(v)}</td>`;
+            }
+            html += `<td class="val col-total">${fmtN(total)}</td>`;
+        } else {
+            html += `<td colspan="${months.length + 1}"></td>`;
+        }
+        html += `</tr>`;
+    }
+
+    tbody.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════
+// APLICAR FILTRO
+// ══════════════════════════════════════════════
+async function aplicar() {
+    const { from, to } = getFromTo();
+    const months = rangeYM(from, to);
+
+    if (!months.length) { showMsg('Período inválido.','error'); return; }
+    if (months.length > 24) { showMsg('Período máximo: 24 meses.','error'); return; }
+
+    showMsg('Consultando Conta Azul...','loading');
+    try {
+        const { pagar, receber } = await carregarDados(from, to);
+        const rows = computeDRE(pagar, receber, months);
+        renderDRE(rows, months);
+        clearMsg();
+    } catch(err) {
+        showMsg('Erro ao carregar: ' + err.message, 'error');
+        console.error(err);
+    }
+}
+
+window.aplicar = aplicar;
+
+function showMsg(txt, type) {
+    document.getElementById('msg-area').innerHTML = `<div class="msg msg-${type}">${txt}</div>`;
+}
+function clearMsg() { document.getElementById('msg-area').innerHTML = ''; }
+
+// ── Init ──────────────────────────────────────
+initSelectors();
+aplicar();
 </script>
 </body>
 </html>
