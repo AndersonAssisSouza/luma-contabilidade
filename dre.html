@@ -399,7 +399,8 @@ function getFromTo() {
 // ══════════════════════════════════════════════
 async function carregarDados(from, to) {
     const dtFrom = `${from}-01`;
-    const dtTo   = `${to}-31`;
+    const [toY, toM] = to.split('-').map(Number);
+    const dtTo   = new Date(toY, toM, 0).toISOString().split('T')[0]; // último dia do mês
 
     // Categorias
     const { data: cats, error: e0 } = await supabase
