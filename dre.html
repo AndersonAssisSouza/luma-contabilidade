@@ -486,7 +486,8 @@ function computeDRE(pagar, receber, months) {
     const r23 = z(); const r25 = z(); const r27 = z();
 
     // ── 04.1 Despesas Comerciais ──────────────
-    const r31 = ng(pv('Patrocínio / doações / confraternizações / presentes'));
+    // 'Brindes para clientes' é categoria própria no CA (lowercase 'c')
+    const r31 = ng(pv('Brindes para clientes'));
     const r32 = ng(sm(pv('Site'),
                       pv('social media / videomaker / locação / produções / alimentação / transporte')));
     const r33 = ng(pv('Agência de publicidade'));
@@ -495,27 +496,36 @@ function computeDRE(pagar, receber, months) {
     // ── 04.2 Despesas Administrativas ─────────
     const r36 = months.map(m => m.endsWith('-11') ? -(pagar['13º Salário']?.[m]||0) : 0);
     const r37 = months.map(m => m.endsWith('-12') ? -(pagar['13º Salário']?.[m]||0) : 0);
-    const r38 = ng(sm(pv('Aluguel'), pv('Condomínio'), pv('IPTU'), pv('Manutenção predial'), pv('Água e Saneamento')));
+    const r38 = ng(sm(pv('Aluguel'), pv('Condomínio'), pv('IPTU'), pv('Manutenção predial'),
+                      pv('Água e Saneamento'), pv('Energia Elétrica'), pv('Faxina')));
     const r39 = ng(pv('Auxílio Home Office'));
     const r40 = z();
     const r41 = ng(pv('Cartão de Crédito'));
-    const r42 = z();
-    const r43 = ng(sm(pv('Honorários Consultoria'), pv('Cursos e Treinamentos'), pv('Outras Despesas')));
+    // 'Patrocínio / doações / confraternizações / presentes' mapeia para Confraternizações
+    const r42 = ng(pv('Patrocínio / doações / confraternizações / presentes'));
+    const r43 = ng(sm(pv('Honorários Consultoria'), pv('Cursos e Treinamentos'), pv('Outras Despesas'),
+                      pv('Cartório'), pv('Alvará de Funcionamento'), pv('Aluguel de equipamentos')));
     const r44 = ng(pv('Honorários Advocatícios'));
     const r45 = ng(pv('Honorários Contabilidade'));
     const r46 = z();
-    const r47 = ng(sm(pv('Padaria'), pv('Atestados médicos')));
+    const r47 = ng(sm(pv('Padaria'), pv('Atestados médicos'), pv('Lanche e refeição')));
     const r48 = ng(sm(pv('Materiais de Consumo'), pv('Materiais de Escritório'), pv('Correios')));
     const r49 = ng(pv('Materiais de Limpeza e de Higiene'));
-    const r50 = ng(sm(pv('Prestadores de serviço - PJ'), pv('Valores Repassados a Parceiros')));
-    const r51 = ng(sm(pv('Rescisão'), pv('Férias + 1/3 férias')));
+    const r50 = ng(sm(pv('Prestadores de serviço - PJ'), pv('Valores Repassados a Parceiros'),
+                      pv('Prestadores de serviço - PF')));
+    const r51 = ng(sm(pv('Rescisão'), pv('Férias + 1/3 férias'),
+                      pv('Rescisão - CLT'), pv('Férias + 1/3 - CLT'),
+                      pv('Antecipação de férias - CLT'), pv('Multa rescisória - CLT')));
     const r52 = ng(sm(pv('IRRF'), pv('IRRF sobre Pró-labore')));
     const r53 = ng(sm(pv('COFINS sobre Faturamento'), pv('PIS sobre Faturamento'),
-                      pv('CSLL'), pv('IRPJ'), pv('ISS sobre Faturamento')));
+                      pv('CSLL'), pv('IRPJ'), pv('ISS sobre Faturamento'),
+                      pv('Parcelamento do Simples Nacional')));
     const r54 = ng(sm(pv('INSS - Salário'), pv('INSS - CLT'),
-                      pv('INSS sobre Pró-labore'), pv('FGTS')));
+                      pv('INSS sobre Pró-labore'), pv('FGTS'),
+                      pv('FGTS - CLT'), pv('FGTS - Rescisão  - CLT')));
     const r55 = ng(sm(pv('Salários'), pv('Salários funcionários - CLT'),
-                      pv('Pró-labore'), pv('Sindicato contribuição confederativa empregados - CLT')));
+                      pv('Pró-labore'), pv('Sindicato contribuição confederativa empregados - CLT'),
+                      pv('13º salário - CLT')));
     const r56 = ng(pv('Seguro de Imóveis'));
     const r57 = ng(pv('Seguro de Vida'));
     const r58 = ng(sm(pv('Sistema gerencial / aplicativos / softwares / Licenças de uso'),
@@ -523,26 +533,31 @@ function computeDRE(pagar, receber, months) {
     const r59 = ng(pv('Telefonia e Internet'));
     const r60 = ng(pv('Celular'));
     const r61 = ng(pv('Tráfego pago'));
-    const r62 = ng(pv('Vale-Alimentação'));
-    const r63 = ng(pv('Vale-Transporte'));
+    const r62 = ng(sm(pv('Vale-Alimentação'), pv('Vale-Alimentação - CLT')));
+    const r63 = ng(sm(pv('Vale-Transporte'), pv('Vale-Transporte - CLT')));
 
     // ── 04.3 Despesas Operacionais ────────────
     const r65 = ng(pv('Uber / Taxi'));
 
     // ── 05 Financeiro ─────────────────────────
-    const r69 = z();
-    const r71 = ng(sm(pv('Tarifas Bancárias'), pv('Tarifas TED / PIX'), pv('Juros sob empréstimos'), pv('IOF Internacional')));
+    // Juros recebidos é categoria de RECEITA no CA
+    const r69 = rv('Juros recebidos');
+    const r71 = ng(sm(pv('Tarifas Bancárias'), pv('Tarifas TED / PIX'), pv('Juros sob empréstimos'),
+                      pv('IOF Internacional'), pv('Tarifas de Cartões de Crédito'), pv('Taxas Cartão Crédito')));
     const r72 = ng(sm(pv('Tarifas de Boletos'), pv('Taxas Boletos')));
     const r73 = ng(pv('Taxa OAB'));
 
     // ── 06 Outras ─────────────────────────────
     const r76 = rv('Empréstimos de Sócios');
+    // r78 Distrato Contratos — categoria CA não identificada; manter z()
     const r78 = z();
-    const r79 = ng(pv('Pagamento de Alvará do Cliente'));
+    // Perdas: categorias de prejuízo (Pagamento de Alvará do Cliente é repasse ao cliente, não entra na DRE)
+    const r79 = ng(sm(pv('Prejuízo com Golpe'), pv('Prejuízos / golpes'), pv('Prejuízos Diversos')));
 
     // ── 07 Investimentos ──────────────────────
-    const r83 = ng(pv('Investimento em equipamentos'));
-    const r84 = ng(sm(pv('Investimento em móveis e utensílios'), pv('Investimento em imóveis')));
+    const r83 = ng(sm(pv('Investimento em equipamentos'), pv('Investimento em veículos')));
+    const r84 = ng(sm(pv('Investimento em móveis e utensílios'), pv('Investimento em imóveis'),
+                      pv('Investimento em novos projetos - LUMA Plataforma')));
     const r85 = z();
     const r87 = ng(pv('Amortização de empréstimos'));
 
