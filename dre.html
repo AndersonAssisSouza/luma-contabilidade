@@ -144,6 +144,18 @@
         table.dre tr.row-group td.col-total { background: #dde0f7; }
         table.dre tr.row-subgroup td.col-total { background: #eceeff; }
 
+        /* Fechamento / Resumo Gerencial */
+        table.dre tr.row-closing-sep td { border: none; padding: 8px 0; background: transparent; }
+        table.dre tr.row-closing-hdr td { background: #263238; color: #fff; font-weight: 700; font-size: 13px; letter-spacing: .5px; padding: 8px 10px; border-top: 3px solid #1a237e; }
+        table.dre tr.row-closing td { background: #eceff1; color: #37474f; border-bottom: 1px solid #cfd8dc; padding: 5px 10px; font-size: 13px; }
+        table.dre tr.row-closing td.cat { padding-left: 20px; }
+        table.dre tr.row-closing td.col-total { background: #dde0e3; }
+        table.dre tr.row-closing-tot td { background: #1b5e20; color: #fff !important; font-weight: 700; font-size: 14px; padding: 9px 10px; border-top: 3px solid #2e7d32; }
+        table.dre tr.row-closing-tot td.col-total { background: #155318; }
+        table.dre tr.row-closing-tot .vneg { color: #ffcdd2 !important; }
+        table.dre tr.row-closing-tot .vpos { color: #fff !important; }
+        table.dre tr.row-closing-tot .vzero { color: #a5d6a7 !important; }
+
         @media (max-width: 768px) {
             .main { margin-left: 0; padding: 16px; }
             .sidebar { transform: translateX(-100%); }
@@ -605,9 +617,9 @@ function computeDRE(pagar, receber, months) {
         { type:'subgroup', label:'02.2 Comissões Sobre Vendas',                            vals:sg022  },
         { type:'detail',   label:'Comissões de Vendedores',                                vals:r15    },
         { type:'subgroup', label:'02.3 Descontos Incondicionais',                          vals:sg023  },
-        { type:'detail',   label:'Descontos Incondicionais Concedidos',                    vals:r17    },
+        { type:'detail',   label:'Sem lançamentos',                                        vals:r17    },
         { type:'subgroup', label:'02.4 Devoluções de Vendas',                              vals:sg024  },
-        { type:'detail',   label:'Devoluções para Clientes',                               vals:r19    },
+        { type:'detail',   label:'Sem lançamentos',                                        vals:r19    },
         { type:'total',    label:'02T Receita Líquida de Vendas',                          vals:t02    },
         { type:'group',    label:'03 Custos Operacionais',                                 vals:g03    },
         { type:'subgroup', label:'03.1 Custo dos Produtos Vendidos',                       vals:sg031  },
@@ -675,8 +687,23 @@ function computeDRE(pagar, receber, months) {
         { type:'detail',   label:'Máquinas, Equipamentos e Instalações Industriais',        vals:r84    },
         { type:'detail',   label:'Software / Licença de Uso',                             vals:r85    },
         { type:'subgroup', label:'07.2 Empréstimos e Dívidas',                             vals:sg072  },
-        { type:'detail',   label:'Amortização de Empréstimos',                             vals:r87    },
+        { type:'detail',   label:'Sem lançamentos',                                        vals:r87    },
         { type:'total',    label:'07T Lucro / Prejuízo Final',                             vals:t07    },
+        // ── Fechamento ────────────────────────────
+        { type:'closing-sep', label:'',                                                    vals:null   },
+        { type:'closing-hdr', label:'FECHAMENTO — RESUMO GERENCIAL',                      vals:null   },
+        { type:'closing',     label:'Receita Bruta de Vendas',                             vals:t01    },
+        { type:'closing',     label:'(-) Deduções da Receita Bruta',                      vals:g02    },
+        { type:'closing',     label:'(=) Receita Líquida de Vendas',                      vals:t02    },
+        { type:'closing',     label:'(-) Custos Operacionais',                             vals:g03    },
+        { type:'closing',     label:'(=) Lucro Bruto',                                    vals:t03    },
+        { type:'closing',     label:'(-) Despesas Operacionais',                          vals:g04    },
+        { type:'closing',     label:'(=) Lucro / Prejuízo Operacional',                   vals:t04    },
+        { type:'closing',     label:'(+/-) Resultado Financeiro',                         vals:g05    },
+        { type:'closing',     label:'(+/-) Outras Receitas e Despesas',                   vals:g06    },
+        { type:'closing',     label:'(=) Lucro / Prejuízo Líquido',                       vals:t06    },
+        { type:'closing',     label:'(-) Investimentos e Empréstimos',                    vals:g07    },
+        { type:'closing-tot', label:'(=) LUCRO / PREJUÍZO FINAL',                         vals:t07    },
     ];
 }
 
@@ -698,6 +725,18 @@ function renderDRE(rows, months) {
         const cls = 'row-' + row.type;
 
         if (row.type === 'title') {
+            html += `<tr class="${cls}"><td class="cat" colspan="${months.length + 2}">${row.label}</td></tr>`;
+            continue;
+        }
+
+        // Linha separadora do fechamento (sem conteúdo)
+        if (row.type === 'closing-sep') {
+            html += `<tr class="${cls}"><td colspan="${months.length + 2}"></td></tr>`;
+            continue;
+        }
+
+        // Cabeçalho do bloco de fechamento (sem valores)
+        if (row.type === 'closing-hdr') {
             html += `<tr class="${cls}"><td class="cat" colspan="${months.length + 2}">${row.label}</td></tr>`;
             continue;
         }
