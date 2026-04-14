@@ -1225,18 +1225,30 @@
 
                 if (maxVal === 0) maxVal = 1;
 
-                chart.innerHTML = values.map(v => {
-                    const recH = Math.max(5, (v.receber / maxVal) * 90);
-                    const pagH = Math.max(5, (v.pagar / maxVal) * 90);
+                const totalRec = values.reduce((s, v) => s + v.receber, 0);
+                const totalPag = values.reduce((s, v) => s + v.pagar, 0);
+                const maxValTotal = Math.max(maxVal, totalRec, totalPag);
+
+                function renderDashBar(v, isTotal) {
+                    const ref = isTotal ? maxValTotal : maxVal;
+                    const recH = Math.max(5, (v.receber / ref) * 90);
+                    const pagH = Math.max(5, (v.pagar / ref) * 90);
+                    const borderLeft = isTotal ? 'border-left:2px solid #ccc;' : '';
+                    const bg = isTotal ? 'background:#f5f5f5;border-radius:6px;' : '';
+                    const labelStyle = isTotal ? 'font-weight:700;color:var(--primary);' : '';
                     return `
-                        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;${borderLeft}${bg}padding:4px 2px;">
                             <div style="display:flex;align-items:flex-end;gap:2px;height:120px;">
                                 <div style="width:16px;background:var(--success);border-radius:3px 3px 0 0;height:${recH}%;opacity:0.8;" title="Receber: ${formatCurrency(v.receber)}"></div>
                                 <div style="width:16px;background:var(--danger);border-radius:3px 3px 0 0;height:${pagH}%;opacity:0.8;" title="Pagar: ${formatCurrency(v.pagar)}"></div>
                             </div>
-                            <span style="font-size:10px;color:var(--gray-500);">${v.label}</span>
+                            <span style="font-size:10px;color:var(--gray-500);${labelStyle}">${v.label}</span>
                         </div>`;
-                }).join('') + '<div style="display:flex;gap:12px;align-items:center;margin-left:auto;font-size:11px;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--success);border-radius:2px;display:inline-block;"></span>Receber</span><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--danger);border-radius:2px;display:inline-block;"></span>Pagar</span></div>';
+                }
+
+                chart.innerHTML = values.map(v => renderDashBar(v, false)).join('')
+                    + renderDashBar({ receber: totalRec, pagar: totalPag, label: 'TOTAL' }, true)
+                    + '<div style="display:flex;gap:12px;align-items:center;margin-left:auto;font-size:11px;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--success);border-radius:2px;display:inline-block;"></span>Receber</span><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--danger);border-radius:2px;display:inline-block;"></span>Pagar</span></div>';
             } catch(e) {
                 console.warn('Fluxo Caixa:', e.message);
             }

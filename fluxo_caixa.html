@@ -961,26 +961,45 @@
 
             html += `<div style="display:flex;align-items:center;width:100%;height:${totalH}px;gap:0;">`;
 
-            grouped.forEach(g => {
-                const recH = Math.max((g.receber / maxVal) * halfH, 2);
-                const pagH = Math.max((g.pagar / maxVal) * halfH, 2);
+            const totalRec = grouped.reduce((s, g) => s + g.receber, 0);
+            const totalPag = grouped.reduce((s, g) => s + g.pagar, 0);
+            const maxValTotal = Math.max(maxVal, totalRec, totalPag);
+
+            function renderBar(g, isTotal) {
+                const ref = isTotal ? maxValTotal : maxVal;
+                const recH = Math.max((g.receber / ref) * halfH, 2);
+                const pagH = Math.max((g.pagar / ref) * halfH, 2);
                 const recLabel = g.receber > 0 ? formatCurrency(g.receber) : '';
                 const pagLabel = g.pagar > 0 ? formatCurrency(g.pagar) : '';
+                const bg = isTotal ? 'background:#f5f5f5;border-radius:6px;' : '';
+                const borderLeft = isTotal ? 'border-left:2px solid #ccc;' : '';
+                const recColor = isTotal ? '#1b5e20' : '#2e7d32';
+                const pagColor = isTotal ? '#b71c1c' : '#c62828';
+                const recBg = isTotal ? '#2e7d32' : '#4caf50';
+                const pagBg = isTotal ? '#c62828' : '#f44336';
+                const fontWeight = isTotal ? '700' : '600';
+                const fontSize = isTotal ? '10px' : '9px';
+                const labelStyle = isTotal ? 'font-weight:700;color:#1a237e;' : '';
 
-                html += `
-                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0;">
+                return `
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0;${borderLeft}${bg}">
                         <div style="height:${halfH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;padding:0 1px;">
-                            <span style="font-size:9px;color:#2e7d32;font-weight:600;white-space:nowrap;margin-bottom:2px;">${recLabel}</span>
-                            <div style="width:100%;background:#4caf50;border-radius:4px 4px 0 0;height:${recH}px;opacity:0.85;cursor:pointer;" title="Receber: ${formatCurrency(g.receber)}"></div>
+                            <span style="font-size:${fontSize};color:${recColor};font-weight:${fontWeight};white-space:nowrap;margin-bottom:2px;">${recLabel}</span>
+                            <div style="width:100%;background:${recBg};border-radius:4px 4px 0 0;height:${recH}px;opacity:0.9;cursor:pointer;" title="Receber: ${formatCurrency(g.receber)}"></div>
                         </div>
                         <div style="width:100%;height:1px;background:#bbb;"></div>
                         <div style="height:${halfH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;width:100%;padding:0 1px;">
-                            <div style="width:100%;background:#f44336;border-radius:0 0 4px 4px;height:${pagH}px;opacity:0.85;cursor:pointer;" title="Pagar: ${formatCurrency(g.pagar)}"></div>
-                            <span style="font-size:9px;color:#c62828;font-weight:600;white-space:nowrap;margin-top:2px;">${pagLabel}</span>
+                            <div style="width:100%;background:${pagBg};border-radius:0 0 4px 4px;height:${pagH}px;opacity:0.9;cursor:pointer;" title="Pagar: ${formatCurrency(g.pagar)}"></div>
+                            <span style="font-size:${fontSize};color:${pagColor};font-weight:${fontWeight};white-space:nowrap;margin-top:2px;">${pagLabel}</span>
                         </div>
-                        <span style="font-size:10px;color:#666;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:4px;display:block;">${g.label}</span>
+                        <span style="font-size:10px;color:#666;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:4px;display:block;${labelStyle}">${g.label}</span>
                     </div>`;
-            });
+            }
+
+            grouped.forEach(g => { html += renderBar(g, false); });
+
+            // Coluna de totalização
+            html += renderBar({ receber: totalRec, pagar: totalPag, label: 'TOTAL' }, true);
 
             html += '</div>';
             chart.innerHTML = html;
