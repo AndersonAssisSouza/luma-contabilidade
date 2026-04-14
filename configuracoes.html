@@ -886,13 +886,30 @@
         currentUser = user;
         updateUserInfo();
 
-        // Get tenant data
-        const { data: tenantData, error: tenantError } = await supabase
-          .from('tenants')
-          .select('*')
-          .single();
+        // Get tenant data via profile
+        let tenantData = null;
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('tenant_id')
+            .eq('id', user.id)
+            .single();
 
-        if (tenantError && tenantError.code !== 'PGRST116') throw tenantError;
+          if (profile?.tenant_id) {
+            const { data: td } = await supabase
+              .from('tenants')
+              .select('*')
+              .eq('id', profile.tenant_id)
+              .single();
+            tenantData = td;
+          }
+        } catch (e) {
+          // Fallback: try getting any tenant via RLS
+          const { data: td } = await supabase.from('tenants').select('*').single();
+          tenantData = td;
+        }
+
+        const tenantError = !tenantData;
         if (tenantData) {
           currentTenant = tenantData;
           loadCompanyData();
@@ -908,11 +925,14 @@
     }
 
     function updateUserInfo() {
+      // Sidebar elements may not exist in current layout
+      const nameEl = document.getElementById('usernameSidebar');
+      const avatarEl = document.getElementById('userAvatarSidebar');
       if (currentUser?.user_metadata?.full_name) {
         const name = currentUser.user_metadata.full_name;
         const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-        document.getElementById('usernameSidebar').textContent = name;
-        document.getElementById('userAvatarSidebar').textContent = initials;
+        if (nameEl) nameEl.textContent = name;
+        if (avatarEl) avatarEl.textContent = initials;
       }
     }
 
@@ -967,35 +987,105 @@
     }
 
     async function loadUsers() {
+      const userList = document.getElementById('userList');
       try {
-        const { data: users, error } = await supabase
+        // Try user_tenants with join first
+        let users = null;
+        let error = null;
+
+        ({ data: users, error } = await supabase
           .from('user_tenants')
-          .select('*, users(id, email, user_metadata)')
-          .eq('tenant_id', currentTenant.id);
+          .select('*')
+          .eq('tenant_id', currentTenant.id));
 
-        if (error) throw error;
+        if (error) {
+          // Table may not exist - show current user as fallback
+          console.warn('user_tenants not available:', error.message);
+          userList.innerHTML = `
+            <div class="user-item">
+              <div class="user-info-col">
+                <div class="user-name">${currentUser?.user_metadata?.full_name || currentUser?.email || 'Usuário atual'}</div>
+                <div class="user-email">${currentUser?.email || ''}</div>
+                <div class="user-role">admin</div>
+              </div>
+            </div>`;
+          return;
+        }
 
-        const userList = document.getElementById('userList');
         if (!users || users.length === 0) {
-          userList.innerHTML = '<div style="text-align: center; color: #999; padding: 2rem;">Nenhum usuário encontrado</div>';
+          // No user_tenants records - show current user
+          userList.innerHTML = `
+            <div class="user-item">
+              <div class="user-info-col">
+                <div class="user-name">${currentUser?.user_metadata?.full_name || currentUser?.email || 'Usuário atual'}</div>
+                <div class="user-email">${currentUser?.email || ''}</div>
+                <div class="user-role">admin</div>
+              </div>
+            </div>`;
           return;
         }
 
         userList.innerHTML = users.map(ut => `
           <div class="user-item">
             <div class="user-info-col">
-              <div class="user-name">${ut.users?.user_metadata?.full_name || 'Sem nome'}</div>
-              <div class="user-email">${ut.users?.email || 'Sem email'}</div>
-              <div class="user-role">${ut.role}</div>
+              <div class="user-name">${ut.user_name || ut.email || 'Usuário'}</div>
+              <div class="user-email">${ut.email || ut.user_id || ''}</div>
+              <div class="user-role">${ut.role || 'membro'}</div>
             </div>
             <div class="user-actions">
-              <button class="btn btn-secondary" onclick="changeUserRole('${ut.id}', '${ut.role}')">Alterar Função</button>
+              <button class="btn btn-secondary" onclick="changeUserRole('${ut.id}', '${ut.role || 'membro'}')">Alterar Função</button>
               <button class="btn btn-danger" onclick="removeUser('${ut.id}')">Remover</button>
             </div>
           </div>
         `).join('');
       } catch (error) {
         console.error('Erro ao carregar usuários:', error);
+        userList.innerHTML = `
+          <div class="user-item">
+            <div class="user-info-col">
+              <div class="user-name">${currentUser?.user_metadata?.full_name || currentUser?.email || 'Usuário atual'}</div>
+              <div class="user-email">${currentUser?.email || ''}</div>
+              <div class="user-role">admin</div>
+            </div>
+          </div>`;
+      }
+    }
+
+    async function changeUserRole(userId, currentRole) {
+      const roles = ['admin', 'contador', 'auxiliar', 'visualizador'];
+      const currentIdx = roles.indexOf(currentRole);
+      const newRole = roles[(currentIdx + 1) % roles.length];
+
+      if (!confirm(`Alterar função para "${newRole}"?`)) return;
+
+      try {
+        const { error } = await supabase
+          .from('user_tenants')
+          .update({ role: newRole })
+          .eq('id', userId);
+
+        if (error) throw error;
+        showSuccess(`Função alterada para ${newRole}`);
+        loadUsers();
+      } catch (e) {
+        showError('Erro ao alterar função: ' + e.message);
+      }
+    }
+
+    async function removeUser(userId) {
+      if (!confirm('Tem certeza que deseja remover este usuário?')) return;
+
+      try {
+        const { error } = await supabase
+          .from('user_tenants')
+          .delete()
+          .eq('id', userId);
+
+        if (error) throw error;
+        showSuccess('Usuário removido');
+        loadUsers();
+      } catch (e) {
+        showError('Erro ao remover usuário: ' + e.message);
       }
     }
 
@@ -1269,8 +1359,8 @@
     window.addEventListener('load', init);
   
 window.handleLogout = async function() { try { await logout(); } catch(e) {} window.location.href = './login.html'; };
-window.changeUserRole = typeof changeUserRole !== 'undefined' ? changeUserRole : function(id, role) { alert('Funcionalidade em desenvolvimento'); };
-window.removeUser = typeof removeUser !== 'undefined' ? removeUser : function(id) { alert('Funcionalidade em desenvolvimento'); };
+window.changeUserRole = changeUserRole;
+window.removeUser = removeUser;
 </script>
 </body>
 </html>
