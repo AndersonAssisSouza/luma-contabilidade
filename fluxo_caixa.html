@@ -730,29 +730,41 @@
             }).format(value);
         }
 
+        // Calcula range de datas baseado no view ativo (daily/weekly=mês atual, monthly=ano atual)
+        function getDateRange() {
+            const today = new Date();
+            const view = document.querySelector('.view-btn.active')?.dataset.view || 'daily';
+
+            if (view === 'monthly') {
+                // Ano inteiro
+                return {
+                    start: `${today.getFullYear()}-01-01`,
+                    end: `${today.getFullYear()}-12-31`
+                };
+            } else {
+                // Mês atual (para diário e semanal)
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const lastDay = new Date(y, today.getMonth() + 1, 0).getDate();
+                return {
+                    start: `${y}-${m}-01`,
+                    end: `${y}-${m}-${String(lastDay).padStart(2, '0')}`
+                };
+            }
+        }
+
         // Load real cash flow data from Supabase (or Conta Azul when connected)
         async function generateRealData() {
             const today = new Date();
-            const periodType = document.getElementById('period-type').value;
-            let monthStart, monthEnd;
+            const range = getDateRange();
+            let monthStart = range.start;
+            let monthEnd = range.end;
 
+            // Custom override
+            const periodType = document.getElementById('period-type').value;
             if (periodType === 'custom') {
-                monthStart = document.getElementById('start-date').value || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-                monthEnd = document.getElementById('end-date').value || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
-            } else if (periodType === 'weekly') {
-                // Semana atual (seg-dom)
-                const day = today.getDay();
-                const diffToMonday = day === 0 ? -6 : 1 - day;
-                const monday = new Date(today);
-                monday.setDate(today.getDate() + diffToMonday);
-                const sunday = new Date(monday);
-                sunday.setDate(monday.getDate() + 6);
-                monthStart = monday.toISOString().split('T')[0];
-                monthEnd = sunday.toISOString().split('T')[0];
-            } else {
-                // Mensal (padrão)
-                monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-                monthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+                monthStart = document.getElementById('start-date').value || monthStart;
+                monthEnd = document.getElementById('end-date').value || monthEnd;
             }
 
             let recebimentos, pagamentos, saldoBancario;
@@ -1048,7 +1060,8 @@
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
-                if (lastData) renderTrendChart(lastData);
+                // Nova query pois o range muda (mensal=ano, diário/semanal=mês)
+                loadData();
             });
         });
 
