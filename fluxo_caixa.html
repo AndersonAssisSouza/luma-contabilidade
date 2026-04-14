@@ -961,17 +961,11 @@
 
             html += `<div style="display:flex;align-items:center;width:100%;height:${totalH}px;gap:0;">`;
 
-            function shortVal(v) {
-                if (v >= 1000000) return (v/1000000).toFixed(1).replace('.0','') + 'M';
-                if (v >= 1000) return (v/1000).toFixed(1).replace('.0','') + 'K';
-                return v.toFixed(0);
-            }
-
             grouped.forEach(g => {
                 const recH = Math.max((g.receber / maxVal) * halfH, 2);
                 const pagH = Math.max((g.pagar / maxVal) * halfH, 2);
-                const recLabel = g.receber > 0 ? shortVal(g.receber) : '';
-                const pagLabel = g.pagar > 0 ? shortVal(g.pagar) : '';
+                const recLabel = g.receber > 0 ? formatCurrency(g.receber) : '';
+                const pagLabel = g.pagar > 0 ? formatCurrency(g.pagar) : '';
 
                 html += `
                     <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0;">
