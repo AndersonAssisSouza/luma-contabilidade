@@ -824,6 +824,9 @@
 
             return {
                 current_balance: saldoBancario,
+                // Dados completos para o gráfico
+                allRecebimentos: recebimentos,
+                allPagamentos: pagamentos,
                 operacional: {
                     recebimentos: recebimentos.slice(0, 10),
                     pagamentos: pagamentos.filter(p => !p.name.toLowerCase().includes('salário') && !p.name.toLowerCase().includes('folha')).slice(0, 10),
@@ -940,8 +943,8 @@
         // Render trend chart com barras para cima (receber) e para baixo (pagar)
         function renderTrendChart(data) {
             const view = document.querySelector('.view-btn.active')?.dataset.view || 'daily';
-            const allRec = [...(data.operacional?.recebimentos || [])];
-            const allPag = [...(data.operacional?.pagamentos || []), ...(data.operacional?.salarios || [])];
+            const allRec = data.allRecebimentos || [...(data.operacional?.recebimentos || [])];
+            const allPag = data.allPagamentos || [...(data.operacional?.pagamentos || []), ...(data.operacional?.salarios || [])];
             const grouped = groupByPeriod(allRec, allPag, view);
 
             const chart = document.getElementById('trend-chart');
