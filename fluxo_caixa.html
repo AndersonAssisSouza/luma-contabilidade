@@ -704,6 +704,7 @@
         let currentUser = null;
         let caConnected = false;
         let caEmpresaId = null;
+        let lastData = null; // Cache para re-render ao trocar view
 
         async function checkContaAzul() {
             try {
@@ -732,8 +733,27 @@
         // Load real cash flow data from Supabase (or Conta Azul when connected)
         async function generateRealData() {
             const today = new Date();
-            const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-            const monthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+            const periodType = document.getElementById('period-type').value;
+            let monthStart, monthEnd;
+
+            if (periodType === 'custom') {
+                monthStart = document.getElementById('start-date').value || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+                monthEnd = document.getElementById('end-date').value || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+            } else if (periodType === 'weekly') {
+                // Semana atual (seg-dom)
+                const day = today.getDay();
+                const diffToMonday = day === 0 ? -6 : 1 - day;
+                const monday = new Date(today);
+                monday.setDate(today.getDate() + diffToMonday);
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                monthStart = monday.toISOString().split('T')[0];
+                monthEnd = sunday.toISOString().split('T')[0];
+            } else {
+                // Mensal (padrão)
+                monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+                monthEnd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+            }
 
             let recebimentos, pagamentos, saldoBancario;
 
@@ -852,39 +872,100 @@
             projectedCard.parentElement.className = 'card-value ' + (projectedBalance >= 0 ? 'positive' : 'negative');
         }
 
-        // Render trend chart
-        function renderTrendChart(data) {
-            const today = new Date();
-            const days = [];
-            const balances = [];
-            let balance = data.current_balance || 0;
+        // Agrupar transações por período (daily/weekly/monthly)
+        function groupByPeriod(recebimentos, pagamentos, view) {
+            const groups = {};
 
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(today.getTime() - (6-i) * 24 * 60 * 60 * 1000);
-                const day = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' });
-                days.push(day);
-                balance += Math.sin(i) * 5000 + (Math.random() * 3000 - 1500);
-                balances.push(balance);
+            function getKey(date) {
+                const d = new Date(date);
+                if (view === 'daily') {
+                    return d.toISOString().split('T')[0];
+                } else if (view === 'weekly') {
+                    // Início da semana (segunda-feira)
+                    const day = d.getDay();
+                    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                    const monday = new Date(d);
+                    monday.setDate(diff);
+                    return monday.toISOString().split('T')[0];
+                } else {
+                    return d.toISOString().substring(0, 7); // YYYY-MM
+                }
             }
 
-            const maxBalance = Math.max(...balances);
-            const minBalance = Math.min(...balances);
-            const range = maxBalance - minBalance || 1;
+            function getLabel(key) {
+                const d = new Date(key + 'T00:00:00');
+                if (view === 'daily') {
+                    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                } else if (view === 'weekly') {
+                    const fim = new Date(d);
+                    fim.setDate(fim.getDate() + 6);
+                    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' - ' + fim.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                } else {
+                    return d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+                }
+            }
 
-            const chart = document.getElementById('trend-chart');
-            let html = '';
-
-            balances.forEach((bal, idx) => {
-                const height = ((bal - minBalance) / range) * 250;
-                const isPositive = bal >= 0;
-                html += `
-                    <div class="chart-bar ${isPositive ? 'positive' : 'negative'}" style="height: ${Math.max(height, 5)}px;">
-                        <div class="chart-value">${formatCurrency(bal)}</div>
-                        <div class="chart-label">${days[idx]}</div>
-                    </div>
-                `;
+            recebimentos.forEach(r => {
+                const k = getKey(r.date);
+                if (!groups[k]) groups[k] = { receber: 0, pagar: 0 };
+                groups[k].receber += r.value;
             });
 
+            pagamentos.forEach(p => {
+                const k = getKey(p.date);
+                if (!groups[k]) groups[k] = { receber: 0, pagar: 0 };
+                groups[k].pagar += p.value;
+            });
+
+            return Object.keys(groups).sort().map(k => ({
+                key: k,
+                label: getLabel(k),
+                receber: groups[k].receber,
+                pagar: groups[k].pagar
+            }));
+        }
+
+        // Render trend chart com barras para cima (receber) e para baixo (pagar)
+        function renderTrendChart(data) {
+            const view = document.querySelector('.view-btn.active')?.dataset.view || 'daily';
+            const allRec = [...(data.operacional?.recebimentos || [])];
+            const allPag = [...(data.operacional?.pagamentos || []), ...(data.operacional?.salarios || [])];
+            const grouped = groupByPeriod(allRec, allPag, view);
+
+            const chart = document.getElementById('trend-chart');
+            if (!grouped.length) {
+                chart.innerHTML = '<div style="color:#999;text-align:center;padding:40px;">Nenhum dado no período</div>';
+                return;
+            }
+
+            const maxRec = Math.max(...grouped.map(g => g.receber), 1);
+            const maxPag = Math.max(...grouped.map(g => g.pagar), 1);
+            const maxVal = Math.max(maxRec, maxPag);
+
+            let html = '<div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-bottom:8px;font-size:11px;">' +
+                '<span style="display:inline-block;width:10px;height:10px;background:#4caf50;border-radius:2px;"></span> Recebimentos ' +
+                '<span style="display:inline-block;width:10px;height:10px;background:#f44336;border-radius:2px;margin-left:8px;"></span> Pagamentos</div>';
+
+            html += '<div style="display:flex;align-items:center;height:260px;gap:2px;">';
+
+            grouped.forEach(g => {
+                const recH = Math.max((g.receber / maxVal) * 120, 2);
+                const pagH = Math.max((g.pagar / maxVal) * 120, 2);
+
+                html += `
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0;">
+                        <div style="height:125px;display:flex;align-items:flex-end;width:100%;">
+                            <div style="width:100%;max-width:40px;margin:0 auto;background:#4caf50;border-radius:3px 3px 0 0;height:${recH}px;opacity:0.85;cursor:pointer;" title="Receber: ${formatCurrency(g.receber)}"></div>
+                        </div>
+                        <div style="width:100%;height:1px;background:#ccc;"></div>
+                        <div style="height:125px;display:flex;align-items:flex-start;width:100%;">
+                            <div style="width:100%;max-width:40px;margin:0 auto;background:#f44336;border-radius:0 0 3px 3px;height:${pagH}px;opacity:0.85;cursor:pointer;" title="Pagar: ${formatCurrency(g.pagar)}"></div>
+                        </div>
+                        <span style="font-size:9px;color:#666;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:2px;">${g.label}</span>
+                    </div>`;
+            });
+
+            html += '</div>';
             chart.innerHTML = html;
         }
 
@@ -921,6 +1002,7 @@
         async function loadData() {
             try {
                 const data = await generateRealData();
+                lastData = data; // Cache para re-render
 
                 // Update summary
                 updateSummary(data);
@@ -966,7 +1048,7 @@
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
-                showMessage('Visualização alterada para: ' + e.target.textContent, 'success');
+                if (lastData) renderTrendChart(lastData);
             });
         });
 
