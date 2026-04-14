@@ -581,18 +581,25 @@
             <!-- Controls -->
             <div class="controls">
                 <div class="control-group">
-                    <label for="period-type">Período:</label>
-                    <select id="period-type">
-                        <option value="weekly">Semanal</option>
-                        <option value="monthly" selected>Mensal</option>
-                        <option value="custom">Customizado</option>
+                    <label for="filter-month">Mês:</label>
+                    <select id="filter-month">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
                     </select>
                 </div>
-                <div class="control-group" id="date-range-group" style="display:none;">
-                    <label for="start-date">De:</label>
-                    <input type="date" id="start-date">
-                    <label for="end-date">Até:</label>
-                    <input type="date" id="end-date">
+                <div class="control-group">
+                    <label for="filter-year">Ano:</label>
+                    <select id="filter-year"></select>
                 </div>
                 <button id="apply-filter">Aplicar</button>
                 <div class="view-toggle">
@@ -725,25 +732,25 @@
             }).format(value);
         }
 
-        // Calcula range de datas baseado no view ativo (daily/weekly=mês atual, monthly=ano atual)
+        // Calcula range de datas baseado no mês/ano selecionado e view ativo
         function getDateRange() {
-            const today = new Date();
             const view = document.querySelector('.view-btn.active')?.dataset.view || 'daily';
+            const selMonth = parseInt(document.getElementById('filter-month').value);
+            const selYear = parseInt(document.getElementById('filter-year').value);
 
             if (view === 'monthly') {
-                // Ano inteiro
+                // Ano inteiro do ano selecionado
                 return {
-                    start: `${today.getFullYear()}-01-01`,
-                    end: `${today.getFullYear()}-12-31`
+                    start: `${selYear}-01-01`,
+                    end: `${selYear}-12-31`
                 };
             } else {
-                // Mês atual (para diário e semanal)
-                const y = today.getFullYear();
-                const m = String(today.getMonth() + 1).padStart(2, '0');
-                const lastDay = new Date(y, today.getMonth() + 1, 0).getDate();
+                // Mês selecionado (para diário e semanal)
+                const m = String(selMonth).padStart(2, '0');
+                const lastDay = new Date(selYear, selMonth, 0).getDate();
                 return {
-                    start: `${y}-${m}-01`,
-                    end: `${y}-${m}-${String(lastDay).padStart(2, '0')}`
+                    start: `${selYear}-${m}-01`,
+                    end: `${selYear}-${m}-${String(lastDay).padStart(2, '0')}`
                 };
             }
         }
@@ -754,13 +761,6 @@
             const range = getDateRange();
             let monthStart = range.start;
             let monthEnd = range.end;
-
-            // Custom override
-            const periodType = document.getElementById('period-type').value;
-            if (periodType === 'custom') {
-                monthStart = document.getElementById('start-date').value || monthStart;
-                monthEnd = document.getElementById('end-date').value || monthEnd;
-            }
 
             let recebimentos, pagamentos, saldoBancario;
 
@@ -1072,12 +1072,27 @@
             setTimeout(() => div.remove(), 5000);
         }
 
-        // Event listeners
-        document.getElementById('period-type').addEventListener('change', (e) => {
-            const customGroup = document.getElementById('date-range-group');
-            customGroup.style.display = e.target.value === 'custom' ? 'flex' : 'none';
-        });
+        // Inicializar seletores de mês/ano
+        function initFilters() {
+            const today = new Date();
+            const monthSel = document.getElementById('filter-month');
+            const yearSel = document.getElementById('filter-year');
 
+            // Preencher anos (2020 até ano atual + 1)
+            const anoAtual = today.getFullYear();
+            for (let y = 2020; y <= anoAtual + 1; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                if (y === anoAtual) opt.selected = true;
+                yearSel.appendChild(opt);
+            }
+
+            // Selecionar mês atual
+            monthSel.value = today.getMonth() + 1;
+        }
+
+        // Event listeners
         document.getElementById('apply-filter').addEventListener('click', loadData);
 
         document.querySelectorAll('.view-btn').forEach(btn => {
@@ -1096,6 +1111,7 @@
                 if (!session || !session.user) { window.location.href = './login.html'; return; }
                 currentUser = session.user;
                 await checkContaAzul();
+                initFilters();
                 loadData();
             } catch (error) {
                 showMessage('Erro de autenticação: ' + error.message, 'error');
