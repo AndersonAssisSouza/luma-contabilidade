@@ -858,27 +858,8 @@
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>ECF - Escrituração Contábil Digital</td>
-                                        <td>15 de Abril</td>
-                                        <td><span class="status-badge status-normal">Agendado</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>GFIP - Guia de Recolhimento</td>
-                                        <td>20 de Abril</td>
-                                        <td><span class="status-badge status-normal">Agendado</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>DCTF - Declaração de Débitos</td>
-                                        <td>28 de Abril</td>
-                                        <td><span class="status-badge status-vencendo">Próximo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>RPA - Recolhimento Parcelado</td>
-                                        <td>10 de Maio</td>
-                                        <td><span class="status-badge status-normal">Agendado</span></td>
-                                    </tr>
+                                <tbody id="obrigacoesBody">
+                                    <tr><td colspan="3" style="text-align:center;color:#999;">Carregando...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -898,27 +879,8 @@
                                         <th>Vencimento</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Aluguel Escritório</td>
-                                        <td>R$ 5.000,00</td>
-                                        <td><span class="status-badge status-vencido">Vencido</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Internet e Telefone</td>
-                                        <td>R$ 450,00</td>
-                                        <td><span class="status-badge status-vencendo">Hoje</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Fornecimento de Material</td>
-                                        <td>R$ 2.300,00</td>
-                                        <td><span class="status-badge status-vencendo">Em 2 dias</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Consultoria Externa</td>
-                                        <td>R$ 1.800,00</td>
-                                        <td><span class="status-badge status-normal">Em 15 dias</span></td>
-                                    </tr>
+                                <tbody id="contasVencidasBody">
+                                    <tr><td colspan="3" style="text-align:center;color:#999;">Carregando...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -1130,8 +1092,7 @@
             }
 
             // Update obrigações table
-            const obrigTbody = document.querySelector('#calendario-fiscal')?.previousElementSibling?.querySelector('table tbody') ||
-                document.querySelectorAll('.card .table-wrapper table tbody')[0];
+            const obrigTbody = document.getElementById('obrigacoesBody');
             if (obrigTbody && obrigData) {
                 obrigTbody.innerHTML = (obrigData || []).map(ob => {
                     const venc = new Date(ob.data_vencimento + 'T00:00:00');
@@ -1143,7 +1104,7 @@
             }
 
             // Update contas vencidas table
-            const contasTbody = document.querySelectorAll('.card .table-wrapper table tbody')[1];
+            const contasTbody = document.getElementById('contasVencidasBody');
             if (contasTbody) {
                 const contasVenc = pagarData.slice(0, 4);
                 contasTbody.innerHTML = contasVenc.map(c => {
