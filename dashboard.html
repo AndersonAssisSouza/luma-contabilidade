@@ -826,7 +826,7 @@
                     <div class="card">
                         <div class="card-title">
                             <span class="card-icon">📈</span>
-                            DRE Resumido
+                            DRE Resumido — <span id="dreMesLabel" style="font-weight:400;font-size:13px;color:var(--gray-500);"></span>
                         </div>
                         <div class="table-wrapper">
                             <table>
@@ -1132,39 +1132,40 @@
 
         async function loadDREResumo() {
             try {
-                let receitaBruta = 0, deducoes = 0, despesas = 0;
+                // DRE = apenas dados REALIZADOS do mês atual
+                const hoje = new Date();
+                const mesAtual = hoje.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+                const labelEl = document.getElementById('dreMesLabel');
+                if (labelEl) labelEl.textContent = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
 
-                if (caConnected && caEmpresaId) {
-                    // Load from ca_categorias_dre
-                    const { data: dre } = await supabase.from('ca_categorias_dre')
-                        .select('nome, tipo, valor_total')
-                        .eq('empresa_id', caEmpresaId);
+                const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+                const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
 
-                    if (dre && dre.length > 0) {
-                        dre.forEach(item => {
-                            const val = parseFloat(item.valor_total) || 0;
-                            if (item.tipo === 'RECEITA' || item.nome?.includes('Receita')) receitaBruta += val;
-                            else if (item.tipo === 'DEDUCAO' || item.nome?.includes('Deduç')) deducoes += Math.abs(val);
-                            else if (item.tipo === 'DESPESA' || item.nome?.includes('Despesa') || item.nome?.includes('Custo')) despesas += Math.abs(val);
-                        });
-                    }
-                }
+                let receitaBruta = 0, despesas = 0;
 
-                if (receitaBruta === 0) {
-                    // Fallback: calculate from contas_receber and contas_pagar
-                    const [recRes, pagRes] = await Promise.all([
-                        supabase.from(caConnected ? 'ca_contas_receber' : 'contas_receber')
-                            .select(caConnected ? 'total' : 'valor')
-                            .in('status', caConnected ? ['RECEIVED', 'RECEBIDO', 'FINISHED'] : ['RECEBIDO', 'PAGO']),
-                        supabase.from(caConnected ? 'ca_contas_pagar' : 'contas_pagar')
-                            .select(caConnected ? 'total' : 'valor')
-                            .in('status', caConnected ? ['PAID', 'PAGO', 'FINISHED'] : ['PAGO'])
-                    ]);
-                    receitaBruta = (recRes.data || []).reduce((s, c) => s + (parseFloat(c.total || c.valor) || 0), 0);
-                    despesas = (pagRes.data || []).reduce((s, c) => s + (parseFloat(c.total || c.valor) || 0), 0);
-                    deducoes = receitaBruta * 0.12; // Estimate deductions at 12%
-                }
+                const tabReceber = caConnected ? 'ca_contas_receber' : 'contas_receber';
+                const tabPagar = caConnected ? 'ca_contas_pagar' : 'contas_pagar';
+                const campoValor = caConnected ? 'total' : 'valor';
+                const statusRecebido = caConnected ? ['RECEIVED', 'RECEBIDO', 'FINISHED'] : ['RECEBIDO', 'PAGO'];
+                const statusPago = caConnected ? ['PAID', 'PAGO', 'FINISHED'] : ['PAGO'];
 
+                // Buscar contas RECEBIDAS e PAGAS no mês atual (realizadas)
+                const [recRes, pagRes] = await Promise.all([
+                    supabase.from(tabReceber)
+                        .select(`${campoValor}, data_pagamento, data_vencimento`)
+                        .in('status', statusRecebido)
+                        .gte('data_vencimento', inicioMes)
+                        .lte('data_vencimento', fimMes),
+                    supabase.from(tabPagar)
+                        .select(`${campoValor}, data_pagamento, data_vencimento`)
+                        .in('status', statusPago)
+                        .gte('data_vencimento', inicioMes)
+                        .lte('data_vencimento', fimMes)
+                ]);
+
+                receitaBruta = (recRes.data || []).reduce((s, c) => s + (parseFloat(c[campoValor]) || 0), 0);
+                despesas = (pagRes.data || []).reduce((s, c) => s + (parseFloat(c[campoValor]) || 0), 0);
+                const deducoes = receitaBruta > 0 ? receitaBruta * 0.12 : 0; // Estimativa impostos 12%
                 const receitaLiquida = receitaBruta - deducoes;
                 const resultado = receitaLiquida - despesas;
 
