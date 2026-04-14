@@ -961,18 +961,28 @@
 
             html += `<div style="display:flex;align-items:center;width:100%;height:${totalH}px;gap:0;">`;
 
+            function shortVal(v) {
+                if (v >= 1000000) return (v/1000000).toFixed(1).replace('.0','') + 'M';
+                if (v >= 1000) return (v/1000).toFixed(1).replace('.0','') + 'K';
+                return v.toFixed(0);
+            }
+
             grouped.forEach(g => {
                 const recH = Math.max((g.receber / maxVal) * halfH, 2);
                 const pagH = Math.max((g.pagar / maxVal) * halfH, 2);
+                const recLabel = g.receber > 0 ? shortVal(g.receber) : '';
+                const pagLabel = g.pagar > 0 ? shortVal(g.pagar) : '';
 
                 html += `
                     <div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:0;">
-                        <div style="height:${halfH}px;display:flex;align-items:flex-end;width:100%;padding:0 2px;">
-                            <div style="width:100%;margin:0 auto;background:#4caf50;border-radius:4px 4px 0 0;height:${recH}px;opacity:0.85;cursor:pointer;" title="Receber: ${formatCurrency(g.receber)}"></div>
+                        <div style="height:${halfH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;padding:0 1px;">
+                            <span style="font-size:9px;color:#2e7d32;font-weight:600;white-space:nowrap;margin-bottom:2px;">${recLabel}</span>
+                            <div style="width:100%;background:#4caf50;border-radius:4px 4px 0 0;height:${recH}px;opacity:0.85;cursor:pointer;" title="Receber: ${formatCurrency(g.receber)}"></div>
                         </div>
                         <div style="width:100%;height:1px;background:#bbb;"></div>
-                        <div style="height:${halfH}px;display:flex;align-items:flex-start;width:100%;padding:0 2px;">
-                            <div style="width:100%;margin:0 auto;background:#f44336;border-radius:0 0 4px 4px;height:${pagH}px;opacity:0.85;cursor:pointer;" title="Pagar: ${formatCurrency(g.pagar)}"></div>
+                        <div style="height:${halfH}px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;width:100%;padding:0 1px;">
+                            <div style="width:100%;background:#f44336;border-radius:0 0 4px 4px;height:${pagH}px;opacity:0.85;cursor:pointer;" title="Pagar: ${formatCurrency(g.pagar)}"></div>
+                            <span style="font-size:9px;color:#c62828;font-weight:600;white-space:nowrap;margin-top:2px;">${pagLabel}</span>
                         </div>
                         <span style="font-size:10px;color:#666;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;margin-top:4px;display:block;">${g.label}</span>
                     </div>`;
