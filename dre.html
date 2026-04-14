@@ -423,7 +423,7 @@ function getFromTo() {
 // (o Supabase limita por padrão a 1.000 linhas por query)
 // ── Regime de DRE ──────────────────────────────────────────────────────────
 // 'competencia' : usa data_competencia (com fallback para data_emissao e
-//                 data_vencimento). Inclui TODOS os status (padrão CA).
+//                 data_vencimento). Somente status realizados (ACQUITTED/PAID/RECEIVED).
 // 'caixa'       : usa data_vencimento, filtra só ACQUITTED (caixa puro).
 // O toggle na UI define window._dreRegime (default: 'competencia').
 // ────────────────────────────────────────────────────────────────────────────
@@ -445,10 +445,11 @@ async function fetchAllRows(table, dtFrom, dtTo) {
                  .gte('data_vencimento', dtFrom)
                  .lte('data_vencimento', dtTo);
         } else {
-            // Regime de competência: todos os status
+            // Regime de competência: somente realizados (pagos/recebidos)
             // Filtra por data_competencia quando preenchida,
             // caso contrário cai no data_vencimento (registros antigos sem competência)
-            q = q.or(
+            q = q.in('status', ['ACQUITTED', 'RECEIVED', 'PAID', 'PAGO', 'RECEBIDO', 'FINISHED'])
+                 .or(
                 `and(data_competencia.gte.${dtFrom},data_competencia.lte.${dtTo}),` +
                 `and(data_competencia.is.null,data_vencimento.gte.${dtFrom},data_vencimento.lte.${dtTo})`
             );
