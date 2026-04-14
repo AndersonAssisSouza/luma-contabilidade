@@ -469,36 +469,7 @@
             color: var(--success);
         }
 
-        /* Development Placeholder */
-        .development-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            text-align: center;
-            background: linear-gradient(135deg, var(--gray-50), var(--white));
-            border-radius: 8px;
-            border: 2px dashed var(--gray-300);
-        }
-
-        .placeholder-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-
-        .placeholder-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--gray-500);
-            margin-bottom: 8px;
-        }
-
-        .placeholder-subtext {
-            font-size: 14px;
-            color: var(--gray-500);
-        }
+        /* (placeholder CSS removed - modules have dedicated pages) */
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -849,26 +820,7 @@
                             <span class="card-icon">📊</span>
                             Fluxo de Caixa (Próximos 30 dias)
                         </div>
-                        <div class="chart-container" id="fluxoChart">
-                            <div class="chart-bar" style="height: 45%;">
-                                <span class="chart-bar-label">Dia 1</span>
-                            </div>
-                            <div class="chart-bar" style="height: 65%;">
-                                <span class="chart-bar-label">Dia 5</span>
-                            </div>
-                            <div class="chart-bar" style="height: 40%;">
-                                <span class="chart-bar-label">Dia 10</span>
-                            </div>
-                            <div class="chart-bar" style="height: 80%;">
-                                <span class="chart-bar-label">Dia 15</span>
-                            </div>
-                            <div class="chart-bar" style="height: 55%;">
-                                <span class="chart-bar-label">Dia 20</span>
-                            </div>
-                            <div class="chart-bar" style="height: 70%;">
-                                <span class="chart-bar-label">Dia 25</span>
-                            </div>
-                        </div>
+                        <div class="chart-container" id="fluxoChart"></div>
                     </div>
 
                     <div class="card">
@@ -878,27 +830,12 @@
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Receita Bruta</strong></td>
-                                        <td style="text-align: right; color: var(--success);">R$ 125.000,00</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="color: var(--gray-500); font-size: 12px;">(-) Deduções</td>
-                                        <td style="text-align: right; color: var(--gray-500); font-size: 12px;">R$ 15.000,00</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Receita Líquida</strong></td>
-                                        <td style="text-align: right; font-weight: 600;">R$ 110.000,00</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="color: var(--gray-500); font-size: 12px;">(-) Despesas Operacionais</td>
-                                        <td style="text-align: right; color: var(--gray-500); font-size: 12px;">R$ 65.000,00</td>
-                                    </tr>
-                                    <tr style="background-color: var(--gray-50); border-top: 2px solid var(--gray-300);">
-                                        <td><strong>Resultado Líquido</strong></td>
-                                        <td style="text-align: right; color: var(--success); font-weight: 700;">R$ 45.000,00</td>
-                                    </tr>
+                                <tbody id="dreBody">
+                                    <tr><td><strong>Receita Bruta</strong></td><td style="text-align:right;color:var(--success);" id="dreReceitaBruta">R$ 0,00</td></tr>
+                                    <tr><td style="color:var(--gray-500);font-size:12px;">(-) Deduções</td><td style="text-align:right;color:var(--gray-500);font-size:12px;" id="dreDeducoes">R$ 0,00</td></tr>
+                                    <tr><td><strong>Receita Líquida</strong></td><td style="text-align:right;font-weight:600;" id="dreReceitaLiquida">R$ 0,00</td></tr>
+                                    <tr><td style="color:var(--gray-500);font-size:12px;">(-) Despesas Operacionais</td><td style="text-align:right;color:var(--gray-500);font-size:12px;" id="dreDespesas">R$ 0,00</td></tr>
+                                    <tr style="background-color:var(--gray-50);border-top:2px solid var(--gray-300);"><td><strong>Resultado Líquido</strong></td><td style="text-align:right;font-weight:700;" id="dreResultado">R$ 0,00</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -989,255 +926,7 @@
                 </div>
             </section>
 
-            <!-- Calendar Section -->
-            <section id="calendario-fiscal" class="content-section">
-                <h1 class="page-title">Calendário Fiscal</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📅</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Calendário fiscal será disponibilizado em breve</div>
-                </div>
-            </section>
-
-            <!-- Contas a Pagar -->
-            <section id="contas-pagar" class="content-section">
-                <h1 class="page-title">Contas a Pagar</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">💳</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de contas a pagar será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Contas a Receber -->
-            <section id="contas-receber" class="content-section">
-                <h1 class="page-title">Contas a Receber</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">💰</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de contas a receber será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Conciliação Bancária -->
-            <section id="conciliacao-bancaria" class="content-section">
-                <h1 class="page-title">Conciliação Bancária</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🏦</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Conciliação bancária será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Fluxo de Caixa -->
-            <section id="fluxo-caixa" class="content-section">
-                <h1 class="page-title">Fluxo de Caixa</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📈</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Análise detalhada de fluxo de caixa será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Lançamentos -->
-            <section id="lancamentos" class="content-section">
-                <h1 class="page-title">Lançamentos</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📝</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de lançamentos contábeis será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Plano de Contas -->
-            <section id="plano-contas" class="content-section">
-                <h1 class="page-title">Plano de Contas</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📑</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Plano de contas será disponibilizado em breve</div>
-                </div>
-            </section>
-
-            <!-- Balancete -->
-            <section id="balancete" class="content-section">
-                <h1 class="page-title">Balancete</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📋</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Relatório de balancete será disponibilizado em breve</div>
-                </div>
-            </section>
-
-            <!-- DRE -->
-            <section id="dre" class="content-section">
-                <h1 class="page-title">Demonstração do Resultado do Exercício</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📊</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">DRE detalhada será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Apurações -->
-            <section id="apuracoes" class="content-section">
-                <h1 class="page-title">Apurações</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🧮</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Apurações fiscais serão disponibilizadas em breve</div>
-                </div>
-            </section>
-
-            <!-- Retenções -->
-            <section id="retencoes" class="content-section">
-                <h1 class="page-title">Retenções</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🛡️</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de retenções será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- DARFs -->
-            <section id="darfs" class="content-section">
-                <h1 class="page-title">DARFs</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📄</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de DARFs será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Obrigações -->
-            <section id="obrigacoes" class="content-section">
-                <h1 class="page-title">Obrigações</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">✓</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de obrigações acessórias será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Clientes -->
-            <section id="clientes" class="content-section">
-                <h1 class="page-title">Clientes</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">👥</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de clientes será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Fornecedores -->
-            <section id="fornecedores" class="content-section">
-                <h1 class="page-title">Fornecedores</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🏭</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de fornecedores será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Notas Fiscais -->
-            <section id="notas-fiscais" class="content-section">
-                <h1 class="page-title">Notas Fiscais</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🧾</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de notas fiscais será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Pedidos de Venda -->
-            <section id="pedidos-venda" class="content-section">
-                <h1 class="page-title">Pedidos de Venda</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🛒</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de pedidos de venda será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Produtos/Serviços -->
-            <section id="produtos-servicos" class="content-section">
-                <h1 class="page-title">Produtos e Serviços</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">📦</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Cadastro de produtos e serviços será disponibilizado em breve</div>
-                </div>
-            </section>
-
-            <!-- Categorias -->
-            <section id="categorias" class="content-section">
-                <h1 class="page-title">Categorias</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🏷️</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de categorias será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Centros de Custo -->
-            <section id="centros-custo" class="content-section">
-                <h1 class="page-title">Centros de Custo</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">💼</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de centros de custo será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Contas Bancárias -->
-            <section id="contas-bancarias" class="content-section">
-                <h1 class="page-title">Contas Bancárias</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🏦</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de contas bancárias será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Conta Azul -->
-            <section id="conta-azul" class="content-section">
-                <h1 class="page-title">Integração Conta Azul</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🔗</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Integração com Conta Azul será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- LUMA RH -->
-            <section id="luma-rh" class="content-section">
-                <h1 class="page-title">Integração LUMA RH</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">👨‍💼</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Integração com LUMA RH será disponibilizada em breve</div>
-                </div>
-            </section>
-
-            <!-- Empresa -->
-            <section id="empresa" class="content-section">
-                <h1 class="page-title">Configurações da Empresa</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">⚙️</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Configurações de empresa serão disponibilizadas em breve</div>
-                </div>
-            </section>
-
-            <!-- Usuários -->
-            <section id="usuarios" class="content-section">
-                <h1 class="page-title">Gestão de Usuários</h1>
-                <div class="development-placeholder">
-                    <div class="placeholder-icon">🔐</div>
-                    <div class="placeholder-text">Módulo em desenvolvimento</div>
-                    <div class="placeholder-subtext">Gestão de usuários será disponibilizada em breve</div>
-                </div>
-            </section>
+            <!-- All module sections removed - sidebar navigates to dedicated pages via pageUrls -->
         </main>
     </div>
 
@@ -1266,8 +955,8 @@
                 // Load user info
                 updateUserInfo();
 
-                // Load tenant info (simulated)
-                loadTenantInfo();
+                // Load tenant info from Supabase
+                await loadTenantInfo();
 
                 // Set up event listeners
                 setupEventListeners();
@@ -1304,11 +993,20 @@
         }
 
         // Load Tenant Info
-        function loadTenantInfo() {
-            // Simulated tenant info
-            const tenantName = localStorage.getItem('tenantName') || 'Sua Empresa LTDA';
-            document.getElementById('tenantName').textContent = tenantName;
-            currentTenant = { name: tenantName };
+        async function loadTenantInfo() {
+            try {
+                const { data: profile } = await getProfile();
+                if (profile?.tenant_id) {
+                    const { data: tenant } = await supabase.from('tenants').select('nome, razao_social').eq('id', profile.tenant_id).single();
+                    if (tenant) {
+                        const tenantName = tenant.razao_social || tenant.nome || 'Sua Empresa';
+                        document.getElementById('tenantName').textContent = tenantName;
+                        currentTenant = tenant;
+                        return;
+                    }
+                }
+            } catch(e) { console.warn('Tenant:', e.message); }
+            document.getElementById('tenantName').textContent = localStorage.getItem('tenantName') || 'Sua Empresa LTDA';
         }
 
         // Check Conta Azul integration status
@@ -1365,6 +1063,11 @@
                     receberVencData = receberData.filter(r => r.data_vencimento && r.data_vencimento < hoje);
 
                     updateKPIs(saldoTotal, totalReceber, totalPagar, receberData, pagarData, receberVencData, obrigRes.data);
+
+                    await Promise.all([
+                        loadDREResumo(),
+                        loadFluxoCaixa()
+                    ]);
                 } else {
                     // === LUMA NATIVE DATA ===
                     const [bancosRes, receberRes, pagarRes, receberVencRes, pagarVencRes, obrigRes] = await Promise.all([
@@ -1385,6 +1088,11 @@
                     receberVencData = receberVencRes.data || [];
 
                     updateKPIs(saldoTotal, totalReceber, totalPagar, receberData, pagarData, receberVencData, obrigRes.data);
+
+                    await Promise.all([
+                        loadDREResumo(),
+                        loadFluxoCaixa()
+                    ]);
                 }
 
                 updateNotifications();
@@ -1447,6 +1155,129 @@
                     return `<tr><td>${c.descricao || '-'}</td><td>${formatCurrency(valor)}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
                 }).join('') || '<tr><td colspan="3" style="text-align:center;color:#999;">Nenhuma conta vencida</td></tr>';
             }
+
+            // Update notification badge
+            const vencidasTotal = receberVencData.length + pagarData.filter(p => p.data_vencimento < hoje).length;
+            const obrigVencidas = (obrigData || []).filter(o => o.data_vencimento < hoje).length;
+            const notifCount = vencidasTotal + obrigVencidas;
+            const badge = document.getElementById('notificationBadge');
+            if (notifCount > 0) {
+                badge.textContent = notifCount > 99 ? '99+' : notifCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        async function loadDREResumo() {
+            try {
+                let receitaBruta = 0, deducoes = 0, despesas = 0;
+
+                if (caConnected && caEmpresaId) {
+                    // Load from ca_categorias_dre
+                    const { data: dre } = await supabase.from('ca_categorias_dre')
+                        .select('nome, tipo, valor_total')
+                        .eq('empresa_id', caEmpresaId);
+
+                    if (dre && dre.length > 0) {
+                        dre.forEach(item => {
+                            const val = parseFloat(item.valor_total) || 0;
+                            if (item.tipo === 'RECEITA' || item.nome?.includes('Receita')) receitaBruta += val;
+                            else if (item.tipo === 'DEDUCAO' || item.nome?.includes('Deduç')) deducoes += Math.abs(val);
+                            else if (item.tipo === 'DESPESA' || item.nome?.includes('Despesa') || item.nome?.includes('Custo')) despesas += Math.abs(val);
+                        });
+                    }
+                }
+
+                if (receitaBruta === 0) {
+                    // Fallback: calculate from contas_receber and contas_pagar
+                    const [recRes, pagRes] = await Promise.all([
+                        supabase.from(caConnected ? 'ca_contas_receber' : 'contas_receber')
+                            .select(caConnected ? 'total' : 'valor')
+                            .in('status', caConnected ? ['RECEIVED', 'RECEBIDO', 'FINISHED'] : ['RECEBIDO', 'PAGO']),
+                        supabase.from(caConnected ? 'ca_contas_pagar' : 'contas_pagar')
+                            .select(caConnected ? 'total' : 'valor')
+                            .in('status', caConnected ? ['PAID', 'PAGO', 'FINISHED'] : ['PAGO'])
+                    ]);
+                    receitaBruta = (recRes.data || []).reduce((s, c) => s + (parseFloat(c.total || c.valor) || 0), 0);
+                    despesas = (pagRes.data || []).reduce((s, c) => s + (parseFloat(c.total || c.valor) || 0), 0);
+                    deducoes = receitaBruta * 0.12; // Estimate deductions at 12%
+                }
+
+                const receitaLiquida = receitaBruta - deducoes;
+                const resultado = receitaLiquida - despesas;
+
+                document.getElementById('dreReceitaBruta').textContent = formatCurrency(receitaBruta);
+                document.getElementById('dreDeducoes').textContent = formatCurrency(deducoes);
+                document.getElementById('dreReceitaLiquida').textContent = formatCurrency(receitaLiquida);
+                document.getElementById('dreDespesas').textContent = formatCurrency(despesas);
+
+                const dreResultadoEl = document.getElementById('dreResultado');
+                dreResultadoEl.textContent = formatCurrency(resultado);
+                dreResultadoEl.style.color = resultado >= 0 ? 'var(--success)' : 'var(--danger)';
+            } catch(e) {
+                console.warn('DRE Resumo:', e.message);
+            }
+        }
+
+        async function loadFluxoCaixa() {
+            try {
+                const chart = document.getElementById('fluxoChart');
+                if (!chart) return;
+
+                const hoje = new Date();
+                const periodos = [];
+
+                // Create 6 periods of 5 days each
+                for (let i = 0; i < 6; i++) {
+                    const inicio = new Date(hoje);
+                    inicio.setDate(inicio.getDate() + (i * 5));
+                    const fim = new Date(hoje);
+                    fim.setDate(fim.getDate() + ((i + 1) * 5));
+                    periodos.push({
+                        inicio: inicio.toISOString().split('T')[0],
+                        fim: fim.toISOString().split('T')[0],
+                        label: `Dia ${i * 5 + 1}`
+                    });
+                }
+
+                const tabReceber = caConnected ? 'ca_contas_receber' : 'contas_receber';
+                const tabPagar = caConnected ? 'ca_contas_pagar' : 'contas_pagar';
+                const campoValor = caConnected ? 'nao_pago' : 'valor';
+                const campoData = 'data_vencimento';
+
+                const values = [];
+                let maxVal = 0;
+
+                for (const p of periodos) {
+                    const [recRes, pagRes] = await Promise.all([
+                        supabase.from(tabReceber).select(campoValor).gte(campoData, p.inicio).lt(campoData, p.fim).in('status', ['PENDING', 'PENDENTE', 'PARTIALLY_RECEIVED']),
+                        supabase.from(tabPagar).select(campoValor).gte(campoData, p.inicio).lt(campoData, p.fim).in('status', ['PENDING', 'PENDENTE', 'PARTIALLY_PAID'])
+                    ]);
+                    const recTotal = (recRes.data || []).reduce((s, c) => s + (parseFloat(c[campoValor] || c.total || c.valor) || 0), 0);
+                    const pagTotal = (pagRes.data || []).reduce((s, c) => s + (parseFloat(c[campoValor] || c.total || c.valor) || 0), 0);
+                    const net = recTotal - pagTotal;
+                    values.push({ label: p.label, receber: recTotal, pagar: pagTotal, net });
+                    maxVal = Math.max(maxVal, recTotal, pagTotal);
+                }
+
+                if (maxVal === 0) maxVal = 1;
+
+                chart.innerHTML = values.map(v => {
+                    const recH = Math.max(5, (v.receber / maxVal) * 90);
+                    const pagH = Math.max(5, (v.pagar / maxVal) * 90);
+                    return `
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+                            <div style="display:flex;align-items:flex-end;gap:2px;height:120px;">
+                                <div style="width:16px;background:var(--success);border-radius:3px 3px 0 0;height:${recH}%;opacity:0.8;" title="Receber: ${formatCurrency(v.receber)}"></div>
+                                <div style="width:16px;background:var(--danger);border-radius:3px 3px 0 0;height:${pagH}%;opacity:0.8;" title="Pagar: ${formatCurrency(v.pagar)}"></div>
+                            </div>
+                            <span style="font-size:10px;color:var(--gray-500);">${v.label}</span>
+                        </div>`;
+                }).join('') + '<div style="display:flex;gap:12px;align-items:center;margin-left:auto;font-size:11px;"><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--success);border-radius:2px;display:inline-block;"></span>Receber</span><span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--danger);border-radius:2px;display:inline-block;"></span>Pagar</span></div>';
+            } catch(e) {
+                console.warn('Fluxo Caixa:', e.message);
+            }
         }
 
         // Format Currency
@@ -1459,15 +1290,9 @@
 
         // Update Notifications
         function updateNotifications() {
-            const notificationCount = 3; // Simulated
+            // Count based on real data will be available after KPI load
             const badge = document.getElementById('notificationBadge');
-
-            if (notificationCount > 0) {
-                badge.textContent = notificationCount;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
+            badge.style.display = 'none'; // Will be updated by updateKPIs
         }
 
         // Set Up Event Listeners
