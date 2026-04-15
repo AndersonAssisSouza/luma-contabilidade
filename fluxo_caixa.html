@@ -764,86 +764,41 @@
 
             let recebimentos, pagamentos, saldoBancario;
 
+            // Função para buscar todos os registros (supera limite de 1000 do Supabase)
+            async function fetchAll(table, empresaId, dateStart, dateEnd) {
+                const pageSize = 1000;
+                let allData = [];
+                let offset = 0;
+                while (true) {
+                    const { data, error } = await supabase.from(table).select('*')
+                        .eq('empresa_id', empresaId)
+                        .gte('data_vencimento', dateStart).lte('data_vencimento', dateEnd)
+                        .order('data_vencimento')
+                        .range(offset, offset + pageSize - 1);
+                    if (error) { console.error(table, error); break; }
+                    allData = allData.concat(data || []);
+                    if (!data || data.length < pageSize) break;
+                    offset += pageSize;
+                }
+                return allData;
+            }
+
             if (caConnected && caEmpresaId) {
                 // === CONTA AZUL DATA ===
-                // Todas as contas por data_vencimento (igual ao relatório Conta Azul)
-                const [caRecRes, caPagRes, caContasRes] = await Promise.all([
-                    supabase.from('ca_contas_receber').select('*').eq('empresa_id', caEmpresaId)
-                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd)
-                        .order('data_vencimento'),
-                    supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId)
-                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd)
-                        .order('data_vencimento'),
+                const [recData, pagData, caContasRes] = await Promise.all([
+                    fetchAll('ca_contas_receber', caEmpresaId, monthStart, monthEnd),
+                    fetchAll('ca_contas_pagar', caEmpresaId, monthStart, monthEnd),
                     supabase.from('ca_contas_financeiras').select('*').eq('empresa_id', caEmpresaId).eq('ativo', true)
                 ]);
 
-                // DEBUG: comparar campos e status
-                console.log('=== FLUXO CAIXA DEBUG ===');
-                console.log('Período:', monthStart, 'a', monthEnd);
-                console.log('Receber:', caRecRes.data?.length, 'registros');
-                console.log('Pagar:', caPagRes.data?.length, 'registros');
-
-                // Totais por campo
-                const recData = caRecRes.data || [];
-                const pagData = caPagRes.data || [];
-                console.log('--- RECEBIMENTOS ---');
-                console.log('Soma total:', recData.reduce((s,r) => s + (parseFloat(r.total)||0), 0).toFixed(2));
-                console.log('Soma pago:', recData.reduce((s,r) => s + (parseFloat(r.pago)||0), 0).toFixed(2));
-                console.log('Soma nao_pago:', recData.reduce((s,r) => s + (parseFloat(r.nao_pago)||0), 0).toFixed(2));
-                console.log('--- PAGAMENTOS ---');
-                console.log('Soma total:', pagData.reduce((s,r) => s + (parseFloat(r.total)||0), 0).toFixed(2));
-                console.log('Soma pago:', pagData.reduce((s,r) => s + (parseFloat(r.pago)||0), 0).toFixed(2));
-                console.log('Soma nao_pago:', pagData.reduce((s,r) => s + (parseFloat(r.nao_pago)||0), 0).toFixed(2));
-
-                // Por status
-                const recByStatus = {};
-                recData.forEach(r => {
-                    if (!recByStatus[r.status]) recByStatus[r.status] = { count: 0, total: 0, pago: 0 };
-                    recByStatus[r.status].count++;
-                    recByStatus[r.status].total += parseFloat(r.total) || 0;
-                    recByStatus[r.status].pago += parseFloat(r.pago) || 0;
-                });
-                console.log('Receb. por status:', recByStatus);
-
-                const pagByStatus = {};
-                pagData.forEach(p => {
-                    if (!pagByStatus[p.status]) pagByStatus[p.status] = { count: 0, total: 0, pago: 0 };
-                    pagByStatus[p.status].count++;
-                    pagByStatus[p.status].total += parseFloat(p.total) || 0;
-                    pagByStatus[p.status].pago += parseFloat(p.pago) || 0;
-                });
-                console.log('Pagam. por status:', pagByStatus);
-
-                // Por dia usando campo pago
-                const recByDay = {};
-                recData.forEach(r => {
-                    const d = r.data_vencimento;
-                    if (!recByDay[d]) recByDay[d] = { total: 0, pago: 0 };
-                    recByDay[d].total += parseFloat(r.total) || 0;
-                    recByDay[d].pago += parseFloat(r.pago) || 0;
-                });
-                const pagByDay = {};
-                pagData.forEach(p => {
-                    const d = p.data_vencimento;
-                    if (!pagByDay[d]) pagByDay[d] = { total: 0, pago: 0 };
-                    pagByDay[d].total += parseFloat(p.total) || 0;
-                    pagByDay[d].pago += parseFloat(p.pago) || 0;
-                });
-                console.log('Receb. por dia (total vs pago):', recByDay);
-                console.log('Pagam. por dia (total vs pago):', pagByDay);
-
-                // 3 primeiros registros completos
-                console.log('Primeiros 3 receb:', recData.slice(0,3).map(r => ({desc: r.descricao, total: r.total, pago: r.pago, nao_pago: r.nao_pago, status: r.status, dt: r.data_vencimento})));
-                console.log('Primeiros 3 pagam:', pagData.slice(0,3).map(p => ({desc: p.descricao, total: p.total, pago: p.pago, nao_pago: p.nao_pago, status: p.status, dt: p.data_vencimento})));
-
-                recebimentos = (caRecRes.data || []).map(r => ({
+                recebimentos = recData.map(r => ({
                     name: r.descricao || 'Recebimento',
                     value: parseFloat(r.total) || 0,
                     date: new Date(r.data_vencimento + 'T00:00:00'),
                     status: r.status
                 }));
 
-                pagamentos = (caPagRes.data || []).map(p => ({
+                pagamentos = pagData.map(p => ({
                     name: p.descricao || 'Pagamento',
                     value: parseFloat(p.total) || 0,
                     date: new Date(p.data_vencimento + 'T00:00:00'),
