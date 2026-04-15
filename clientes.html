@@ -916,59 +916,60 @@
                 showLoading(true);
                 await checkContaAzul();
 
-                if (caConnected && caEmpresaId) {
-                    // Conta Azul: ca_pessoas filtrado por tipo_relacao contendo 'CUSTOMER'
+                // Sempre tentar ca_pessoas primeiro (dados já sincronizados no Supabase)
+                if (caEmpresaId) {
                     const { data, error } = await supabase
                         .from('ca_pessoas')
                         .select('*')
                         .eq('empresa_id', caEmpresaId)
                         .order('nome');
 
-                    if (error) throw error;
-
-                    const clientes = (data || []).filter(p => {
-                        if (!Array.isArray(p.tipo_relacao)) return true;
-                        return p.tipo_relacao.some(t =>
-                            ['CUSTOMER','Cliente','CLIENTE','customer'].includes(t)
-                        );
-                    }).map(p => ({
-                        id: p.id,
-                        nome: p.nome,
-                        cpf_cnpj: p.documento || '-',
-                        email: p.email || '-',
-                        telefone: p.telefone || '-',
-                        endereco_cidade: p.endereco_cidade || '-',
-                        endereco_uf: p.endereco_uf || '-',
-                        status: p.ativo !== false ? 'ATIVO' : 'INATIVO',
-                        _source: 'contaazul'
-                    }));
-                    renderClientes(clientes);
-                    showToast('Clientes carregados da Conta Azul', 'success');
-                } else {
-                    // Paginated fetch to handle >1000 records
-                    let allClientes = [];
-                    let page = 0;
-                    const pageSize = 1000;
-                    let hasMore = true;
-                    while (hasMore) {
-                        const from = page * pageSize;
-                        const to = from + pageSize - 1;
-                        const { data, error } = await supabase
-                            .from('clientes')
-                            .select('*')
-                            .order('criado_em', { ascending: false })
-                            .range(from, to);
-                        if (error) throw error;
-                        if (data && data.length > 0) {
-                            allClientes = allClientes.concat(data);
-                            hasMore = data.length === pageSize;
-                        } else {
-                            hasMore = false;
-                        }
-                        page++;
+                    if (!error && data && data.length > 0) {
+                        const clientes = data.filter(p => {
+                            if (!Array.isArray(p.tipo_relacao) || p.tipo_relacao.length === 0) return true;
+                            return p.tipo_relacao.some(t =>
+                                ['CUSTOMER','Cliente','CLIENTE','customer'].includes(t)
+                            );
+                        }).map(p => ({
+                            id: p.id,
+                            nome: p.nome,
+                            cpf_cnpj: p.documento || '-',
+                            email: p.email || '-',
+                            telefone: p.telefone || '-',
+                            endereco_cidade: p.endereco_cidade || '-',
+                            endereco_uf: p.endereco_uf || '-',
+                            status: p.ativo !== false ? 'ATIVO' : 'INATIVO',
+                            _source: 'contaazul'
+                        }));
+                        renderClientes(clientes);
+                        showToast(`${clientes.length} clientes carregados`, 'success');
+                        return;
                     }
-                    renderClientes(allClientes);
                 }
+
+                // Fallback: tabela local clientes
+                let allClientes = [];
+                let page = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+                while (hasMore) {
+                    const from = page * pageSize;
+                    const to = from + pageSize - 1;
+                    const { data, error } = await supabase
+                        .from('clientes')
+                        .select('*')
+                        .order('criado_em', { ascending: false })
+                        .range(from, to);
+                    if (error) throw error;
+                    if (data && data.length > 0) {
+                        allClientes = allClientes.concat(data);
+                        hasMore = data.length === pageSize;
+                    } else {
+                        hasMore = false;
+                    }
+                    page++;
+                }
+                renderClientes(allClientes);
             } catch (error) {
                 console.error('Erro ao carregar clientes:', error);
                 showToast('Erro ao carregar clientes', 'error');
