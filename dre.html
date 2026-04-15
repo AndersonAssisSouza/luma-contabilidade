@@ -156,6 +156,21 @@
         table.dre tr.row-closing-tot .vpos { color: #fff !important; }
         table.dre tr.row-closing-tot .vzero { color: #a5d6a7 !important; }
 
+        /* Subtotal dentro de subgrupos */
+        table.dre tr.row-subtotal td { background: #f0f0f0; font-weight: 700; color: #333; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 5px 10px; }
+        table.dre tr.row-subtotal td.cat { padding-left: 22px; }
+        table.dre tr.row-subtotal td.col-total { background: #e8e8e8; }
+
+        /* Coluna % */
+        table.dre td.col-pct, table.dre th.col-pct { text-align: right; padding: 5px 8px; min-width: 65px; font-size: 11px; color: #666; border-left: 1px solid #e8eaf6; }
+        table.dre th.col-pct { background: #f1f4f9; color: #1a237e; font-weight: 700; }
+        table.dre tr.row-total td.col-pct { background: #1a237e; color: #fff !important; }
+        table.dre tr.row-group td.col-pct { background: #dde0f7; }
+        table.dre tr.row-subgroup td.col-pct { background: #eceeff; }
+        table.dre tr.row-subtotal td.col-pct { background: #e8e8e8; }
+        table.dre tr.row-closing td.col-pct { background: #dde0e3; }
+        table.dre tr.row-closing-tot td.col-pct { background: #155318; color: #fff !important; }
+
         @media (max-width: 768px) {
             .main { margin-left: 0; padding: 16px; }
             .sidebar { transform: translateX(-100%); }
@@ -519,284 +534,393 @@ async function carregarDados(from, to) {
 // COMPUTAR DRE — 88 linhas idênticas ao template
 // ══════════════════════════════════════════════
 function computeDRE(pagar, receber, months) {
-    const N  = months.length;
-    const pv = cat => months.map(m => pagar[cat]?.[m]   || 0);
-    const rv = cat => months.map(m => receber[cat]?.[m]  || 0);
-    const ng = arr => arr.map(v => -v);
-    const sm = (...arrs) => months.map((_,i) => arrs.reduce((s,a) => s+a[i], 0));
+    const N = months.length;
+    const usedReceber = new Set();
+    const usedPagar   = new Set();
+
+    const rv = (...cats) => {
+        cats.forEach(c => usedReceber.add(c));
+        return months.map(m => cats.reduce((s, c) => s + (receber[c]?.[m] || 0), 0));
+    };
+    const pv = (...cats) => {
+        cats.forEach(c => usedPagar.add(c));
+        return months.map(m => cats.reduce((s, c) => s + (pagar[c]?.[m] || 0), 0));
+    };
+    const sm = (...arrs) => months.map((_, i) => arrs.reduce((s, a) => s + a[i], 0));
     const z  = () => new Array(N).fill(0);
+    const hasVal = arr => arr.some(v => v !== 0);
 
-    // ── 01 Receitas ───────────────────────────
-    const r05 = rv('2.00 Receita de Guias dos Clientes');
-    const r06 = rv('Honorários de êxito (Alvarás)');
-    const r07 = sm(rv('Honorários contratuais Iniciais'),
-                   rv('Honorários de serviços administrativos jurídicos (Planejamentos) - Parecer - Simuladores'),
-                   rv('Honorários de sucumbência'));
-    const r09 = z();
+    // ══════════════════════════════════════════════
+    // FATURAMENTO (receitas)
+    // ══════════════════════════════════════════════
+    const fat1 = rv('Honorários contratuais Iniciais');
+    const fat2 = rv('Honorários por demanda (pontuais) - lançar na tabela de produtos');
+    const fat3 = rv('Honorários de êxito (Alvarás)');
+    const fat4 = rv('Honorários de serviços administrativos jurídicos (Planejamentos) - Parecer - Simuladores', 'Honorários de sucumbência');
+    const fat5 = rv('Treinamentos e palestras', 'Treinamentos e palestras ');
+    const fat6 = rv('Juros recebidos');
+    const fat7 = rv('Multas recebidas');
+    const fat8 = rv('Devolução / cliente');
 
-    // ── 02 Deduções ───────────────────────────
-    const r13 = ng(pv('Pagamento de Guia do Cliente'));
-    const r15 = ng(pv('Comissões de Vendedores'));
-    const r17 = ng(rv('Descontos incondicionais concedidos'));
-    const r19 = z(); // Devoluções para Clientes → movido para r78 (Distrato Contratos)
+    // Unmapped receita
+    const unmappedReceber = [];
+    for (const cat of Object.keys(receber)) {
+        if (!usedReceber.has(cat)) {
+            const arr = months.map(m => receber[cat]?.[m] || 0);
+            if (hasVal(arr)) unmappedReceber.push({ label: cat, vals: arr });
+        }
+    }
 
-    // ── 03 Custos (zero) ──────────────────────
-    const r23 = z(); const r25 = z(); const r27 = z();
+    const fatItems = [fat1, fat2, fat3, fat4, fat5, fat6, fat7, fat8, ...unmappedReceber.map(u => u.vals)];
+    const fatTotal = fatItems.reduce((acc, arr) => sm(acc, arr), z());
 
-    // ── 04.1 Despesas Comerciais ──────────────
-    // 'Brindes para clientes' é categoria própria no CA (lowercase 'c')
-    const r31 = ng(pv('Brindes para clientes'));
-    const r32 = ng(sm(pv('Site'),
-                      pv('social media / videomaker / locação / produções / alimentação / transporte')));
-    const r33 = ng(pv('Agência de publicidade'));
-    const r34 = ng(pv('Viagens e Representações'));
+    // ══════════════════════════════════════════════
+    // INVESTIMENTO (despesas)
+    // ══════════════════════════════════════════════
+    const inv1 = pv('Investimento em equipamentos');
+    const inv2 = pv('Investimento em móveis e utensílios');
+    const inv3 = pv('Investimento em veículos');
+    const inv4 = pv('Investimento em imóveis');
+    const inv5 = pv('Investimento em novos projetos - LUMA Plataforma');
+    const inv6 = pv('Distribuição de lucro');
+    const inv7 = pv('Amortização de empréstimos');
+    const invTotal = sm(inv1, inv2, inv3, inv4, inv5, inv6, inv7);
 
-    // ── 04.2 Despesas Administrativas ─────────
-    const r36 = months.map(m => m.endsWith('-11') ? -(pagar['13º Salário']?.[m]||0) : 0);
-    const r37 = months.map(m => m.endsWith('-12') ? -(pagar['13º Salário']?.[m]||0) : 0);
-    const r38 = ng(sm(pv('Aluguel'), pv('Condomínio'), pv('IPTU'), pv('Manutenção predial'),
-                      pv('Água e Saneamento'), pv('Energia Elétrica'), pv('Faxina')));
-    const r39 = ng(pv('Auxílio Home Office'));
-    const r40 = z();
-    const r41 = ng(pv('Cartão de Crédito'));
-    // 'Patrocínio / doações / confraternizações / presentes' mapeia para Confraternizações
-    const r42 = ng(pv('Patrocínio / doações / confraternizações / presentes'));
-    const r43 = ng(sm(pv('Honorários Consultoria'), pv('Cursos e Treinamentos'), pv('Outras Despesas'),
-                      pv('Cartório'), pv('Alvará de Funcionamento'), pv('Aluguel de equipamentos'),
-                      pv('Treinamentos e palestras '), // trailing space intencional (nome exato no CA)
-                      pv('Uniformes'), pv('Vigilância e Segurança Patrimonial')));
-    const r44 = ng(pv('Honorários Advocatícios'));
-    const r45 = ng(pv('Honorários Contabilidade'));
-    // L46 — IRRF s/ Salários (DARF 0561)
-    // Mapeado para a categoria "IRRF sobre Salários" que o usuário criou no CA (seção 4.1.2).
-    const r46 = z(); // IRRF s/ Salários (DARF 0561) — não aplicável
-    const r47 = ng(sm(pv('Padaria'), pv('Atestados médicos'), pv('Lanche e refeição')));
-    const r48 = ng(sm(pv('Materiais de Consumo'), pv('Materiais de Escritório'), pv('Correios')));
-    const r49 = ng(pv('Materiais de Limpeza e de Higiene'));
-    const r50 = ng(sm(pv('Prestadores de serviço - PJ'), pv('Valores Repassados a Parceiros'),
-                      pv('Prestadores de serviço - PF')));
-    const r51 = ng(sm(pv('Rescisão'), pv('Férias + 1/3 férias'),
-                      pv('Rescisão - CLT'), pv('Férias + 1/3 - CLT'),
-                      pv('Antecipação de férias - CLT'), pv('Multa rescisória - CLT')));
-    // r52: IRRF sobre serviços (DARF 1708) + Pró-labore
-    // ⚠️  Lançamentos históricos (set-dez/24) misturados com IRPJ/CSLL/PIS por erro de categ. no CA.
-    const r52 = ng(sm(pv('IRRF'), pv('IRRF sobre Pró-labore')));
-    const r53 = ng(sm(pv('COFINS sobre Faturamento'), pv('PIS sobre Faturamento'),
-                      pv('CSLL'), pv('IRPJ'), pv('ISS sobre Faturamento'),
-                      pv('Parcelamento do Simples Nacional')));
-    const r54 = ng(sm(pv('INSS - Salário'), pv('INSS - CLT'),
-                      pv('INSS sobre Pró-labore'), pv('FGTS'),
-                      pv('FGTS - CLT'), pv('FGTS - Rescisão  - CLT')));
-    const r55 = ng(sm(pv('Salários'), pv('Salários funcionários - CLT'),
-                      pv('Pró-labore'), pv('Sindicato contribuição confederativa empregados - CLT'),
-                      pv('13º salário - CLT'),
-                      pv('PLR - Participação nos Lucros e Resultados')));
-    const r56 = ng(pv('Seguro de Imóveis'));
-    const r57 = ng(pv('Seguro de Vida'));
-    const r58 = ng(sm(pv('Sistema gerencial / aplicativos / softwares / Licenças de uso'),
-                      pv('Manutenção de Equipamentos')));
-    const r59 = ng(pv('Telefonia e Internet'));
-    const r60 = ng(pv('Celular'));
-    const r61 = ng(pv('Tráfego pago'));
-    const r62 = ng(sm(pv('Vale-Alimentação'), pv('Vale-Alimentação - CLT')));
-    const r63 = ng(sm(pv('Vale-Transporte'), pv('Vale-Transporte - CLT')));
+    // ══════════════════════════════════════════════
+    // CUSTOS VARIÁVEL
+    // ══════════════════════════════════════════════
 
-    // ── 04.3 Despesas Operacionais ────────────
-    const r65 = ng(pv('Uber / Taxi'));
+    // CMV / matéria-prima
+    const cmv1 = pv('Matéria prima');
+    const cmvTotal = cmv1;
 
-    // ── 05 Financeiro ─────────────────────────
-    // Juros recebidos é categoria de RECEITA no CA
-    const r69 = rv('Juros recebidos');
-    const r71 = ng(sm(pv('Tarifas Bancárias'), pv('Tarifas TED / PIX'), pv('Juros sob empréstimos'),
-                      pv('IOF Internacional'), pv('Tarifas de Cartões de Crédito'), pv('Taxas Cartão Crédito')));
-    const r72 = ng(sm(pv('Tarifas de Boletos'), pv('Taxas Boletos')));
-    const r73 = ng(pv('Taxa OAB'));
+    // Marketing
+    const mkt1 = pv('Agência de publicidade');
+    const mkt2 = pv('Site');
+    const mkt3 = pv('Tráfego pago');
+    const mkt4 = pv('Brindes para clientes');
+    const mkt5 = pv('social media / videomaker / locação / produções / alimentação / transporte');
+    const mktTotal = sm(mkt1, mkt2, mkt3, mkt4, mkt5);
 
-    // ── 06 Outras ─────────────────────────────
-    const r76 = rv('Empréstimos de Sócios');
-    const r78 = ng(pv('Devoluções para Clientes'));
-    // Perdas: categorias de prejuízo.
-    // EXCLUÍDOS da DRE (repasses ao cliente, não são despesa da empresa):
-    //   - "Pagamento de Alvará do Cliente"  (guias tributárias repassadas ao cliente)
-    //   - "Pagamento de Guia do Cliente"    (custas judiciais repassadas ao cliente — Tribunal RJ etc.)
-    const r79 = ng(sm(pv('Prejuízo com Golpe'), pv('Prejuízos / golpes'), pv('Prejuízos Diversos')));
+    // Custos de serviços de terceiros
+    const terc1 = pv('Prestadores de serviço - PJ');
+    const terc2 = pv('Prestadores de serviço - PF');
+    const tercTotal = sm(terc1, terc2);
 
-    // ── 07 Investimentos ──────────────────────
-    const r83 = ng(sm(pv('Investimento em equipamentos'), pv('Investimento em veículos')));
-    const r84 = ng(sm(pv('Investimento em móveis e utensílios'), pv('Investimento em imóveis'),
-                      pv('Investimento em novos projetos - LUMA Plataforma')));
-    // L85: zero intencional. Softwares SaaS (assinaturas mensais) estão em r58 como despesa
-    // operacional. L85 seria apenas para compras de licença perpétua (capex), que não existem
-    // nos dados atuais do CA. Se houver, criar categoria "Software / Licença de Uso (Investimento)".
-    const r85 = z();
-    const r87 = ng(pv('Amortização de empréstimos'));
+    // Custos tributários - sob venda
+    const trib1 = pv('ISS sobre Faturamento', 'ISS');
+    const trib2 = pv('PIS sobre Faturamento', 'PIS');
+    const trib3 = pv('COFINS sobre Faturamento', 'COFINS');
+    const trib4 = pv('CSLL');
+    const trib5 = pv('IRPJ', 'IR');
+    const tribTotal = sm(trib1, trib2, trib3, trib4, trib5);
 
-    // ── Subgrupos e grupos ────────────────────
-    const sg011 = sm(r05,r06,r07);
-    const sg012 = sm(r09);
-    const g01   = sm(sg011,sg012);
-    const sg021 = sm(r13); const sg022 = sm(r15); const sg023 = sm(r17); const sg024 = sm(r19);
-    const g02   = sm(sg021,sg022,sg023,sg024);
-    const sg031 = sm(r23); const sg032 = sm(r25); const sg033 = sm(r27);
-    const g03   = sm(sg031,sg032,sg033);
-    const sg041 = sm(r31,r32,r33,r34);
-    const sg042 = sm(r36,r37,r38,r39,r40,r41,r42,r43,r44,r45,r46,r47,r48,r49,r50,r51,r52,r53,r54,r55,r56,r57,r58,r59,r60,r61,r62,r63);
-    const sg043 = sm(r65);
-    const g04   = sm(sg041,sg042,sg043);
-    const sg051 = sm(r69); const sg052 = sm(r71,r72,r73);
-    const g05   = sm(sg051,sg052);
-    const sg061 = sm(r76); const sg062 = sm(r78,r79);
-    const g06   = sm(sg061,sg062);
-    const sg071 = sm(r83,r84,r85); const sg072 = sm(r87);
-    const g07   = sm(sg071,sg072);
+    // Custos comerciais
+    const com1 = pv('Comissão sob venda', 'Comissões de Vendedores');
+    const com2 = pv('Valores Repassados a Parceiros');
+    const com3 = pv('Taxas Cartão Crédito', 'Taxas cartão de crédito', 'Tarifas de Cartões de Crédito', 'Cartão de Crédito');
+    const comTotal = sm(com1, com2, com3);
 
-    // ── Totais encadeados ─────────────────────
-    const t01 = g01;
-    const t02 = sm(t01,g02);
-    const t03 = sm(t02,g03);
-    const t04 = sm(t03,g04);
-    const t06 = sm(t04,g05,g06);
-    const t07 = sm(t06,g07);
+    const custosVarTotal = sm(cmvTotal, mktTotal, tercTotal, tribTotal, comTotal);
 
-    // ── 88 linhas ─────────────────────────────
-    return [
-        { type:'title',    label:'DRE — LUISA MORAES SOCIEDADE DE ADVOGADOS',             vals:null   },
-        { type:'header',   label:'Categoria',                                              vals:null   },
-        { type:'group',    label:'01 Receitas Operacionais',                               vals:g01    },
-        { type:'subgroup', label:'01.1 Receita de Vendas de Produtos e Serviços',          vals:sg011  },
-        { type:'detail',   label:'Receita de Guias dos Clientes',                          vals:r05    },
-        { type:'detail',   label:'Receitas de Alvarás Judicias',                           vals:r06    },
-        { type:'detail',   label:'Receitas de Vendas',                                     vals:r07    },
-        { type:'subgroup', label:'01.2 Receita de Fretes e Entregas',                      vals:sg012  },
-        { type:'detail',   label:'Sem lançamentos',                                        vals:r09    },
-        { type:'total',    label:'01T Receita Bruta de Vendas',                            vals:t01    },
-        { type:'group',    label:'02 Deduções da Receita Bruta',                           vals:g02    },
-        { type:'subgroup', label:'02.1 Impostos Sobre Vendas',                             vals:sg021  },
-        { type:'detail',   label:'Pagamento de Guia do Cliente',                           vals:r13    },
-        { type:'subgroup', label:'02.2 Comissões Sobre Vendas',                            vals:sg022  },
-        { type:'detail',   label:'Comissões de Vendedores',                                vals:r15    },
-        { type:'subgroup', label:'02.3 Descontos Incondicionais',                          vals:sg023  },
-        { type:'detail',   label:'Sem lançamentos',                                        vals:r17    },
-        { type:'subgroup', label:'02.4 Devoluções de Vendas',                              vals:sg024  },
-        { type:'detail',   label:'Sem lançamentos',                                        vals:r19    },
-        { type:'total',    label:'02T Receita Líquida de Vendas',                          vals:t02    },
-        { type:'group',    label:'03 Custos Operacionais',                                 vals:g03    },
-        { type:'subgroup', label:'03.1 Custo dos Produtos Vendidos',                       vals:sg031  },
-        { type:'detail',   label:'Custo dos produtos vendidos',                            vals:r23    },
-        { type:'subgroup', label:'03.2 Custo das Vendas de Produtos',                      vals:sg032  },
-        { type:'detail',   label:'Sem lançamentos',                                        vals:r25    },
-        { type:'subgroup', label:'03.3 Custo dos Serviços Prestados',                      vals:sg033  },
-        { type:'detail',   label:'Sem lançamentos',                                        vals:r27    },
-        { type:'total',    label:'03T Lucro Bruto',                                        vals:t03    },
-        { type:'group',    label:'04 Despesas Operacionais',                               vals:g04    },
-        { type:'subgroup', label:'04.1 Despesas Comerciais',                               vals:sg041  },
-        { type:'detail',   label:'Brindes para Clientes',                                  vals:r31    },
-        { type:'detail',   label:'Marketing e Publicidade',                                vals:r32    },
-        { type:'detail',   label:'Serviço Terceiro Marketing',                             vals:r33    },
-        { type:'detail',   label:'Viagens e Representações',                               vals:r34    },
-        { type:'subgroup', label:'04.2 Despesas Administrativas',                          vals:sg042  },
-        { type:'detail',   label:'13º Salário - 1ª Parcela',                                vals:r36    },
-        { type:'detail',   label:'13º Salário - 2ª Parcela',                                vals:r37    },
-        { type:'detail',   label:'Aluguel',                                                vals:r38    },
-        { type:'detail',   label:'Auxílio Home Office',                                    vals:r39    },
-        { type:'detail',   label:'Bolsa Estágio',                                          vals:r40    },
-        { type:'detail',   label:'Cartão de Crédito',                                      vals:r41    },
-        { type:'detail',   label:'Confraternizações',                                      vals:r42    },
-        { type:'detail',   label:'Honorários (outros)',                                    vals:r43    },
-        { type:'detail',   label:'Honorários Advocatícios',                                vals:r44    },
-        { type:'detail',   label:'Honorários Contábeis',                                   vals:r45    },
-        { type:'detail',   label:'IRRF s/ Salários - DARF 0561',                            vals:r46    },
-        { type:'detail',   label:'Lanches e Refeições',                                    vals:r47    },
-        { type:'detail',   label:'Materiais de Consumo',                                   vals:r48    },
-        { type:'detail',   label:'Materiais de Limpeza e de Higiene',                      vals:r49    },
-        { type:'detail',   label:'Remuneração de Autônomos',                               vals:r50    },
-        { type:'detail',   label:'Rescisões',                                              vals:r51    },
-        { type:'detail',   label:'Retenção - Darf 1708 - IRRF',                             vals:r52    },
-        { type:'detail',   label:'Retenção - Darf 5952 - PIS/COFINS/CSLL',                  vals:r53    },
-        { type:'detail',   label:'Retenção - GPS 2631 - INSS',                              vals:r54    },
-        { type:'detail',   label:'Salários',                                               vals:r55    },
-        { type:'detail',   label:'Seguro de Imóveis',                                      vals:r56    },
-        { type:'detail',   label:'Seguro de Vida',                                         vals:r57    },
-        { type:'detail',   label:'Softwares',                                              vals:r58    },
-        { type:'detail',   label:'Telefonia e Internet',                                   vals:r59    },
-        { type:'detail',   label:'Telefonia Móvel',                                        vals:r60    },
-        { type:'detail',   label:'Tráfego Rede',                                           vals:r61    },
-        { type:'detail',   label:'Vale-Alimentação',                                       vals:r62    },
-        { type:'detail',   label:'Vale-Transporte',                                        vals:r63    },
-        { type:'subgroup', label:'04.3 Despesas Operacionais',                             vals:sg043  },
-        { type:'detail',   label:'Combustivel e Translado',                                 vals:r65    },
-        { type:'total',    label:'04T Lucro / Prejuízo Operacional',                       vals:t04    },
-        { type:'group',    label:'05 Receitas e Despesas Financeiras',                     vals:g05    },
-        { type:'subgroup', label:'05.1 Receitas e Rendimentos Financeiros',                vals:sg051  },
-        { type:'detail',   label:'Juros recebidos',                                        vals:r69    },
-        { type:'subgroup', label:'05.2 Despesas Financeiras',                              vals:sg052  },
-        { type:'detail',   label:'Tarifas',                                                vals:r71    },
-        { type:'detail',   label:'Tarifas de Boletos',                                     vals:r72    },
-        { type:'detail',   label:'Taxa OAB',                                               vals:r73    },
-        { type:'group',    label:'06 Outras Receitas e Despesas Não Operacionais',         vals:g06    },
-        { type:'subgroup', label:'06.1 Outras Receitas Não Operacionais',                  vals:sg061  },
-        { type:'detail',   label:'Empréstimos de Sócios',                                  vals:r76    },
-        { type:'subgroup', label:'06.2 Outras Despesas Não Operacionais',                  vals:sg062  },
-        { type:'detail',   label:'Distrato Contratos',                                     vals:r78    },
-        { type:'detail',   label:'Perdas',                                                 vals:r79    },
-        { type:'total',    label:'06T Lucro / Prejuízo Líquido',                           vals:t06    },
-        { type:'group',    label:'07 Despesas com Investimentos e Empréstimos',            vals:g07    },
-        { type:'subgroup', label:'07.1 Investimentos em Imobilizado',                      vals:sg071  },
-        { type:'detail',   label:'Computadores e Periféricos',                             vals:r83    },
-        { type:'detail',   label:'Máquinas, Equipamentos e Instalações Industriais',        vals:r84    },
-        { type:'detail',   label:'Software / Licença de Uso',                             vals:r85    },
-        { type:'subgroup', label:'07.2 Empréstimos e Dívidas',                             vals:sg072  },
-        { type:'detail',   label:'Sem lançamentos',                                        vals:r87    },
-        { type:'total',    label:'07T Lucro / Prejuízo Final',                             vals:t07    },
-        // ── Fechamento ────────────────────────────
-        { type:'closing-sep', label:'',                                                    vals:null   },
-        { type:'closing-hdr', label:'FECHAMENTO — RESUMO GERENCIAL',                      vals:null   },
-        { type:'closing',     label:'Receita Bruta de Vendas',                             vals:t01    },
-        { type:'closing',     label:'(-) Deduções da Receita Bruta',                      vals:g02    },
-        { type:'closing',     label:'(=) Receita Líquida de Vendas',                      vals:t02    },
-        { type:'closing',     label:'(-) Custos Operacionais',                             vals:g03    },
-        { type:'closing',     label:'(=) Lucro Bruto',                                    vals:t03    },
-        { type:'closing',     label:'(-) Despesas Operacionais',                          vals:g04    },
-        { type:'closing',     label:'(=) Lucro / Prejuízo Operacional',                   vals:t04    },
-        { type:'closing',     label:'(+/-) Resultado Financeiro',                         vals:g05    },
-        { type:'closing',     label:'(+/-) Outras Receitas e Despesas',                   vals:g06    },
-        { type:'closing',     label:'(=) Lucro / Prejuízo Líquido',                       vals:t06    },
-        { type:'closing',     label:'(-) Investimentos e Empréstimos',                    vals:g07    },
-        { type:'closing-tot', label:'(=) LUCRO / PREJUÍZO FINAL',                         vals:t07    },
+    // ══════════════════════════════════════════════
+    // CUSTOS FIXO
+    // ══════════════════════════════════════════════
+
+    // Custos mão de obra - Produção
+    const mop1  = pv('Salários');
+    const mop2  = pv('FGTS');
+    const mop3  = pv('INSS - Salário');
+    const mop4  = pv('Vale-Transporte');
+    const mop5  = pv('Vale-Alimentação');
+    const mop6  = pv('Empresa de medicina do trabalho');
+    const mop7  = pv('Férias + 1/3 férias');
+    const mop8  = pv('13º Salário', '13º salário');
+    const mop9  = pv('Rescisão');
+    const mop10 = pv('Premiação venda');
+    const mopTotal = sm(mop1, mop2, mop3, mop4, mop5, mop6, mop7, mop8, mop9, mop10);
+
+    // Custos mão de obra (admin/CLT)
+    const moa1  = pv('Salários funcionários - CLT');
+    const moa2  = pv('FGTS - CLT', 'Guia de imposto - FGTS');
+    const moa3  = pv('Sindicato contribuição confederativa empregados - CLT');
+    const moa4  = pv('Vale-Transporte - CLT');
+    const moa5  = pv('Atestados médicos');
+    const moa6  = pv('INSS - CLT', 'Guia da previdência social - INSS');
+    const moa7  = pv('Rescisão - CLT');
+    const moa8  = pv('Multa rescisória - CLT');
+    const moa9  = pv('FGTS - Rescisão  - CLT', 'FGTS - rescisão');
+    const moa10 = pv('Antecipação de férias - CLT');
+    const moa11 = pv('Férias + 1/3 - CLT');
+    const moa12 = pv('13º salário - CLT');
+    const moaTotal = sm(moa1, moa2, moa3, moa4, moa5, moa6, moa7, moa8, moa9, moa10, moa11, moa12);
+
+    // Custos administrativos
+    const adm1  = pv('Aluguel');
+    const adm2  = pv('Condomínio');
+    const adm3  = pv('Aluguel de equipamentos');
+    const adm4  = pv('IPTU', 'Taxa OAB', 'Alvará de Funcionamento', 'Taxa de Fiscalização de Localização e Funcionamento - TFLF');
+    const adm5  = pv('Energia Elétrica', 'Energia elétrica');
+    const adm6  = pv('Água e Saneamento');
+    const adm7  = pv('Telefonia e Internet');
+    const adm8  = pv('Celular');
+    const adm9  = pv('Honorários Advocatícios');
+    const adm10 = pv('Honorários Contabilidade');
+    const adm11 = pv('Honorários Consultoria');
+    const adm12 = pv('Correios', 'Despesas de correio');
+    const adm13 = pv('Cartório', 'Despesas cartoriais');
+    const adm14 = pv('Materiais de Consumo', 'Material de consumo operacional');
+    const adm15 = pv('Materiais de Limpeza e de Higiene');
+    const adm16 = pv('Materiais de Escritório');
+    const adm17 = pv('Viagens e Representações');
+    const adm18 = pv('Cursos e Treinamentos');
+    const adm19 = pv('Faxina');
+    const adm20 = pv('Padaria');
+    const adm21 = pv('Lanche e refeição');
+    const adm22 = pv('Seguro de Imóveis', 'Seguro de Vida');
+    const adm23 = pv('Vigilância e Segurança Patrimonial');
+    const adm24 = pv('Sistema gerencial / aplicativos / softwares / Licenças de uso');
+    const adm25 = pv('Uniformes');
+    const adm26 = pv('Patrocínio / doações / confraternizações / presentes');
+    const adm27 = pv('Manutenção de Equipamentos', 'Manutenção de equipamentos');
+    const adm28 = pv('Manutenção predial');
+    const adm29 = pv('Manutenção de veículos');
+    const adm30 = pv('Prejuízo com Golpe', 'Prejuízos / golpes', 'Prejuízos Diversos');
+    const adm31 = pv('Uber / Taxi');
+    const adm32 = pv('Consultoria');
+    const adm33 = pv('Pró-labore - Luisa Moraes', 'Pró-labore');
+    const adm34 = pv('Pró-labore - Anderson');
+    const adm35 = pv('INSS sobre Pró-labore');
+    const adm36 = pv('IRRF sobre Pró-labore', 'IRRF');
+    const adm37 = pv('Depreciação computadores (60 meses)');
+    const adm38 = pv('Depreciação móveis/utensílios (120 meses)');
+    const adm39 = pv('Depreciação imóvel (300 meses)');
+
+    // Unmapped pagar → append to administrativos
+    const unmappedPagar = [];
+    for (const cat of Object.keys(pagar)) {
+        if (!usedPagar.has(cat)) {
+            const arr = months.map(m => pagar[cat]?.[m] || 0);
+            if (hasVal(arr)) unmappedPagar.push({ label: cat, vals: arr });
+        }
+    }
+
+    const admItems = [adm1,adm2,adm3,adm4,adm5,adm6,adm7,adm8,adm9,adm10,adm11,adm12,adm13,adm14,adm15,adm16,adm17,adm18,adm19,adm20,adm21,adm22,adm23,adm24,adm25,adm26,adm27,adm28,adm29,adm30,adm31,adm32,adm33,adm34,adm35,adm36,adm37,adm38,adm39, ...unmappedPagar.map(u => u.vals)];
+    const admTotal = admItems.reduce((acc, arr) => sm(acc, arr), z());
+
+    // Custos Financeiros
+    const fin1 = pv('IOF Internacional', 'IOF');
+    const fin2 = pv('Tarifas Bancárias');
+    const fin3 = pv('Tarifas de Boletos', 'Taxas Boletos');
+    const fin4 = pv('Tarifas TED / PIX');
+    const fin5 = pv('Juros sob empréstimos');
+    const finTotal = sm(fin1, fin2, fin3, fin4, fin5);
+
+    const custosFixTotal = sm(mopTotal, moaTotal, admTotal, finTotal);
+
+    // ══════════════════════════════════════════════
+    // SUMMARY
+    // ══════════════════════════════════════════════
+    const despesasGerais = sm(custosFixTotal, custosVarTotal, invTotal);
+    const resultadoBruto = sm(fatTotal, despesasGerais.map(v => -v));
+    const provisao = resultadoBruto.map(v => v * 0.24);
+    const resultadoLiquido = sm(resultadoBruto, provisao.map(v => -v));
+
+    // ══════════════════════════════════════════════
+    // BUILD ROWS
+    // ══════════════════════════════════════════════
+    const rows = [
+        // ── FATURAMENTO ──
+        { type:'group', label:'FATURAMENTO', vals:null },
+        { type:'detail', label:'Honorários contratuais Iniciais - 1 a 40', vals:fat1 },
+        { type:'detail', label:'Honorários por demanda (pontuais) - lançar na tabela de produtos', vals:fat2 },
+        { type:'detail', label:'Honorários de êxito (Alvarás)', vals:fat3 },
+        { type:'detail', label:'Honorários de serviços administrativos jurídicos (Planejamentos) - Parecer - Simuladores', vals:fat4 },
+        { type:'detail', label:'Treinamentos e palestras', vals:fat5 },
+        { type:'detail', label:'Juros recebidos', vals:fat6 },
+        { type:'detail', label:'Multas recebidas', vals:fat7 },
+        { type:'detail', label:'Devolução / cliente', vals:fat8 },
+        ...unmappedReceber.map(u => ({ type:'detail', label: u.label, vals: u.vals })),
+        { type:'subtotal', label:'Faturamento total', vals:fatTotal },
+
+        // ── INVESTIMENTO ──
+        { type:'group', label:'INVESTIMENTO', vals:null },
+        { type:'detail', label:'Investimento em equipamentos', vals:inv1 },
+        { type:'detail', label:'Investimento em móveis e utensílios', vals:inv2 },
+        { type:'detail', label:'Investimento em veículos', vals:inv3 },
+        { type:'detail', label:'Investimento em imóveis', vals:inv4 },
+        { type:'detail', label:'Investimento em novos projetos - LUMA Plataforma', vals:inv5 },
+        { type:'detail', label:'Distribuição de lucro', vals:inv6 },
+        { type:'detail', label:'Amortização de empréstimos', vals:inv7 },
+        { type:'subtotal', label:'Investimento Total', vals:invTotal },
+
+        // ── CUSTOS VARIÁVEL ──
+        { type:'group', label:'CUSTOS VARIÁVEL', vals:null },
+
+        { type:'subgroup', label:'CMV / matéria-prima', vals:null },
+        { type:'detail', label:'Matéria prima', vals:cmv1 },
+        { type:'subtotal', label:'Total', vals:cmvTotal },
+
+        { type:'subgroup', label:'Marketing', vals:null },
+        { type:'detail', label:'Agência de publicidade', vals:mkt1 },
+        { type:'detail', label:'Site', vals:mkt2 },
+        { type:'detail', label:'Tráfego pago', vals:mkt3 },
+        { type:'detail', label:'Brindes para clientes', vals:mkt4 },
+        { type:'detail', label:'social media / videomaker / locação / produções / alimentação / transporte', vals:mkt5 },
+        { type:'subtotal', label:'Total', vals:mktTotal },
+
+        { type:'subgroup', label:'Custos de serviços de terceiros', vals:null },
+        { type:'detail', label:'Prestadores de serviço - PJ', vals:terc1 },
+        { type:'detail', label:'Prestadores de serviço - PF', vals:terc2 },
+        { type:'subtotal', label:'Total', vals:tercTotal },
+
+        { type:'subgroup', label:'Custos tributários - sob venda', vals:null },
+        { type:'detail', label:'ISS', vals:trib1 },
+        { type:'detail', label:'PIS', vals:trib2 },
+        { type:'detail', label:'COFINS', vals:trib3 },
+        { type:'detail', label:'CSLL', vals:trib4 },
+        { type:'detail', label:'IR', vals:trib5 },
+        { type:'subtotal', label:'Total', vals:tribTotal },
+
+        { type:'subgroup', label:'Custos comerciais', vals:null },
+        { type:'detail', label:'Comissão sob venda', vals:com1 },
+        { type:'detail', label:'Valores repassados a parceiros', vals:com2 },
+        { type:'detail', label:'Taxas cartão de crédito', vals:com3 },
+        { type:'subtotal', label:'Total', vals:comTotal },
+
+        // ── CUSTOS FIXO ──
+        { type:'group', label:'CUSTOS FIXO', vals:null },
+
+        { type:'subgroup', label:'Custos mão de obra - Produção', vals:null },
+        { type:'detail', label:'Salários funcionários', vals:mop1 },
+        { type:'detail', label:'FGTS', vals:mop2 },
+        { type:'detail', label:'INSS', vals:mop3 },
+        { type:'detail', label:'Vale-transporte', vals:mop4 },
+        { type:'detail', label:'Vale alimentação', vals:mop5 },
+        { type:'detail', label:'Empresa de medicina do trabalho', vals:mop6 },
+        { type:'detail', label:'Férias + 1/3 férias', vals:mop7 },
+        { type:'detail', label:'13º salário', vals:mop8 },
+        { type:'detail', label:'Rescisão', vals:mop9 },
+        { type:'detail', label:'Premiação venda', vals:mop10 },
+        { type:'subtotal', label:'Total', vals:mopTotal },
+
+        { type:'subgroup', label:'Custos mão de obra', vals:null },
+        { type:'detail', label:'Salários funcionários', vals:moa1 },
+        { type:'detail', label:'Guia de imposto – FGTS', vals:moa2 },
+        { type:'detail', label:'Sindicato contribuição confederativa empregados', vals:moa3 },
+        { type:'detail', label:'Vale-transporte', vals:moa4 },
+        { type:'detail', label:'Atestados médicos', vals:moa5 },
+        { type:'detail', label:'Guia da previdência social - INSS', vals:moa6 },
+        { type:'detail', label:'Rescisão', vals:moa7 },
+        { type:'detail', label:'Multa rescisória', vals:moa8 },
+        { type:'detail', label:'FGTS - rescisão', vals:moa9 },
+        { type:'detail', label:'Antecipação de férias', vals:moa10 },
+        { type:'detail', label:'Férias + 1/3', vals:moa11 },
+        { type:'detail', label:'13º salário', vals:moa12 },
+        { type:'subtotal', label:'Total', vals:moaTotal },
+
+        { type:'subgroup', label:'Custos administrativos', vals:null },
+        { type:'detail', label:'Aluguel', vals:adm1 },
+        { type:'detail', label:'Condomínio', vals:adm2 },
+        { type:'detail', label:'Aluguel de equipamentos', vals:adm3 },
+        { type:'detail', label:'Taxas: IPTU / alvará / OAB / Lixo', vals:adm4 },
+        { type:'detail', label:'Energia elétrica', vals:adm5 },
+        { type:'detail', label:'Água e saneamento', vals:adm6 },
+        { type:'detail', label:'Telefonia e Internet', vals:adm7 },
+        { type:'detail', label:'Celular', vals:adm8 },
+        { type:'detail', label:'Honorários advocatícios', vals:adm9 },
+        { type:'detail', label:'Honorários contabilidade', vals:adm10 },
+        { type:'detail', label:'Honorários consultoria', vals:adm11 },
+        { type:'detail', label:'Despesas de correio / transportadora', vals:adm12 },
+        { type:'detail', label:'Despesas cartoriais', vals:adm13 },
+        { type:'detail', label:'Material de consumo operacional ()', vals:adm14 },
+        { type:'detail', label:'Material de limpeza /cozinha / Supermercado', vals:adm15 },
+        { type:'detail', label:'Material de escritório', vals:adm16 },
+        { type:'detail', label:'Despesas de viagens', vals:adm17 },
+        { type:'detail', label:'Cursos e treinamentos', vals:adm18 },
+        { type:'detail', label:'Faxina', vals:adm19 },
+        { type:'detail', label:'Padaria', vals:adm20 },
+        { type:'detail', label:'Lanche e refeição', vals:adm21 },
+        { type:'detail', label:'Seguros (funcionários / predial / etc)', vals:adm22 },
+        { type:'detail', label:'Vigilância e Segurança Patrimonial', vals:adm23 },
+        { type:'detail', label:'Sistema gerencial / aplicativos / softwares / Licenças de uso', vals:adm24 },
+        { type:'detail', label:'Uniformes', vals:adm25 },
+        { type:'detail', label:'Patrocínio / doações / confraternizações / presentes', vals:adm26 },
+        { type:'detail', label:'Manutenção de equipamentos', vals:adm27 },
+        { type:'detail', label:'Manutenção predial', vals:adm28 },
+        { type:'detail', label:'Manutenção de veículos', vals:adm29 },
+        { type:'detail', label:'Prejuízos / golpes', vals:adm30 },
+        { type:'detail', label:'Uber / Taxi', vals:adm31 },
+        { type:'detail', label:'Consultoria', vals:adm32 },
+        { type:'detail', label:'Pró-labore - Luisa Moraes', vals:adm33 },
+        { type:'detail', label:'Pró-labore - Anderson', vals:adm34 },
+        { type:'detail', label:'INSS sobre Pró-labore – GPS', vals:adm35 },
+        { type:'detail', label:'IRRF sobre Pró-labore – Darf', vals:adm36 },
+        { type:'detail', label:'Depreciação computadores (60 meses)', vals:adm37 },
+        { type:'detail', label:'Depreciação móveis/utensílios (120 meses)', vals:adm38 },
+        { type:'detail', label:'Depreciação imóvel (300 meses)', vals:adm39 },
+        ...unmappedPagar.map(u => ({ type:'detail', label: u.label, vals: u.vals })),
+        { type:'subtotal', label:'Total', vals:admTotal },
+
+        { type:'subgroup', label:'Custos Financeiros', vals:null },
+        { type:'detail', label:'IOF', vals:fin1 },
+        { type:'detail', label:'Tarifas Bancárias', vals:fin2 },
+        { type:'detail', label:'Tarifas de Boletos', vals:fin3 },
+        { type:'detail', label:'Tarifas TED / PIX', vals:fin4 },
+        { type:'detail', label:'Juros sob empréstimos', vals:fin5 },
+        { type:'subtotal', label:'Total', vals:finTotal },
+
+        // ── SUMMARY ──
+        { type:'closing-sep', label:'', vals:null },
+        { type:'closing-hdr', label:'Demonstração de Resultado – DRE', vals:null },
+        { type:'closing', label:'Total dos faturamentos', vals:fatTotal },
+        { type:'closing', label:'Total custos fixos', vals:custosFixTotal },
+        { type:'closing', label:'Total custos variáveis', vals:custosVarTotal },
+        { type:'closing', label:'Total dos investimentos equipamentos e móveis', vals:invTotal },
+
+        // ── RESULTADO ──
+        { type:'closing-sep', label:'', vals:null },
+        { type:'closing-hdr', label:'RESULTADO', vals:null },
+        { type:'closing-tot', label:'Resultado bruto', vals:resultadoBruto },
+        { type:'closing', label:'Provisão encargos (férias/ 1/3 férias/ 13º sal/ multa) 24%', vals:provisao },
+        { type:'closing-tot', label:'Resultado líquido', vals:resultadoLiquido },
+        { type:'closing', label:'Despesas gerais (Custos fixos + custos variáveis + investimentos)', vals:despesasGerais },
     ];
+
+    return { rows, fatTotal };
 }
 
 // ══════════════════════════════════════════════
 // RENDERIZAR TABELA
 // ══════════════════════════════════════════════
-function renderDRE(rows, months) {
+function renderDRE({ rows, fatTotal }, months) {
     const tbody = document.getElementById('dre-body');
+    const fatSum = fatTotal.reduce((s, v) => s + v, 0);
     let html = '';
+
+    // Coluna extra: % (Total + %)
+    const colSpan = months.length + 3; // cat + months + total + %
 
     // Linha cabeçalho (meses)
     html += `<tr class="row-header">
         <th class="cat">Categoria</th>`;
     for (const m of months) html += `<th class="val">${mesLabel(m)}</th>`;
-    html += `<th class="val col-total">Total</th></tr>`;
+    html += `<th class="val col-total">Total</th>`;
+    html += `<th class="col-pct">%</th></tr>`;
 
     for (const row of rows) {
-        if (row.type === 'header') continue; // já escrito acima
+        if (row.type === 'header') continue;
         const cls = 'row-' + row.type;
-
-        if (row.type === 'title') {
-            html += `<tr class="${cls}"><td class="cat" colspan="${months.length + 2}">${row.label}</td></tr>`;
-            continue;
-        }
 
         // Linha separadora do fechamento (sem conteúdo)
         if (row.type === 'closing-sep') {
-            html += `<tr class="${cls}"><td colspan="${months.length + 2}"></td></tr>`;
+            html += `<tr class="${cls}"><td colspan="${colSpan}"></td></tr>`;
             continue;
         }
 
-        // Cabeçalho do bloco de fechamento (sem valores)
-        if (row.type === 'closing-hdr') {
-            html += `<tr class="${cls}"><td class="cat" colspan="${months.length + 2}">${row.label}</td></tr>`;
+        // Group/subgroup/closing-hdr headers without vals → colspan
+        if (!row.vals && (row.type === 'group' || row.type === 'subgroup' || row.type === 'closing-hdr')) {
+            html += `<tr class="${cls}"><td class="cat" colspan="${colSpan}">${row.label}</td></tr>`;
             continue;
         }
 
@@ -809,8 +933,10 @@ function renderDRE(rows, months) {
                 html += `<td class="val">${fmtN(v)}</td>`;
             }
             html += `<td class="val col-total">${fmtN(total)}</td>`;
+            const pct = fatSum ? (total / fatSum * 100) : 0;
+            html += `<td class="col-pct">${pct.toFixed(2)}%</td>`;
         } else {
-            html += `<td colspan="${months.length + 1}"></td>`;
+            html += `<td colspan="${months.length + 2}"></td>`;
         }
         html += `</tr>`;
     }
@@ -831,8 +957,8 @@ async function aplicar() {
     showMsg('Consultando Conta Azul...','loading');
     try {
         const { pagar, receber } = await carregarDados(from, to);
-        const rows = computeDRE(pagar, receber, months);
-        renderDRE(rows, months);
+        const result = computeDRE(pagar, receber, months);
+        renderDRE(result, months);
         clearMsg();
     } catch(err) {
         showMsg('Erro ao carregar: ' + err.message, 'error');
