@@ -621,10 +621,8 @@ function computeDRE(pagar, receber, months) {
     const com3 = pv('Taxas Cartão Crédito', 'Taxas cartão de crédito', 'Tarifas de Cartões de Crédito', 'Cartão de Crédito');
     const comTotal = sm(com1, com2, com3);
 
-    const custosVarTotal = sm(cmvTotal, mktTotal, tercTotal, tribTotal, comTotal);
-
     // ══════════════════════════════════════════════
-    // CUSTOS FIXO
+    // MÃO DE OBRA / ADMINISTRATIVOS / FINANCEIROS
     // ══════════════════════════════════════════════
 
     // Custos mão de obra - Produção
@@ -716,14 +714,22 @@ function computeDRE(pagar, receber, months) {
     const fin5 = pv('Juros sob empréstimos');
     const finTotal = sm(fin1, fin2, fin3, fin4, fin5);
 
-    const custosFixTotal = sm(mopTotal, moaTotal, admTotal, finTotal);
+    // ══════════════════════════════════════════════
+    // TOTAIS POR TIPO (conforme Excel Teodora)
+    // ══════════════════════════════════════════════
+    // Custos variáveis = CMV + Marketing + Terceiros + Tributários + Comerciais + Mão de obra Prod + Mão de obra CLT
+    const custosVarTotal = sm(cmvTotal, mktTotal, tercTotal, tribTotal, comTotal, mopTotal, moaTotal);
+    // Custos fixos = Administrativos + Financeiros
+    const custosFixTotal = sm(admTotal, finTotal);
 
     // ══════════════════════════════════════════════
     // SUMMARY
     // ══════════════════════════════════════════════
     const despesasGerais = sm(custosFixTotal, custosVarTotal, invTotal);
     const resultadoBruto = sm(fatTotal, despesasGerais.map(v => -v));
-    const provisao = resultadoBruto.map(v => v * 0.24);
+    // Provisão 24% sobre salários (mão de obra produção + CLT), não sobre resultado bruto
+    const totalSalarios = sm(mop1, moa1);
+    const provisao = totalSalarios.map(v => v * 0.24);
     const resultadoLiquido = sm(resultadoBruto, provisao.map(v => -v));
 
     // ══════════════════════════════════════════════
@@ -787,9 +793,6 @@ function computeDRE(pagar, receber, months) {
         { type:'detail', label:'Valores repassados a parceiros', vals:com2 },
         { type:'detail', label:'Taxas cartão de crédito', vals:com3 },
         { type:'subtotal', label:'Total', vals:comTotal },
-
-        // ── CUSTOS FIXO ──
-        { type:'group', label:'CUSTOS FIXO', vals:null },
 
         { type:'subgroup', label:'Custos mão de obra - Produção', vals:null },
         { type:'detail', label:'Salários funcionários', vals:mop1 },
