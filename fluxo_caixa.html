@@ -766,27 +766,62 @@
 
             if (caConnected && caEmpresaId) {
                 // === CONTA AZUL DATA ===
-                const [caRecRes, caPagRes, caContasRes] = await Promise.all([
+                // Busca realizados pela data real (data_alteracao) e pendentes pela data_vencimento
+                const statusRealizados = ['ACQUITTED', 'RECEIVED', 'PAID', 'PAGO', 'RECEBIDO', 'FINISHED'];
+
+                const [caRecRealizados, caRecPendentes, caPagRealizados, caPagPendentes, caContasRes] = await Promise.all([
+                    // Recebimentos realizados: data real de recebimento (data_alteracao)
                     supabase.from('ca_contas_receber').select('*').eq('empresa_id', caEmpresaId)
-                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                        .in('status', statusRealizados)
+                        .gte('data_alteracao', monthStart + 'T00:00:00').lte('data_alteracao', monthEnd + 'T23:59:59')
+                        .order('data_alteracao'),
+                    // Recebimentos pendentes: data de vencimento
+                    supabase.from('ca_contas_receber').select('*').eq('empresa_id', caEmpresaId)
+                        .not('status', 'in', '(' + statusRealizados.join(',') + ')')
+                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd)
+                        .order('data_vencimento'),
+                    // Pagamentos realizados: data real de pagamento (data_alteracao)
                     supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId)
-                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd).order('data_vencimento'),
+                        .in('status', statusRealizados)
+                        .gte('data_alteracao', monthStart + 'T00:00:00').lte('data_alteracao', monthEnd + 'T23:59:59')
+                        .order('data_alteracao'),
+                    // Pagamentos pendentes: data de vencimento
+                    supabase.from('ca_contas_pagar').select('*').eq('empresa_id', caEmpresaId)
+                        .not('status', 'in', '(' + statusRealizados.join(',') + ')')
+                        .gte('data_vencimento', monthStart).lte('data_vencimento', monthEnd)
+                        .order('data_vencimento'),
                     supabase.from('ca_contas_financeiras').select('*').eq('empresa_id', caEmpresaId).eq('ativo', true)
                 ]);
 
-                recebimentos = (caRecRes.data || []).map(r => ({
+                // Realizados: usa total e data_alteracao (data real do movimento)
+                const recRealizados = (caRecRealizados.data || []).map(r => ({
                     name: r.descricao || 'Recebimento',
+                    value: parseFloat(r.total) || 0,
+                    date: new Date((r.data_alteracao || r.data_vencimento).substring(0, 10) + 'T00:00:00'),
+                    status: r.status
+                }));
+                // Pendentes: usa nao_pago e data_vencimento
+                const recPendentes = (caRecPendentes.data || []).map(r => ({
+                    name: r.descricao || 'Recebimento (previsto)',
                     value: parseFloat(r.nao_pago) || parseFloat(r.total) || 0,
                     date: new Date(r.data_vencimento + 'T00:00:00'),
                     status: r.status
                 }));
+                recebimentos = [...recRealizados, ...recPendentes];
 
-                pagamentos = (caPagRes.data || []).map(p => ({
+                const pagRealizados = (caPagRealizados.data || []).map(p => ({
                     name: p.descricao || 'Pagamento',
+                    value: parseFloat(p.total) || 0,
+                    date: new Date((p.data_alteracao || p.data_vencimento).substring(0, 10) + 'T00:00:00'),
+                    status: p.status
+                }));
+                const pagPendentes = (caPagPendentes.data || []).map(p => ({
+                    name: p.descricao || 'Pagamento (previsto)',
                     value: parseFloat(p.nao_pago) || parseFloat(p.total) || 0,
                     date: new Date(p.data_vencimento + 'T00:00:00'),
                     status: p.status
                 }));
+                pagamentos = [...pagRealizados, ...pagPendentes];
 
                 saldoBancario = (caContasRes.data || []).reduce((sum, c) => sum + (parseFloat(c.saldo_atual) || 0), 0);
             } else {
