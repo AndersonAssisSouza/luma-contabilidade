@@ -926,17 +926,20 @@
 
                     if (error) throw error;
 
-                    const clientes = (data || []).filter(p =>
-                        Array.isArray(p.tipo_relacao) ? p.tipo_relacao.some(t => t === 'CUSTOMER' || t === 'Cliente') : true
-                    ).map(p => ({
+                    const clientes = (data || []).filter(p => {
+                        if (!Array.isArray(p.tipo_relacao)) return true;
+                        return p.tipo_relacao.some(t =>
+                            ['CUSTOMER','Cliente','CLIENTE','customer'].includes(t)
+                        );
+                    }).map(p => ({
                         id: p.id,
                         nome: p.nome,
                         cpf_cnpj: p.documento || '-',
                         email: p.email || '-',
                         telefone: p.telefone || '-',
-                        cidade: p.endereco_cidade || '-',
-                        uf: p.endereco_uf || '-',
-                        ativo: p.ativo,
+                        endereco_cidade: p.endereco_cidade || '-',
+                        endereco_uf: p.endereco_uf || '-',
+                        status: p.ativo !== false ? 'ATIVO' : 'INATIVO',
                         _source: 'contaazul'
                     }));
                     renderClientes(clientes);

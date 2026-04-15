@@ -925,17 +925,20 @@
 
                     if (error) throw error;
 
-                    const fornecedores = (data || []).filter(p =>
-                        Array.isArray(p.tipo_relacao) ? p.tipo_relacao.some(t => t === 'SUPPLIER' || t === 'Fornecedor') : true
-                    ).map(p => ({
+                    const fornecedores = (data || []).filter(p => {
+                        if (!Array.isArray(p.tipo_relacao)) return true;
+                        return p.tipo_relacao.some(t =>
+                            ['SUPPLIER','Fornecedor','FORNECEDOR','supplier'].includes(t)
+                        );
+                    }).map(p => ({
                         id: p.id,
                         nome: p.nome,
                         cpf_cnpj: p.documento || '-',
                         email: p.email || '-',
                         telefone: p.telefone || '-',
-                        cidade: p.endereco_cidade || '-',
-                        uf: p.endereco_uf || '-',
-                        ativo: p.ativo,
+                        endereco_cidade: p.endereco_cidade || '-',
+                        endereco_uf: p.endereco_uf || '-',
+                        status: p.ativo !== false ? 'ATIVO' : 'INATIVO',
                         _source: 'contaazul'
                     }));
                     renderFornecedores(fornecedores);
