@@ -975,9 +975,8 @@
                         hasMore = false;
                     }
                     page++;
-                    }
-                    renderFornecedores(allFornecedores);
                 }
+                renderFornecedores(allFornecedores);
             } catch (error) {
                 console.error('Erro ao carregar fornecedores:', error);
                 showToast('Erro ao carregar fornecedores', 'error');
