@@ -1075,23 +1075,41 @@
 
         async function editCliente(id) {
             try {
-                const { data, error } = await supabase
-                    .from('clientes')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
+                let data = null;
+                let source = 'local';
 
-                if (error) throw error;
+                // Tentar ca_pessoas primeiro
+                if (caEmpresaId) {
+                    const { data: ca, error: e1 } = await supabase
+                        .from('ca_pessoas')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+                    if (!e1 && ca) { data = ca; source = 'contaazul'; }
+                }
+
+                // Fallback: tabela local
+                if (!data) {
+                    const { data: local, error: e2 } = await supabase
+                        .from('clientes')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+                    if (e2) throw e2;
+                    data = local;
+                }
 
                 currentClienteId = id;
-                document.getElementById('modalTitle').textContent = 'Editar Cliente';
-                document.getElementById('nome').value = data.nome;
+                document.getElementById('modalTitle').textContent = source === 'contaazul' ? 'Visualizar Cliente (Conta Azul)' : 'Editar Cliente';
+
+                // Mapear campos (ca_pessoas usa nomes diferentes)
+                document.getElementById('nome').value = data.nome || '';
                 document.getElementById('nomeFantasia').value = data.nome_fantasia || '';
-                document.getElementById('cpfCnpj').value = data.cpf_cnpj;
+                document.getElementById('cpfCnpj').value = data.cpf_cnpj || data.documento || '';
                 document.getElementById('inscricaoEst').value = data.inscricao_estadual || '';
                 document.getElementById('inscricaoMun').value = data.inscricao_municipal || '';
-                document.getElementById('email').value = data.email;
-                document.getElementById('telefone').value = data.telefone;
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('telefone').value = data.telefone || '';
                 document.getElementById('logradouro').value = data.endereco_logradouro || '';
                 document.getElementById('numero').value = data.endereco_numero || '';
                 document.getElementById('complemento').value = data.endereco_complemento || '';
