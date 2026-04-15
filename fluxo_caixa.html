@@ -777,6 +777,37 @@
                     supabase.from('ca_contas_financeiras').select('*').eq('empresa_id', caEmpresaId).eq('ativo', true)
                 ]);
 
+                // DEBUG: ver dados brutos no console
+                console.log('=== FLUXO CAIXA DEBUG ===');
+                console.log('Período:', monthStart, 'a', monthEnd);
+                console.log('Receber bruto:', caRecRes.data?.length, 'registros', caRecRes.error);
+                console.log('Pagar bruto:', caPagRes.data?.length, 'registros', caPagRes.error);
+                if (caRecRes.data?.length) {
+                    const sample = caRecRes.data[0];
+                    console.log('Exemplo receber:', { descricao: sample.descricao, total: sample.total, nao_pago: sample.nao_pago, pago: sample.pago, status: sample.status, data_vencimento: sample.data_vencimento });
+                }
+                if (caPagRes.data?.length) {
+                    const sample = caPagRes.data[0];
+                    console.log('Exemplo pagar:', { descricao: sample.descricao, total: sample.total, nao_pago: sample.nao_pago, pago: sample.pago, status: sample.status, data_vencimento: sample.data_vencimento });
+                }
+                // Agrupar por dia para comparar com PDF
+                const recByDay = {};
+                (caRecRes.data || []).forEach(r => {
+                    const d = r.data_vencimento;
+                    if (!recByDay[d]) recByDay[d] = 0;
+                    recByDay[d] += parseFloat(r.total) || 0;
+                });
+                const pagByDay = {};
+                (caPagRes.data || []).forEach(p => {
+                    const d = p.data_vencimento;
+                    if (!pagByDay[d]) pagByDay[d] = 0;
+                    pagByDay[d] += parseFloat(p.total) || 0;
+                });
+                console.log('Recebimentos por dia:', recByDay);
+                console.log('Pagamentos por dia:', pagByDay);
+                console.log('Total recebimentos:', Object.values(recByDay).reduce((s,v) => s+v, 0).toFixed(2));
+                console.log('Total pagamentos:', Object.values(pagByDay).reduce((s,v) => s+v, 0).toFixed(2));
+
                 recebimentos = (caRecRes.data || []).map(r => ({
                     name: r.descricao || 'Recebimento',
                     value: parseFloat(r.total) || 0,
