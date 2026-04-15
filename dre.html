@@ -717,10 +717,10 @@ function computeDRE(pagar, receber, months) {
     // ══════════════════════════════════════════════
     // TOTAIS POR TIPO (conforme Excel Teodora)
     // ══════════════════════════════════════════════
-    // Custos variáveis = CMV + Marketing + Terceiros + Tributários + Comerciais + Mão de obra Prod + Mão de obra CLT
-    const custosVarTotal = sm(cmvTotal, mktTotal, tercTotal, tribTotal, comTotal, mopTotal, moaTotal);
-    // Custos fixos = Administrativos + Financeiros
-    const custosFixTotal = sm(admTotal, finTotal);
+    // Custos variáveis = CMV + Marketing + Terceiros + Tributários + Comerciais
+    const custosVarTotal = sm(cmvTotal, mktTotal, tercTotal, tribTotal, comTotal);
+    // Custos fixos = Mão de obra Prod + Mão de obra CLT + Administrativos + Financeiros
+    const custosFixTotal = sm(mopTotal, moaTotal, admTotal, finTotal);
 
     // ══════════════════════════════════════════════
     // SUMMARY
@@ -793,6 +793,9 @@ function computeDRE(pagar, receber, months) {
         { type:'detail', label:'Valores repassados a parceiros', vals:com2 },
         { type:'detail', label:'Taxas cartão de crédito', vals:com3 },
         { type:'subtotal', label:'Total', vals:comTotal },
+
+        // ── CUSTOS FIXO ──
+        { type:'group', label:'Custos fixo', vals:null },
 
         { type:'subgroup', label:'Custos mão de obra - Produção', vals:null },
         { type:'detail', label:'Salários funcionários', vals:mop1 },
