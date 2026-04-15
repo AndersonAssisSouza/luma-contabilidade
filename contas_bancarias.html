@@ -126,6 +126,13 @@
         .sidebar::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+    
+        /* Hamburger Mobile */
+        .hamburger { display:none; position:fixed; top:12px; left:12px; z-index:100; background:#1a237e; color:#fff; border:none; border-radius:6px; font-size:22px; padding:6px 10px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+        .sidebar.open { transform:translateX(0) !important; }
+        @media (max-width:768px) {
+            .hamburger { display:block; }
+        }
     </style>
 </head>
 <body>
@@ -564,5 +571,17 @@
         window.editConta = editConta;
         window.deleteConta = deleteConta;
     </script>
+<script>
+/* Hamburger toggle */
+(function(){
+    var btn=document.getElementById('hamburger');
+    var sb=document.getElementById('sidebar');
+    if(!btn||!sb)return;
+    var open=false;
+    btn.addEventListener('click',function(){open=!open;sb.classList.toggle('open',open);});
+    document.addEventListener('click',function(e){if(open&&!sb.contains(e.target)&&e.target!==btn){open=false;sb.classList.remove('open');}});
+    window.addEventListener('resize',function(){if(window.innerWidth>768){open=false;sb.classList.remove('open');}});
+})();
+</script>
 </body>
 </html>
