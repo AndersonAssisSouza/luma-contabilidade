@@ -918,18 +918,31 @@
 
                 // Sempre tentar ca_pessoas primeiro (dados já sincronizados no Supabase)
                 if (caEmpresaId) {
-                    const { data, error } = await supabase
+                    const { data: pessoas, error: e1 } = await supabase
                         .from('ca_pessoas')
                         .select('*')
                         .eq('empresa_id', caEmpresaId)
                         .order('nome');
 
-                    if (!error && data && data.length > 0) {
-                        const clientes = data.filter(p => {
-                            if (!Array.isArray(p.tipo_relacao) || p.tipo_relacao.length === 0) return true;
-                            return p.tipo_relacao.some(t =>
-                                ['CUSTOMER','Cliente','CLIENTE','customer'].includes(t)
-                            );
+                    if (!e1 && pessoas && pessoas.length > 0) {
+                        // Buscar pessoa_ids únicos de contas_receber (são clientes)
+                        const { data: recRows } = await supabase
+                            .from('ca_contas_receber')
+                            .select('pessoa_id')
+                            .eq('empresa_id', caEmpresaId)
+                            .not('pessoa_id', 'is', null);
+
+                        const clienteIds = new Set((recRows || []).map(r => r.pessoa_id));
+
+                        // Filtrar: quem tem CUSTOMER em tipo_relacao OU aparece em contas_receber
+                        const clientes = pessoas.filter(p => {
+                            if (clienteIds.has(p.id)) return true;
+                            if (Array.isArray(p.tipo_relacao) && p.tipo_relacao.length > 0) {
+                                return p.tipo_relacao.some(t =>
+                                    ['CUSTOMER','Cliente','CLIENTE','customer'].includes(t)
+                                );
+                            }
+                            return false;
                         }).map(p => ({
                             id: p.id,
                             nome: p.nome,
