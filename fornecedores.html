@@ -918,7 +918,6 @@
 
                 // Sempre tentar ca_pessoas primeiro (dados já sincronizados no Supabase)
                 if (caEmpresaId) {
-                    // 1. Buscar todas as pessoas
                     const { data: pessoas, error: e1 } = await supabase
                         .from('ca_pessoas')
                         .select('*')
@@ -926,24 +925,18 @@
                         .order('nome');
 
                     if (!e1 && pessoas && pessoas.length > 0) {
-                        // 2. Buscar pessoa_ids únicos de contas_pagar (são fornecedores)
-                        const { data: pagRows } = await supabase
-                            .from('ca_contas_pagar')
-                            .select('pessoa_id')
-                            .eq('empresa_id', caEmpresaId)
-                            .not('pessoa_id', 'is', null);
-
-                        const fornecedorIds = new Set((pagRows || []).map(r => r.pessoa_id));
-
-                        // Filtrar: quem tem SUPPLIER em tipo_relacao OU aparece em contas_pagar
+                        // Mostrar todos exceto quem é EXCLUSIVAMENTE cliente
                         const fornecedores = pessoas.filter(p => {
-                            if (fornecedorIds.has(p.id)) return true;
-                            if (Array.isArray(p.tipo_relacao) && p.tipo_relacao.length > 0) {
-                                return p.tipo_relacao.some(t =>
-                                    ['SUPPLIER','Fornecedor','FORNECEDOR','supplier'].includes(t)
-                                );
-                            }
-                            return false;
+                            if (!Array.isArray(p.tipo_relacao) || p.tipo_relacao.length === 0) return true;
+                            const hasSupplier = p.tipo_relacao.some(t =>
+                                ['SUPPLIER','Fornecedor','FORNECEDOR','supplier'].includes(t)
+                            );
+                            if (hasSupplier) return true;
+                            // Excluir apenas se for SOMENTE cliente
+                            const onlyCustomer = p.tipo_relacao.every(t =>
+                                ['CUSTOMER','Cliente','CLIENTE','customer'].includes(t)
+                            );
+                            return !onlyCustomer;
                         }).map(p => ({
                             id: p.id,
                             nome: p.nome,
