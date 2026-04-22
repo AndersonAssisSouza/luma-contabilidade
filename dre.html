@@ -423,9 +423,9 @@ function initSelectors() {
         }
     });
 
-    // Default: Set/2024 → mês atual
-    document.getElementById('sel-from-month').value = '09';
-    document.getElementById('sel-from-year').value  = '2024';
+    // Default: Janeiro do ano corrente → mês atual
+    document.getElementById('sel-from-month').value = '01';
+    document.getElementById('sel-from-year').value  = cy;
     document.getElementById('sel-to-month').value   = String(cm).padStart(2,'0');
     document.getElementById('sel-to-year').value    = cy;
 }

@@ -1132,39 +1132,53 @@
 
         async function loadDREResumo() {
             try {
-                // DRE = apenas dados REALIZADOS do mês atual
+                // DRE = ano corrente completo
                 const hoje = new Date();
-                const mesAtual = hoje.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+                const anoAtual = hoje.getFullYear();
                 const labelEl = document.getElementById('dreMesLabel');
-                if (labelEl) labelEl.textContent = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
+                if (labelEl) labelEl.textContent = `Ano ${anoAtual}`;
 
-                const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
-                const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+                const inicioAno = `${anoAtual}-01-01`;
+                const fimAno = `${anoAtual}-12-31`;
 
                 let receitaBruta = 0, despesas = 0;
 
-                const tabReceber = caConnected ? 'ca_contas_receber' : 'contas_receber';
-                const tabPagar = caConnected ? 'ca_contas_pagar' : 'contas_pagar';
-                const campoValor = caConnected ? 'total' : 'valor';
-                const statusRecebido = caConnected ? ['RECEIVED', 'RECEBIDO', 'FINISHED'] : ['RECEBIDO', 'PAGO'];
-                const statusPago = caConnected ? ['PAID', 'PAGO', 'FINISHED'] : ['PAGO'];
+                // Usar ca_* sempre que empresa_id existir (independente do token)
+                const useCA = !!caEmpresaId;
+                const tabReceber = useCA ? 'ca_contas_receber' : 'contas_receber';
+                const tabPagar = useCA ? 'ca_contas_pagar' : 'contas_pagar';
+                const campoValor = useCA ? 'total' : 'valor';
+                const statusRecebido = useCA ? ['RECEIVED', 'RECEBIDO', 'FINISHED', 'ACQUITTED', 'PAID'] : ['RECEBIDO', 'PAGO'];
+                const statusPago = useCA ? ['PAID', 'PAGO', 'FINISHED', 'ACQUITTED'] : ['PAGO'];
 
-                // Buscar contas RECEBIDAS e PAGAS no mês atual (realizadas)
-                const [recRes, pagRes] = await Promise.all([
-                    supabase.from(tabReceber)
-                        .select(`${campoValor}, data_pagamento, data_vencimento`)
-                        .in('status', statusRecebido)
-                        .gte('data_vencimento', inicioMes)
-                        .lte('data_vencimento', fimMes),
-                    supabase.from(tabPagar)
-                        .select(`${campoValor}, data_pagamento, data_vencimento`)
-                        .in('status', statusPago)
-                        .gte('data_vencimento', inicioMes)
-                        .lte('data_vencimento', fimMes)
+                // Helper paginado para superar limite 1000
+                async function fetchAll(table, statusList) {
+                    let all = [];
+                    let offset = 0;
+                    while (true) {
+                        let q = supabase.from(table)
+                            .select(`${campoValor}, data_vencimento`)
+                            .in('status', statusList)
+                            .gte('data_vencimento', inicioAno)
+                            .lte('data_vencimento', fimAno)
+                            .range(offset, offset + 999);
+                        if (useCA) q = q.eq('empresa_id', caEmpresaId);
+                        const { data, error } = await q;
+                        if (error) break;
+                        all = all.concat(data || []);
+                        if (!data || data.length < 1000) break;
+                        offset += 1000;
+                    }
+                    return all;
+                }
+
+                const [recData, pagData] = await Promise.all([
+                    fetchAll(tabReceber, statusRecebido),
+                    fetchAll(tabPagar, statusPago)
                 ]);
 
-                receitaBruta = (recRes.data || []).reduce((s, c) => s + (parseFloat(c[campoValor]) || 0), 0);
-                despesas = (pagRes.data || []).reduce((s, c) => s + (parseFloat(c[campoValor]) || 0), 0);
+                receitaBruta = recData.reduce((s, c) => s + (parseFloat(c[campoValor]) || 0), 0);
+                despesas = pagData.reduce((s, c) => s + (parseFloat(c[campoValor]) || 0), 0);
                 const deducoes = receitaBruta > 0 ? receitaBruta * 0.12 : 0; // Estimativa impostos 12%
                 const receitaLiquida = receitaBruta - deducoes;
                 const resultado = receitaLiquida - despesas;
