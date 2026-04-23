@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisão de Duplicidades - LUMA</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial; background:#f5f6fa; color:#333; }
+        .container { display:flex; min-height:100vh; }
+        .sidebar { width:220px; min-width:220px; background:#1a237e; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; padding:8px 0; z-index:90; }
+        .sidebar-section { margin-bottom:6px; }
+        .sidebar-section-title { padding:0 16px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:rgba(255,255,255,.5); margin-bottom:2px; }
+        .sidebar-item { padding:5px 16px; color:rgba(255,255,255,.7); cursor:pointer; font-size:12px; transition:all .2s; border-left:3px solid transparent; display:flex; align-items:center; gap:8px; text-decoration:none; }
+        .sidebar-item:hover { background:rgba(255,255,255,.05); color:#fff; border-left-color:#ffd600; }
+        .sidebar-item.active { background:#3949ab; color:#ffd600; border-left-color:#ffd600; font-weight:600; }
+        .sidebar-icon { width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-size:12px; }
+
+        .main { margin-left:220px; flex:1; padding:28px 32px; }
+        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
+        .page-header h1 { font-size:22px; font-weight:700; color:#1a237e; }
+
+        .controls { background:#fff; border-radius:8px; padding:14px 18px; margin-bottom:18px; display:flex; flex-wrap:wrap; align-items:center; gap:14px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+        .controls select, .controls input { padding:6px 10px; border:1px solid #ddd; border-radius:5px; font-size:13px; }
+        .btn { padding:7px 18px; border:none; border-radius:5px; cursor:pointer; font-size:13px; font-weight:600; }
+        .btn-primary { background:#1a237e; color:#fff; }
+        .btn-primary:hover { background:#283593; }
+
+        .summary-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:18px; }
+        .card { background:#fff; border-radius:8px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+        .card-label { font-size:12px; color:#666; text-transform:uppercase; margin-bottom:6px; }
+        .card-value { font-size:22px; font-weight:700; color:#1a237e; }
+        .card.danger .card-value { color:#c62828; }
+        .card.warn .card-value { color:#e65100; }
+
+        .wrapper { background:#fff; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,.1); overflow:hidden; }
+        table.dups { width:100%; border-collapse:collapse; font-size:13px; }
+        table.dups th { background:#f1f4f9; color:#1a237e; font-weight:700; padding:10px 12px; text-align:left; border-bottom:2px solid #c5cae9; position:sticky; top:0; }
+        table.dups td { padding:10px 12px; border-bottom:1px solid #eee; vertical-align:top; }
+        table.dups tr:hover td { background:#fafbff; }
+        .dup-pair { border:1px solid #ffcdd2; background:#fff5f5; border-radius:6px; padding:12px; margin-bottom:12px; }
+        .dup-pair.conf-high { border-color:#d32f2f; background:#ffebee; }
+        .dup-pair.conf-med { border-color:#f57c00; background:#fff8e1; }
+        .dup-pair.conf-low { border-color:#fbc02d; background:#fffde7; }
+        .dup-row { display:flex; gap:20px; padding:8px 0; border-top:1px dashed #eee; }
+        .dup-row:first-child { border-top:none; }
+        .dup-col { flex:1; }
+        .dup-date { font-weight:700; color:#1a237e; font-size:13px; }
+        .dup-desc { color:#555; font-size:12.5px; margin-top:3px; }
+        .dup-meta { color:#999; font-size:11px; margin-top:3px; }
+        .dup-value { font-weight:700; font-size:16px; color:#1a237e; text-align:right; min-width:130px; }
+        .dup-conf-badge { display:inline-block; padding:3px 8px; border-radius:12px; font-size:10px; font-weight:700; text-transform:uppercase; margin-left:8px; }
+        .dup-conf-badge.high { background:#d32f2f; color:#fff; }
+        .dup-conf-badge.med { background:#f57c00; color:#fff; }
+        .dup-conf-badge.low { background:#fbc02d; color:#333; }
+        .dup-alert-title { font-weight:700; color:#c62828; margin-bottom:10px; }
+        .empty { padding:60px 20px; text-align:center; color:#999; font-size:15px; }
+        .empty-ok { color:#2e7d32; font-weight:600; }
+        .msg { padding:12px 16px; border-radius:6px; margin-bottom:14px; font-size:13px; }
+        .msg-loading { background:#e3f2fd; border:1px solid #90caf9; color:#1565c0; }
+        .msg-error { background:#ffebee; border:1px solid #ef9a9a; color:#c62828; }
+
+        /* Hamburger Mobile */
+        .hamburger { display:none; position:fixed; top:12px; left:12px; z-index:100; background:#1a237e; color:#fff; border:none; border-radius:6px; font-size:22px; padding:6px 10px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+        .sidebar.open { transform:translateX(0) !important; }
+        @media (max-width:768px) {
+            .hamburger { display:block; }
+            .sidebar { transform:translateX(-100%); transition:transform .3s; }
+            .main { margin-left:0; padding:16px; }
+        }
+    </style>
+</head>
+<body>
+<button class="hamburger" id="hamburger">☰</button>
+<div class="container">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Principal</div>
+            <a href="./dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>Dashboard</span></a>
+            <a href="./calendario_fiscal.html" class="sidebar-item"><span class="sidebar-icon">📅</span><span>Calendário Fiscal</span></a>
+            <a href="./relatorios.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Relatórios</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Financeiro</div>
+            <a href="./contas_pagar.html" class="sidebar-item"><span class="sidebar-icon">💳</span><span>Contas a Pagar</span></a>
+            <a href="./contas_receber.html" class="sidebar-item"><span class="sidebar-icon">💰</span><span>Contas a Receber</span></a>
+            <a href="./conciliacao.html" class="sidebar-item"><span class="sidebar-icon">🏦</span><span>Conciliação Bancária</span></a>
+            <a href="./fluxo_caixa.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span>Fluxo de Caixa</span></a>
+            <a href="./revisao_duplicidades.html" class="sidebar-item active"><span class="sidebar-icon">⚠️</span><span>Duplicidades</span></a>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Contábil</div>
+            <a href="./lancamentos.html" class="sidebar-item"><span class="sidebar-icon">📝</span><span>Lançamentos</span></a>
+            <a href="./plano_contas.html" class="sidebar-item"><span class="sidebar-icon">📑</span><span>Plano de Contas</span></a>
+            <a href="./balancete.html" class="sidebar-item"><span class="sidebar-icon">📋</span><span>Balancete</span></a>
+            <a href="./dre.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span>DRE</span></a>
+        </div>
+        <div class="sidebar-section">
+            <a href="#" class="sidebar-item" onclick="event.preventDefault(); handleLogout();">
+                <span class="sidebar-icon">🚪</span><span>Sair</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>⚠️ Revisão de Duplicidades</h1>
+        </div>
+
+        <div class="controls">
+            <label>Ano:</label>
+            <select id="fYear"></select>
+            <label>Fonte:</label>
+            <select id="fFonte">
+                <option value="receber">Contas a Receber</option>
+                <option value="pagar">Contas a Pagar</option>
+                <option value="ambos">Ambos</option>
+            </select>
+            <label>Tolerância (dias):</label>
+            <input type="number" id="fDias" value="7" min="0" max="30" style="width:60px;">
+            <button class="btn btn-primary" onclick="analisar()">Analisar</button>
+        </div>
+
+        <div id="msg-area"></div>
+
+        <div class="summary-cards" id="summary" style="display:none;">
+            <div class="card danger"><div class="card-label">Alta Suspeita</div><div class="card-value" id="highCount">0</div></div>
+            <div class="card warn"><div class="card-label">Média Suspeita</div><div class="card-value" id="medCount">0</div></div>
+            <div class="card"><div class="card-label">Baixa Suspeita</div><div class="card-value" id="lowCount">0</div></div>
+            <div class="card"><div class="card-label">Valor Total Afetado</div><div class="card-value" id="totAfetado">R$ 0</div></div>
+        </div>
+
+        <div class="wrapper">
+            <div id="dupsList" style="padding:16px;">
+                <div class="empty">Clique em <strong>Analisar</strong> para começar</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+import { supabase, logout, getSession, getProfile } from './scripts/supabase_client_contab.js';
+
+window.handleLogout = async () => { await logout(); window.location.href = './login.html'; };
+
+let empresaId = null;
+
+function fmt(v) {
+    return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+function showMsg(txt, type='loading') {
+    document.getElementById('msg-area').innerHTML = `<div class="msg msg-${type}">${txt}</div>`;
+}
+function clearMsg() { document.getElementById('msg-area').innerHTML = ''; }
+
+function initFilters() {
+    const cy = new Date().getFullYear();
+    const sel = document.getElementById('fYear');
+    for (let y = 2024; y <= cy + 1; y++) {
+        const opt = document.createElement('option');
+        opt.value = y; opt.textContent = y;
+        if (y === cy) opt.selected = true;
+        sel.appendChild(opt);
+    }
+}
+
+async function fetchAll(table, year) {
+    let all = [];
+    let offset = 0;
+    while (true) {
+        const { data, error } = await supabase.from(table)
+            .select('id, descricao, categoria_id, data_vencimento, total, status, pessoa_id')
+            .eq('empresa_id', empresaId)
+            .gte('data_vencimento', `${year}-01-01`)
+            .lte('data_vencimento', `${year}-12-31`)
+            .range(offset, offset + 999);
+        if (error) break;
+        all = all.concat(data || []);
+        if (!data || data.length < 1000) break;
+        offset += 1000;
+    }
+    return all;
+}
+
+// Classifica confiança de duplicidade
+function classificar(a, b) {
+    const da = a.descricao || '';
+    const db = b.descricao || '';
+    const patternTransferencia = /ted|transfer|credito em conta|pix.*(advog|luisa)|advog.*pix/i;
+
+    const aTransf = patternTransferencia.test(da);
+    const bTransf = patternTransferencia.test(db);
+    const samePerson = a.pessoa_id && a.pessoa_id === b.pessoa_id;
+
+    // Alta: TED/transfer + PIX interno OU mesma pessoa + valor igual
+    if ((aTransf || bTransf) && (samePerson || /luisa|advog/i.test(da) || /luisa|advog/i.test(db))) {
+        return 'high';
+    }
+    // Média: TED/transfer casado com pix próximo
+    if ((aTransf && /pix/i.test(db)) || (bTransf && /pix/i.test(da))) {
+        return 'med';
+    }
+    // Baixa: só mesmo valor e mesma categoria em poucos dias (pode ser coincidência)
+    return 'low';
+}
+
+async function analisar() {
+    empresaId = empresaId || (await getProfile()).data?.tenant_id;
+    if (!empresaId) { showMsg('Empresa não carregada','error'); return; }
+
+    const year = document.getElementById('fYear').value;
+    const fonte = document.getElementById('fFonte').value;
+    const diasTol = parseInt(document.getElementById('fDias').value) || 7;
+
+    showMsg('Buscando transações...','loading');
+
+    try {
+        const tables = fonte === 'ambos' ? ['ca_contas_receber','ca_contas_pagar'] : [`ca_contas_${fonte}`];
+        const allPairs = [];
+
+        // Buscar categorias para labels
+        const { data: cats } = await supabase.from('ca_categorias').select('id, nome').eq('empresa_id', empresaId);
+        const catMap = Object.fromEntries((cats||[]).map(c => [c.id, c.nome]));
+
+        // Buscar pessoas para labels
+        const { data: pessoas } = await supabase.from('ca_pessoas').select('id, nome').eq('empresa_id', empresaId);
+        const pessoaMap = Object.fromEntries((pessoas||[]).map(p => [p.id, p.nome]));
+
+        for (const tbl of tables) {
+            const rows = await fetchAll(tbl, year);
+            // Agrupar por (categoria + valor)
+            const buckets = {};
+            for (const r of rows) {
+                if (!['ACQUITTED','RECEIVED','PAID','FINISHED'].includes(r.status)) continue;
+                const key = `${r.categoria_id}|${r.total}`;
+                if (!buckets[key]) buckets[key] = [];
+                buckets[key].push(r);
+            }
+
+            // Para cada bucket, encontrar pares dentro da janela de dias
+            for (const key of Object.keys(buckets)) {
+                const list = buckets[key].sort((a,b) => a.data_vencimento.localeCompare(b.data_vencimento));
+                for (let i = 0; i < list.length; i++) {
+                    for (let j = i+1; j < list.length; j++) {
+                        const d1 = new Date(list[i].data_vencimento);
+                        const d2 = new Date(list[j].data_vencimento);
+                        const diff = Math.abs((d2 - d1) / 86400000);
+                        if (diff > diasTol) break;
+                        allPairs.push({
+                            a: list[i], b: list[j],
+                            fonte: tbl.includes('receber') ? 'Receber' : 'Pagar',
+                            categoria: catMap[list[i].categoria_id] || '-',
+                            confianca: classificar(list[i], list[j]),
+                            diffDias: Math.round(diff),
+                            pessoaA: pessoaMap[list[i].pessoa_id] || '-',
+                            pessoaB: pessoaMap[list[j].pessoa_id] || '-'
+                        });
+                    }
+                }
+            }
+        }
+
+        // Ordenar por confiança (high primeiro)
+        const confOrder = { high:0, med:1, low:2 };
+        allPairs.sort((x,y) => confOrder[x.confianca] - confOrder[y.confianca]);
+
+        render(allPairs);
+        clearMsg();
+    } catch (err) {
+        showMsg('Erro: ' + err.message, 'error');
+        console.error(err);
+    }
+}
+
+function render(pairs) {
+    const counts = { high:0, med:0, low:0 };
+    let totAfetado = 0;
+    for (const p of pairs) {
+        counts[p.confianca]++;
+        if (p.confianca === 'high') totAfetado += parseFloat(p.a.total);
+    }
+    document.getElementById('highCount').textContent = counts.high;
+    document.getElementById('medCount').textContent = counts.med;
+    document.getElementById('lowCount').textContent = counts.low;
+    document.getElementById('totAfetado').textContent = fmt(totAfetado);
+    document.getElementById('summary').style.display = 'grid';
+
+    const container = document.getElementById('dupsList');
+    if (pairs.length === 0) {
+        container.innerHTML = '<div class="empty empty-ok">✓ Nenhuma duplicidade encontrada no período</div>';
+        return;
+    }
+
+    let html = '';
+    // Mostrar só high + med por padrão
+    const show = pairs.filter(p => p.confianca !== 'low');
+    const sections = [
+        ['high', '🔴 Alta suspeita (TED/Transferência + PIX de mesma pessoa)'],
+        ['med', '🟠 Média suspeita (padrão de transferência)'],
+        ['low', '🟡 Baixa suspeita (mesmo valor + mesma categoria em dias próximos)']
+    ];
+
+    for (const [conf, label] of sections) {
+        const items = pairs.filter(p => p.confianca === conf);
+        if (items.length === 0) continue;
+        html += `<h3 style="margin:16px 0 10px;color:#1a237e;">${label} (${items.length})</h3>`;
+        for (const p of items) {
+            const fmtDate = d => d.split('-').reverse().join('/');
+            html += `
+            <div class="dup-pair conf-${conf}">
+                <div class="dup-alert-title">
+                    ${p.fonte} — ${p.categoria} — ${fmt(parseFloat(p.a.total))}
+                    <span class="dup-conf-badge ${conf}">${conf === 'high' ? 'ALTA' : conf === 'med' ? 'MÉDIA' : 'BAIXA'}</span>
+                    <span style="color:#999;font-size:11px;font-weight:400;margin-left:8px;">Diferença: ${p.diffDias} dia(s)</span>
+                </div>
+                <div class="dup-row">
+                    <div class="dup-col">
+                        <div class="dup-date">${fmtDate(p.a.data_vencimento)}</div>
+                        <div class="dup-desc">${p.a.descricao || '-'}</div>
+                        <div class="dup-meta">Pessoa: ${p.pessoaA} · Status: ${p.a.status}</div>
+                    </div>
+                    <div class="dup-value">${fmt(parseFloat(p.a.total))}</div>
+                </div>
+                <div class="dup-row">
+                    <div class="dup-col">
+                        <div class="dup-date">${fmtDate(p.b.data_vencimento)}</div>
+                        <div class="dup-desc">${p.b.descricao || '-'}</div>
+                        <div class="dup-meta">Pessoa: ${p.pessoaB} · Status: ${p.b.status}</div>
+                    </div>
+                    <div class="dup-value">${fmt(parseFloat(p.b.total))}</div>
+                </div>
+            </div>`;
+        }
+    }
+    container.innerHTML = html;
+}
+
+window.analisar = analisar;
+
+(async () => {
+    const sess = await getSession();
+    if (!sess) { window.location.href = './login.html'; return; }
+    const { data: profile } = await getProfile();
+    empresaId = profile?.tenant_id;
+    initFilters();
+    analisar();
+})();
+</script>
+
+<script>
+(function(){
+    var btn=document.getElementById('hamburger');
+    var sb=document.getElementById('sidebar');
+    if(!btn||!sb)return;
+    var open=false;
+    btn.addEventListener('click',function(){open=!open;sb.classList.toggle('open',open);});
+    document.addEventListener('click',function(e){if(open&&!sb.contains(e.target)&&e.target!==btn){open=false;sb.classList.remove('open');}});
+    window.addEventListener('resize',function(){if(window.innerWidth>768){open=false;sb.classList.remove('open');}});
+})();
+</script>
+</body>
+</html>

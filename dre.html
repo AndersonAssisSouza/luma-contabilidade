@@ -246,6 +246,11 @@
                     <span class="sidebar-icon">📈</span>
                     <span>Fluxo de Caixa</span>
                 </a>
+            
+                <a href="./revisao_duplicidades.html" class="sidebar-item">
+                    <span class="sidebar-icon">⚠️</span>
+                    <span>Duplicidades</span>
+                </a>
             </div>
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Contábil</div>
@@ -1114,15 +1119,34 @@ function toggleDrill(rowId, months, colSpan) {
         tr.innerHTML = `<td class="cat" colspan="${colSpan}" style="padding-left:60px;color:#999;font-style:italic;">Sem lançamentos no período</td>`;
         mainRow.after(tr);
     } else {
+        // Detecção de duplicidade: valor + categoria igual em até 7 dias
+        const dupMap = {};
+        for (const t of allTxns) {
+            const key = t.valor.toFixed(2);
+            if (!dupMap[key]) dupMap[key] = [];
+            dupMap[key].push(t);
+        }
+        const isDup = (t) => {
+            const list = dupMap[t.valor.toFixed(2)] || [];
+            if (list.length < 2) return false;
+            const d1 = new Date(t.data_vencimento);
+            return list.some(other => {
+                if (other === t) return false;
+                const d2 = new Date(other.data_vencimento);
+                return Math.abs((d2-d1)/86400000) <= 7;
+            });
+        };
+
         allTxns.forEach(t => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-drill-child', rowId);
             tr.className = 'row-drill';
             const dt = t.data_vencimento ? t.data_vencimento.split('-').reverse().join('/') : '-';
             const txnMes = (t.data_vencimento || '').substring(0,7);
+            const warn = isDup(t) ? '<span title="Possível duplicidade" style="color:#e65100;margin-right:6px;">⚠️</span>' : '';
 
             let cells = `<td class="cat" style="padding-left:60px;color:#555;font-size:12px;">
-                <span style="color:#999;margin-right:8px;">${dt}</span>${t.descricao}
+                <span style="color:#999;margin-right:8px;">${dt}</span>${warn}${t.descricao}
             </td>`;
             // Valor em cada coluna de mês (só aparece no mês correto)
             for (let j = 0; j < months.length; j++) {
