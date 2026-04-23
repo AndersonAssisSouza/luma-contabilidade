@@ -374,46 +374,100 @@ async function analisar() {
     }
 }
 
+// Chave para localStorage de duplicidades ignoradas
+const DISMISS_KEY = 'luma_dups_ignoradas';
+function getDismissed() {
+    try { return JSON.parse(localStorage.getItem(DISMISS_KEY) || '[]'); }
+    catch(e) { return []; }
+}
+function dismissPair(idA, idB) {
+    const key = [idA, idB].sort().join('|');
+    const list = getDismissed();
+    if (!list.includes(key)) {
+        list.push(key);
+        localStorage.setItem(DISMISS_KEY, JSON.stringify(list));
+    }
+}
+function isPairDismissed(idA, idB) {
+    const key = [idA, idB].sort().join('|');
+    return getDismissed().includes(key);
+}
+window.dismissarDup = (idA, idB) => {
+    dismissPair(idA, idB);
+    analisar();
+};
+window.limparIgnorados = () => {
+    if (confirm('Limpar todas as duplicidades ignoradas e reexibir?')) {
+        localStorage.removeItem(DISMISS_KEY);
+        analisar();
+    }
+};
+
 function render(pairs) {
-    const counts = { high:0, med:0, low:0 };
+    // Filtrar: remover baixa suspeita + pares já ignorados pelo usuário
+    const visiblePairs = pairs.filter(p =>
+        p.confianca !== 'low' && !isPairDismissed(p.a.id, p.b.id)
+    );
+
+    const counts = { high:0, med:0 };
     let totAfetado = 0;
-    for (const p of pairs) {
+    for (const p of visiblePairs) {
         counts[p.confianca]++;
         if (p.confianca === 'high') totAfetado += parseFloat(p.a.total);
     }
+    const ignorados = getDismissed().length;
     document.getElementById('highCount').textContent = counts.high;
     document.getElementById('medCount').textContent = counts.med;
-    document.getElementById('lowCount').textContent = counts.low;
+    document.getElementById('lowCount').textContent = ignorados;
     document.getElementById('totAfetado').textContent = fmt(totAfetado);
     document.getElementById('summary').style.display = 'grid';
 
+    // Renomear card lowCount para "Ignorados"
+    const lowCard = document.getElementById('lowCount').parentElement;
+    lowCard.querySelector('.card-label').textContent = 'Ignorados';
+
     const container = document.getElementById('dupsList');
-    if (pairs.length === 0) {
-        container.innerHTML = '<div class="empty empty-ok">✓ Nenhuma duplicidade encontrada no período</div>';
+    if (visiblePairs.length === 0) {
+        let msg = '<div class="empty empty-ok">✓ Nenhuma duplicidade suspeita no período</div>';
+        if (ignorados > 0) {
+            msg += `<div style="text-align:center;margin-top:12px;"><button class="btn btn-primary" onclick="limparIgnorados()" style="background:#666;">Limpar ${ignorados} ignorados</button></div>`;
+        }
+        container.innerHTML = msg;
         return;
     }
 
     let html = '';
-    // Mostrar só high + med por padrão
-    const show = pairs.filter(p => p.confianca !== 'low');
+    if (ignorados > 0) {
+        html += `<div style="margin-bottom:12px;padding:8px 12px;background:#f0f4ff;border-radius:6px;font-size:12px;color:#555;">
+            ${ignorados} duplicidade(s) ignorada(s) pelo usuário.
+            <button onclick="limparIgnorados()" style="background:none;border:none;color:#1a237e;cursor:pointer;text-decoration:underline;font-size:12px;margin-left:6px;">Limpar ignorados</button>
+        </div>`;
+    }
+
     const sections = [
         ['high', '🔴 Alta suspeita (TED/Transferência + PIX de mesma pessoa)'],
-        ['med', '🟠 Média suspeita (padrão de transferência)'],
-        ['low', '🟡 Baixa suspeita (mesmo valor + mesma categoria em dias próximos)']
+        ['med', '🟠 Média suspeita (padrão de transferência)']
     ];
 
     for (const [conf, label] of sections) {
-        const items = pairs.filter(p => p.confianca === conf);
+        const items = visiblePairs.filter(p => p.confianca === conf);
         if (items.length === 0) continue;
         html += `<h3 style="margin:16px 0 10px;color:#1a237e;">${label} (${items.length})</h3>`;
         for (const p of items) {
             const fmtDate = d => d.split('-').reverse().join('/');
             html += `
             <div class="dup-pair conf-${conf}">
-                <div class="dup-alert-title">
-                    ${p.fonte} — ${p.categoria} — ${fmt(parseFloat(p.a.total))}
-                    <span class="dup-conf-badge ${conf}">${conf === 'high' ? 'ALTA' : conf === 'med' ? 'MÉDIA' : 'BAIXA'}</span>
-                    <span style="color:#999;font-size:11px;font-weight:400;margin-left:8px;">Diferença: ${p.diffDias} dia(s)</span>
+                <div class="dup-alert-title" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                    <div>
+                        ${p.fonte} — ${p.categoria} — ${fmt(parseFloat(p.a.total))}
+                        <span class="dup-conf-badge ${conf}">${conf === 'high' ? 'ALTA' : 'MÉDIA'}</span>
+                        <span style="color:#999;font-size:11px;font-weight:400;margin-left:8px;">Diferença: ${p.diffDias} dia(s)</span>
+                    </div>
+                    <button onclick="dismissarDup('${p.a.id}','${p.b.id}')"
+                        style="background:#fff;border:1px solid #c62828;color:#c62828;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;"
+                        title="Não é duplicidade. Não mostrar mais.">
+                        ✓ Não é duplicidade
+                    </button>
                 </div>
                 <div class="dup-row">
                     <div class="dup-col">
