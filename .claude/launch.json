@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "luma-contab",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["C:/Users/ander/OneDrive - Luisa Moraes Advogados/Controle Geral/Codigos/luma-contabilidade/serve.py"],
+      "port": 3000
+    }
+  ]
+}
