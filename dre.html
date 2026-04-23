@@ -614,13 +614,23 @@ function computeDRE(pagar, receber, months) {
     const fat7 = rv('Multas recebidas');
     const fat8 = rv('Devolução / cliente');
 
-    // Unmapped receita
+    // Categorias que NÃO entram na DRE (movimentos financeiros, não receitas)
+    const EXCLUIR_DRE = [
+        'Empréstimos de Sócios', 'Empréstimos de Bancos', 'Aporte de Sócios',
+        'Aporte', 'Aportes', 'Empréstimo', 'Empréstimos'
+    ];
+    const excluirSet = new Set(EXCLUIR_DRE.map(s => s.toLowerCase().trim()));
+
+    // Unmapped receita (exceto categorias excluídas da DRE)
     const unmappedReceber = [];
     for (const cat of Object.keys(receber)) {
-        if (!usedReceber.has(cat)) {
-            const arr = months.map(m => receber[cat]?.[m] || 0);
-            if (hasVal(arr)) unmappedReceber.push({ label: cat, vals: arr });
+        if (usedReceber.has(cat)) continue;
+        if (excluirSet.has(cat.toLowerCase().trim())) {
+            usedReceber.add(cat); // marca como usada para não aparecer
+            continue;
         }
+        const arr = months.map(m => receber[cat]?.[m] || 0);
+        if (hasVal(arr)) unmappedReceber.push({ label: cat, vals: arr });
     }
 
     // Deduções do faturamento: valores recebidos de alvará que depois pagamos ao cliente/guia
@@ -752,13 +762,16 @@ function computeDRE(pagar, receber, months) {
     const adm38 = pv('Depreciação móveis/utensílios (120 meses)');
     const adm39 = pv('Depreciação imóvel (300 meses)');
 
-    // Unmapped pagar → append to administrativos
+    // Unmapped pagar → append to administrativos (exceto excluídos da DRE)
     const unmappedPagar = [];
     for (const cat of Object.keys(pagar)) {
-        if (!usedPagar.has(cat)) {
-            const arr = months.map(m => pagar[cat]?.[m] || 0);
-            if (hasVal(arr)) unmappedPagar.push({ label: cat, vals: arr });
+        if (usedPagar.has(cat)) continue;
+        if (excluirSet.has(cat.toLowerCase().trim())) {
+            usedPagar.add(cat);
+            continue;
         }
+        const arr = months.map(m => pagar[cat]?.[m] || 0);
+        if (hasVal(arr)) unmappedPagar.push({ label: cat, vals: arr });
     }
 
     const admItems = [adm1,adm2,adm3,adm4,adm5,adm6,adm7,adm8,adm9,adm10,adm11,adm12,adm13,adm14,adm15,adm16,adm17,adm18,adm19,adm20,adm21,adm22,adm23,adm24,adm25,adm26,adm27,adm28,adm29,adm30,adm31,adm32,adm33,adm34,adm35,adm36,adm37,adm38,adm39, ...unmappedPagar.map(u => u.vals)];
