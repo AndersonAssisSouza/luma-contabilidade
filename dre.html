@@ -817,10 +817,10 @@ function computeDRE(pagar, receber, months) {
         { type:'detail', label:'Juros recebidos', vals:fat6 },
         { type:'detail', label:'Multas recebidas', vals:fat7 },
         { type:'detail', label:'Devolução / cliente', vals:fat8 },
-        ...unmappedReceber.map(u => ({ type:'detail', label: u.label, vals: u.vals })),
+        ...unmappedReceber.map(u => ({ type:'detail', label: u.label, vals: u.vals, _cats: [u.label], _fonte: 'receber' })),
         { type:'subtotal', label:'Faturamento bruto', vals:fatBruto },
-        { type:'detail', label:'(-) Pagamento de Guia do Cliente', vals:ded1.map(v => -v) },
-        { type:'detail', label:'(-) Pagamento de Alvará do Cliente', vals:ded2.map(v => -v) },
+        { type:'detail', label:'(-) Pagamento de Guia do Cliente', vals:ded1.map(v => -v), _cats:['Pagamento de Guia do Cliente'], _fonte:'pagar' },
+        { type:'detail', label:'(-) Pagamento de Alvará do Cliente', vals:ded2.map(v => -v), _cats:['Pagamento de Alvará do Cliente'], _fonte:'pagar' },
         { type:'subtotal', label:'Faturamento total', vals:fatTotal },
 
         // ── INVESTIMENTO ──
@@ -939,7 +939,7 @@ function computeDRE(pagar, receber, months) {
         { type:'detail', label:'Depreciação computadores (60 meses)', vals:adm37 },
         { type:'detail', label:'Depreciação móveis/utensílios (120 meses)', vals:adm38 },
         { type:'detail', label:'Depreciação imóvel (300 meses)', vals:adm39 },
-        ...unmappedPagar.map(u => ({ type:'detail', label: u.label, vals: u.vals })),
+        ...unmappedPagar.map(u => ({ type:'detail', label: u.label, vals: u.vals, _cats: [u.label], _fonte: 'pagar' })),
         { type:'subtotal', label:'Total', vals:admTotal },
 
         { type:'subgroup', label:'Custos Financeiros', vals:null },
@@ -968,8 +968,9 @@ function computeDRE(pagar, receber, months) {
     ];
 
     // Anexar categorias a cada row (para drill-down em detail)
+    // Se _cats já foi setado manualmente, não sobrescrever
     rows.forEach(r => {
-        if (r.type === 'detail' && r.vals && rowCats.has(r.vals)) {
+        if (r.type === 'detail' && r.vals && !r._cats && rowCats.has(r.vals)) {
             const info = rowCats.get(r.vals);
             r._cats = info.cats;
             r._fonte = info.fonte;
