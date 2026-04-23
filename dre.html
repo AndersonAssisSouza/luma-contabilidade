@@ -161,6 +161,36 @@
         table.dre tr.row-subtotal td.cat { padding-left: 22px; }
         table.dre tr.row-subtotal td.col-total { background: #e8e8e8; }
 
+        /* Árvore colapsável */
+        table.dre tr.collapsed { display: none; }
+        table.dre .toggle-icon {
+            display: inline-block;
+            width: 14px;
+            font-size: 10px;
+            color: #1a237e;
+            margin-right: 6px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.15s;
+        }
+        table.dre .toggle-icon.open { transform: rotate(0deg); }
+        table.dre .toggle-icon.closed { transform: rotate(-90deg); }
+        table.dre tr.row-group td.cat,
+        table.dre tr.row-subgroup td.cat {
+            cursor: pointer;
+        }
+        table.dre tr.row-group td.cat:hover,
+        table.dre tr.row-subgroup td.cat:hover {
+            background: rgba(26,35,126,0.08);
+        }
+        table.dre .codigo {
+            display: inline-block;
+            min-width: 36px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-right: 4px;
+        }
+
         /* Coluna % */
         table.dre td.col-pct, table.dre th.col-pct { text-align: right; padding: 5px 8px; min-width: 65px; font-size: 11px; color: #666; border-left: 1px solid #e8eaf6; }
         table.dre th.col-pct { background: #f1f4f9; color: #1a237e; font-weight: 700; }
@@ -918,45 +948,136 @@ function computeDRE(pagar, receber, months) {
 function renderDRE({ rows, fatTotal }, months) {
     const tbody = document.getElementById('dre-body');
     const fatSum = fatTotal.reduce((s, v) => s + v, 0);
+    const colSpan = months.length + 3;
+
+    // ── Pre-processamento: numeração + cálculo de totais para subgroups ──
+    // Percorrer rows para atribuir codigo (01, 02, 03, 03.1, 03.2, etc.)
+    // e calcular totais de group/subgroup somando detail+subtotal filhos
+    let groupIdx = 0;
+    let subIdx = 0;
+    let currentGroupId = null;
+    let currentSubId = null;
+    const groupMap = {}; // groupId -> { row, subIds: [] }
+    const subMap   = {}; // subId   -> { row, detailIds: [] }
+
+    // Passo 1: atribuir IDs e códigos
+    rows.forEach((r, i) => {
+        r._id = 'r' + i;
+        if (r.type === 'group') {
+            groupIdx++; subIdx = 0;
+            r._codigo = String(groupIdx).padStart(2,'0');
+            currentGroupId = r._id;
+            currentSubId = null;
+            groupMap[r._id] = { row: r, childIds: [] };
+        } else if (r.type === 'subgroup') {
+            subIdx++;
+            r._codigo = (currentGroupId && groupMap[currentGroupId])
+                ? `${groupMap[currentGroupId].row._codigo}.${subIdx}`
+                : String(subIdx);
+            currentSubId = r._id;
+            subMap[r._id] = { row: r, childIds: [] };
+            if (currentGroupId) groupMap[currentGroupId].childIds.push(r._id);
+        } else if (r.type === 'detail' || r.type === 'subtotal') {
+            if (currentSubId) {
+                subMap[currentSubId].childIds.push(r._id);
+                r._parentId = currentSubId;
+            } else if (currentGroupId) {
+                groupMap[currentGroupId].childIds.push(r._id);
+                r._parentId = currentGroupId;
+            }
+        } else if (r.type === 'closing-sep' || r.type === 'closing-hdr' ||
+                   r.type === 'closing' || r.type === 'closing-tot') {
+            currentGroupId = null;
+            currentSubId = null;
+        }
+    });
+
+    // Passo 2: calcular vals agregados para group/subgroup (soma dos detail filhos, ignorando subtotal)
+    // Procurar por 'detail' rows dentro de cada subgroup e somar
+    function sumDetails(childIds) {
+        const acc = new Array(months.length).fill(0);
+        for (const cid of childIds) {
+            const child = rows.find(x => x._id === cid);
+            if (!child) continue;
+            if (child.type === 'detail' && child.vals) {
+                for (let j = 0; j < months.length; j++) acc[j] += child.vals[j] || 0;
+            }
+        }
+        return acc;
+    }
+
+    for (const sid of Object.keys(subMap)) {
+        const sg = subMap[sid];
+        if (!sg.row.vals) sg.row._vals = sumDetails(sg.childIds);
+    }
+    for (const gid of Object.keys(groupMap)) {
+        const gg = groupMap[gid];
+        // Soma dos subgrupos (ou detalhes diretos)
+        const acc = new Array(months.length).fill(0);
+        for (const cid of gg.childIds) {
+            const child = rows.find(x => x._id === cid);
+            if (!child) continue;
+            if (child.type === 'subgroup') {
+                const sgVals = subMap[cid]?.row.vals || subMap[cid]?.row._vals;
+                if (sgVals) for (let j = 0; j < months.length; j++) acc[j] += sgVals[j] || 0;
+            } else if (child.type === 'detail' && child.vals) {
+                for (let j = 0; j < months.length; j++) acc[j] += child.vals[j] || 0;
+            }
+        }
+        gg.row._vals = acc;
+    }
+
+    // ── Render HTML ──
     let html = '';
-
-    // Coluna extra: % (Total + %)
-    const colSpan = months.length + 3; // cat + months + total + %
-
-    // Linha cabeçalho (meses)
-    html += `<tr class="row-header">
-        <th class="cat">Categoria</th>`;
+    html += `<tr class="row-header"><th class="cat">Categoria</th>`;
     for (const m of months) html += `<th class="val">${mesLabel(m)}</th>`;
-    html += `<th class="val col-total">Total</th>`;
-    html += `<th class="col-pct">%</th></tr>`;
+    html += `<th class="val col-total">Total</th><th class="col-pct">%</th></tr>`;
+
+    const renderValCells = (vals) => {
+        let total = 0;
+        let s = '';
+        for (let j = 0; j < months.length; j++) {
+            const v = vals[j] || 0;
+            total += v;
+            s += `<td class="val">${fmtN(v)}</td>`;
+        }
+        s += `<td class="val col-total">${fmtN(total)}</td>`;
+        const pct = fatSum ? (total / fatSum * 100) : 0;
+        s += `<td class="col-pct">${pct.toFixed(2)}%</td>`;
+        return s;
+    };
 
     for (const row of rows) {
         if (row.type === 'header') continue;
         const cls = 'row-' + row.type;
 
-        // Linha separadora do fechamento (sem conteúdo)
         if (row.type === 'closing-sep') {
             html += `<tr class="${cls}"><td colspan="${colSpan}"></td></tr>`;
             continue;
         }
 
-        // Group/subgroup/closing-hdr headers without vals → colspan
-        if (!row.vals && (row.type === 'group' || row.type === 'subgroup' || row.type === 'closing-hdr')) {
+        if (row.type === 'closing-hdr') {
             html += `<tr class="${cls}"><td class="cat" colspan="${colSpan}">${row.label}</td></tr>`;
             continue;
         }
 
-        html += `<tr class="${cls}"><td class="cat">${row.label}</td>`;
+        // Group e Subgroup: header clicável com triângulo + valores agregados
+        if (row.type === 'group' || row.type === 'subgroup') {
+            const vals = row.vals || row._vals || new Array(months.length).fill(0);
+            const toggle = `<span class="toggle-icon open" data-target="${row._id}">▼</span>`;
+            html += `<tr class="${cls}" data-group="${row._id}">
+                <td class="cat" data-toggle="${row._id}">${toggle}${row.label}</td>
+                ${renderValCells(vals)}
+            </tr>`;
+            continue;
+        }
+
+        // Detail / Subtotal: vinculado ao parent
+        const parentAttr = row._parentId ? `data-parent="${row._parentId}"` : '';
+        html += `<tr class="${cls}" ${parentAttr}>
+            <td class="cat">${row.label}</td>`;
         if (row.vals) {
-            let total = 0;
-            for (let j = 0; j < months.length; j++) {
-                const v = row.vals[j] || 0;
-                total += v;
-                html += `<td class="val">${fmtN(v)}</td>`;
-            }
-            html += `<td class="val col-total">${fmtN(total)}</td>`;
-            const pct = fatSum ? (total / fatSum * 100) : 0;
-            html += `<td class="col-pct">${pct.toFixed(2)}%</td>`;
+            html += renderValCells(row.vals);
         } else {
             html += `<td colspan="${months.length + 2}"></td>`;
         }
@@ -964,6 +1085,55 @@ function renderDRE({ rows, fatTotal }, months) {
     }
 
     tbody.innerHTML = html;
+
+    // ── Event listeners para toggle ──
+    tbody.querySelectorAll('[data-toggle]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            const targetId = el.getAttribute('data-toggle');
+            toggleGroup(targetId, groupMap, subMap);
+        });
+    });
+}
+
+function toggleGroup(groupId, groupMap, subMap) {
+    const tbody = document.getElementById('dre-body');
+    const toggleIcon = tbody.querySelector(`[data-toggle="${groupId}"] .toggle-icon`);
+    if (!toggleIcon) return;
+    const isOpen = toggleIcon.classList.contains('open');
+
+    // Coletar todos os ids de linhas descendentes
+    const collectChildren = (id) => {
+        const result = [];
+        const direct = groupMap[id]?.childIds || subMap[id]?.childIds || [];
+        for (const cid of direct) {
+            result.push(cid);
+            // se for subgroup, inclui seus filhos também
+            if (subMap[cid]) result.push(...subMap[cid].childIds);
+        }
+        return result;
+    };
+
+    const children = collectChildren(groupId);
+    children.forEach(cid => {
+        const tr = tbody.querySelector(`[data-parent="${cid}"]`) ||
+                   tbody.querySelector(`[data-group="${cid}"]`);
+        // Achar por parent ou por group
+        const rows = tbody.querySelectorAll(`[data-parent="${cid}"], [data-group="${cid}"]`);
+        rows.forEach(r => {
+            if (isOpen) r.classList.add('collapsed');
+            else r.classList.remove('collapsed');
+        });
+    });
+
+    if (isOpen) {
+        toggleIcon.classList.remove('open');
+        toggleIcon.classList.add('closed');
+        toggleIcon.textContent = '▶';
+    } else {
+        toggleIcon.classList.remove('closed');
+        toggleIcon.classList.add('open');
+        toggleIcon.textContent = '▼';
+    }
 }
 
 // ══════════════════════════════════════════════
