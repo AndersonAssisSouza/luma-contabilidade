@@ -578,8 +578,14 @@ function computeDRE(pagar, receber, months) {
         }
     }
 
-    const fatItems = [fat1, fat2, fat3, fat4, fat5, fat6, fat7, fat8, ...unmappedReceber.map(u => u.vals)];
-    const fatTotal = fatItems.reduce((acc, arr) => sm(acc, arr), z());
+    // Deduções do faturamento: valores recebidos de alvará que depois pagamos ao cliente/guia
+    const ded1 = pv('Pagamento de Guia do Cliente');
+    const ded2 = pv('Pagamento de Alvará do Cliente');
+    const deducoesTotal = sm(ded1, ded2);
+
+    const fatItemsBruto = [fat1, fat2, fat3, fat4, fat5, fat6, fat7, fat8, ...unmappedReceber.map(u => u.vals)];
+    const fatBruto = fatItemsBruto.reduce((acc, arr) => sm(acc, arr), z());
+    const fatTotal = sm(fatBruto, deducoesTotal.map(v => -v));
 
     // ══════════════════════════════════════════════
     // INVESTIMENTO (despesas)
@@ -754,6 +760,9 @@ function computeDRE(pagar, receber, months) {
         { type:'detail', label:'Multas recebidas', vals:fat7 },
         { type:'detail', label:'Devolução / cliente', vals:fat8 },
         ...unmappedReceber.map(u => ({ type:'detail', label: u.label, vals: u.vals })),
+        { type:'subtotal', label:'Faturamento bruto', vals:fatBruto },
+        { type:'detail', label:'(-) Pagamento de Guia do Cliente', vals:ded1.map(v => -v) },
+        { type:'detail', label:'(-) Pagamento de Alvará do Cliente', vals:ded2.map(v => -v) },
         { type:'subtotal', label:'Faturamento total', vals:fatTotal },
 
         // ── INVESTIMENTO ──
