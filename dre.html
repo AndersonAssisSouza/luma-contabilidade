@@ -483,7 +483,7 @@ async function fetchAllRows(table, dtFrom, dtTo) {
     while (true) {
         let q = supabase
             .from(table)
-            .select('categoria_id, data_vencimento, data_emissao, data_competencia, total, status');
+            .select('id, descricao, categoria_id, data_vencimento, data_emissao, data_competencia, total, status');
 
         if (regime === 'caixa') {
             // Regime de caixa: só pagos, filtro por data de vencimento
