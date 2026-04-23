@@ -161,8 +161,7 @@
         table.dre tr.row-subtotal td.cat { padding-left: 22px; }
         table.dre tr.row-subtotal td.col-total { background: #e8e8e8; }
 
-        /* Árvore colapsável */
-        table.dre tr.collapsed { display: none; }
+        /* Drill-down nas linhas detail */
         table.dre .toggle-icon {
             display: inline-block;
             width: 14px;
@@ -171,24 +170,19 @@
             margin-right: 6px;
             cursor: pointer;
             user-select: none;
-            transition: transform 0.15s;
         }
-        table.dre .toggle-icon.open { transform: rotate(0deg); }
-        table.dre .toggle-icon.closed { transform: rotate(-90deg); }
-        table.dre tr.row-group td.cat,
-        table.dre tr.row-subgroup td.cat {
+        table.dre tr.row-detail td[data-drill-target] {
             cursor: pointer;
         }
-        table.dre tr.row-group td.cat:hover,
-        table.dre tr.row-subgroup td.cat:hover {
-            background: rgba(26,35,126,0.08);
+        table.dre tr.row-detail td[data-drill-target]:hover {
+            background: rgba(26,35,126,0.05);
         }
-        table.dre .codigo {
-            display: inline-block;
-            min-width: 36px;
-            font-weight: 700;
-            color: #1a237e;
-            margin-right: 4px;
+        table.dre tr.row-drill td {
+            background: #fafbff;
+            border-bottom: 1px solid #f0f0f5;
+        }
+        table.dre tr.row-drill-empty td {
+            background: #fafbff;
         }
 
         /* Coluna % */
@@ -547,7 +541,9 @@ async function carregarDados(from, to) {
     ]);
 
     // Agregar: { catNome: { 'YYYY-MM': total } }
+    // Também guardar transações brutas por categoria para drill-down
     const pagar = {}, receber = {};
+    const txnsPorCat = { pagar: {}, receber: {} };
 
     for (const row of pagarRows) {
         const cat = catMap[row.categoria_id] || 'Sem categoria';
@@ -555,6 +551,13 @@ async function carregarDados(from, to) {
         if (!mes) continue;
         if (!pagar[cat]) pagar[cat] = {};
         pagar[cat][mes] = (pagar[cat][mes]||0) + Number(row.total||0);
+        if (!txnsPorCat.pagar[cat]) txnsPorCat.pagar[cat] = [];
+        txnsPorCat.pagar[cat].push({
+            descricao: row.descricao || row.dados_raw?.descricao || '-',
+            data: mesDaRow(row) + '-' + (row.data_vencimento || '').substring(8,10),
+            data_vencimento: row.data_vencimento,
+            valor: Number(row.total||0)
+        });
     }
     for (const row of receberRows) {
         const cat = (catMap[row.categoria_id] || 'Sem categoria').trim();
@@ -562,9 +565,16 @@ async function carregarDados(from, to) {
         if (!mes) continue;
         if (!receber[cat]) receber[cat] = {};
         receber[cat][mes] = (receber[cat][mes]||0) + Number(row.total||0);
+        if (!txnsPorCat.receber[cat]) txnsPorCat.receber[cat] = [];
+        txnsPorCat.receber[cat].push({
+            descricao: row.descricao || row.dados_raw?.descricao || '-',
+            data: mesDaRow(row) + '-' + (row.data_vencimento || '').substring(8,10),
+            data_vencimento: row.data_vencimento,
+            valor: Number(row.total||0)
+        });
     }
 
-    return { pagar, receber };
+    return { pagar, receber, txnsPorCat };
 }
 
 // ══════════════════════════════════════════════
@@ -574,14 +584,19 @@ function computeDRE(pagar, receber, months) {
     const N = months.length;
     const usedReceber = new Set();
     const usedPagar   = new Set();
+    const rowCats = new Map(); // array-ref -> {cats, fonte}
 
     const rv = (...cats) => {
         cats.forEach(c => usedReceber.add(c));
-        return months.map(m => cats.reduce((s, c) => s + (receber[c]?.[m] || 0), 0));
+        const arr = months.map(m => cats.reduce((s, c) => s + (receber[c]?.[m] || 0), 0));
+        rowCats.set(arr, { cats, fonte: 'receber' });
+        return arr;
     };
     const pv = (...cats) => {
         cats.forEach(c => usedPagar.add(c));
-        return months.map(m => cats.reduce((s, c) => s + (pagar[c]?.[m] || 0), 0));
+        const arr = months.map(m => cats.reduce((s, c) => s + (pagar[c]?.[m] || 0), 0));
+        rowCats.set(arr, { cats, fonte: 'pagar' });
+        return arr;
     };
     const sm = (...arrs) => months.map((_, i) => arrs.reduce((s, a) => s + a[i], 0));
     const z  = () => new Array(N).fill(0);
@@ -939,6 +954,15 @@ function computeDRE(pagar, receber, months) {
         { type:'closing', label:'Despesas gerais (Custos fixos + custos variáveis + investimentos)', vals:despesasGerais },
     ];
 
+    // Anexar categorias a cada row (para drill-down em detail)
+    rows.forEach(r => {
+        if (r.type === 'detail' && r.vals && rowCats.has(r.vals)) {
+            const info = rowCats.get(r.vals);
+            r._cats = info.cats;
+            r._fonte = info.fonte;
+        }
+    });
+
     return { rows, fatTotal };
 }
 
@@ -949,83 +973,6 @@ function renderDRE({ rows, fatTotal }, months) {
     const tbody = document.getElementById('dre-body');
     const fatSum = fatTotal.reduce((s, v) => s + v, 0);
     const colSpan = months.length + 3;
-
-    // ── Pre-processamento: numeração + cálculo de totais para subgroups ──
-    // Percorrer rows para atribuir codigo (01, 02, 03, 03.1, 03.2, etc.)
-    // e calcular totais de group/subgroup somando detail+subtotal filhos
-    let groupIdx = 0;
-    let subIdx = 0;
-    let currentGroupId = null;
-    let currentSubId = null;
-    const groupMap = {}; // groupId -> { row, subIds: [] }
-    const subMap   = {}; // subId   -> { row, detailIds: [] }
-
-    // Passo 1: atribuir IDs e códigos
-    rows.forEach((r, i) => {
-        r._id = 'r' + i;
-        if (r.type === 'group') {
-            groupIdx++; subIdx = 0;
-            r._codigo = String(groupIdx).padStart(2,'0');
-            currentGroupId = r._id;
-            currentSubId = null;
-            groupMap[r._id] = { row: r, childIds: [] };
-        } else if (r.type === 'subgroup') {
-            subIdx++;
-            r._codigo = (currentGroupId && groupMap[currentGroupId])
-                ? `${groupMap[currentGroupId].row._codigo}.${subIdx}`
-                : String(subIdx);
-            currentSubId = r._id;
-            subMap[r._id] = { row: r, childIds: [] };
-            if (currentGroupId) groupMap[currentGroupId].childIds.push(r._id);
-        } else if (r.type === 'detail' || r.type === 'subtotal') {
-            if (currentSubId) {
-                subMap[currentSubId].childIds.push(r._id);
-                r._parentId = currentSubId;
-            } else if (currentGroupId) {
-                groupMap[currentGroupId].childIds.push(r._id);
-                r._parentId = currentGroupId;
-            }
-        } else if (r.type === 'closing-sep' || r.type === 'closing-hdr' ||
-                   r.type === 'closing' || r.type === 'closing-tot') {
-            currentGroupId = null;
-            currentSubId = null;
-        }
-    });
-
-    // Passo 2: calcular vals agregados para group/subgroup (soma dos detail filhos, ignorando subtotal)
-    // Procurar por 'detail' rows dentro de cada subgroup e somar
-    function sumDetails(childIds) {
-        const acc = new Array(months.length).fill(0);
-        for (const cid of childIds) {
-            const child = rows.find(x => x._id === cid);
-            if (!child) continue;
-            if (child.type === 'detail' && child.vals) {
-                for (let j = 0; j < months.length; j++) acc[j] += child.vals[j] || 0;
-            }
-        }
-        return acc;
-    }
-
-    for (const sid of Object.keys(subMap)) {
-        const sg = subMap[sid];
-        if (!sg.row.vals) sg.row._vals = sumDetails(sg.childIds);
-    }
-    for (const gid of Object.keys(groupMap)) {
-        const gg = groupMap[gid];
-        // Soma dos subgrupos (ou detalhes diretos)
-        const acc = new Array(months.length).fill(0);
-        for (const cid of gg.childIds) {
-            const child = rows.find(x => x._id === cid);
-            if (!child) continue;
-            if (child.type === 'subgroup') {
-                const sgVals = subMap[cid]?.row.vals || subMap[cid]?.row._vals;
-                if (sgVals) for (let j = 0; j < months.length; j++) acc[j] += sgVals[j] || 0;
-            } else if (child.type === 'detail' && child.vals) {
-                for (let j = 0; j < months.length; j++) acc[j] += child.vals[j] || 0;
-            }
-        }
-        gg.row._vals = acc;
-    }
 
     // ── Render HTML ──
     let html = '';
@@ -1047,6 +994,9 @@ function renderDRE({ rows, fatTotal }, months) {
         return s;
     };
 
+    let rowIdx = 0;
+    rows.forEach(r => r._id = 'r' + (rowIdx++));
+
     for (const row of rows) {
         if (row.type === 'header') continue;
         const cls = 'row-' + row.type;
@@ -1061,79 +1011,113 @@ function renderDRE({ rows, fatTotal }, months) {
             continue;
         }
 
-        // Group e Subgroup: header clicável com triângulo + valores agregados
+        // Group/Subgroup: apenas header, SEM triângulo
         if (row.type === 'group' || row.type === 'subgroup') {
-            const vals = row.vals || row._vals || new Array(months.length).fill(0);
-            const toggle = `<span class="toggle-icon open" data-target="${row._id}">▼</span>`;
-            html += `<tr class="${cls}" data-group="${row._id}">
-                <td class="cat" data-toggle="${row._id}">${toggle}${row.label}</td>
-                ${renderValCells(vals)}
-            </tr>`;
+            html += `<tr class="${cls}"><td class="cat" colspan="${colSpan}">${row.label}</td></tr>`;
             continue;
         }
 
-        // Detail / Subtotal: vinculado ao parent
-        const parentAttr = row._parentId ? `data-parent="${row._parentId}"` : '';
-        html += `<tr class="${cls}" ${parentAttr}>
-            <td class="cat">${row.label}</td>`;
-        if (row.vals) {
-            html += renderValCells(row.vals);
-        } else {
-            html += `<td colspan="${months.length + 2}"></td>`;
+        // Detail: COM triângulo se tiver categorias associadas
+        if (row.type === 'detail') {
+            const hasDrill = row._cats && row._cats.length > 0;
+            const toggle = hasDrill
+                ? `<span class="toggle-icon closed" data-drill="${row._id}">▶</span>`
+                : `<span style="display:inline-block;width:20px"></span>`;
+            html += `<tr class="${cls}" data-row="${row._id}">
+                <td class="cat" ${hasDrill ? `data-drill-target="${row._id}"` : ''}>${toggle}${row.label}</td>`;
+            if (row.vals) html += renderValCells(row.vals);
+            else html += `<td colspan="${months.length + 2}"></td>`;
+            html += `</tr>`;
+
+            // Container para drill-down (inicialmente vazio/escondido)
+            if (hasDrill) {
+                row._meta = { cats: row._cats, fonte: row._fonte };
+                window._dreRowMeta = window._dreRowMeta || {};
+                window._dreRowMeta[row._id] = row._meta;
+            }
+            continue;
         }
+
+        // Subtotal / Closing / Closing-tot
+        html += `<tr class="${cls}"><td class="cat">${row.label}</td>`;
+        if (row.vals) html += renderValCells(row.vals);
+        else html += `<td colspan="${months.length + 2}"></td>`;
         html += `</tr>`;
     }
 
     tbody.innerHTML = html;
 
-    // ── Event listeners para toggle ──
-    tbody.querySelectorAll('[data-toggle]').forEach(el => {
+    // ── Event listeners para drill-down ──
+    tbody.querySelectorAll('[data-drill-target]').forEach(el => {
         el.addEventListener('click', (e) => {
-            const targetId = el.getAttribute('data-toggle');
-            toggleGroup(targetId, groupMap, subMap);
+            const rowId = el.getAttribute('data-drill-target');
+            toggleDrill(rowId, months, colSpan);
         });
     });
 }
 
-function toggleGroup(groupId, groupMap, subMap) {
+function toggleDrill(rowId, months, colSpan) {
     const tbody = document.getElementById('dre-body');
-    const toggleIcon = tbody.querySelector(`[data-toggle="${groupId}"] .toggle-icon`);
-    if (!toggleIcon) return;
+    const mainRow = tbody.querySelector(`[data-row="${rowId}"]`);
+    const toggleIcon = tbody.querySelector(`[data-drill="${rowId}"]`);
+    if (!mainRow || !toggleIcon) return;
+
     const isOpen = toggleIcon.classList.contains('open');
 
-    // Coletar todos os ids de linhas descendentes
-    const collectChildren = (id) => {
-        const result = [];
-        const direct = groupMap[id]?.childIds || subMap[id]?.childIds || [];
-        for (const cid of direct) {
-            result.push(cid);
-            // se for subgroup, inclui seus filhos também
-            if (subMap[cid]) result.push(...subMap[cid].childIds);
-        }
-        return result;
-    };
-
-    const children = collectChildren(groupId);
-    children.forEach(cid => {
-        const tr = tbody.querySelector(`[data-parent="${cid}"]`) ||
-                   tbody.querySelector(`[data-group="${cid}"]`);
-        // Achar por parent ou por group
-        const rows = tbody.querySelectorAll(`[data-parent="${cid}"], [data-group="${cid}"]`);
-        rows.forEach(r => {
-            if (isOpen) r.classList.add('collapsed');
-            else r.classList.remove('collapsed');
-        });
-    });
+    // Remover linhas de drill existentes (se já expandido)
+    const existing = tbody.querySelectorAll(`[data-drill-child="${rowId}"]`);
+    existing.forEach(r => r.remove());
 
     if (isOpen) {
         toggleIcon.classList.remove('open');
         toggleIcon.classList.add('closed');
         toggleIcon.textContent = '▶';
-    } else {
-        toggleIcon.classList.remove('closed');
-        toggleIcon.classList.add('open');
-        toggleIcon.textContent = '▼';
+        return;
     }
+
+    // Expandir: buscar transações
+    const meta = window._dreRowMeta?.[rowId];
+    const txns = window._dreTxns;
+    if (!meta || !txns) return;
+
+    const tbl = txns[meta.fonte] || {};
+    let allTxns = [];
+    for (const cat of meta.cats) {
+        if (tbl[cat]) allTxns = allTxns.concat(tbl[cat]);
+    }
+    // Filtrar pelos meses visíveis
+    const monthSet = new Set(months);
+    allTxns = allTxns.filter(t => monthSet.has((t.data_vencimento || '').substring(0,7)));
+    // Ordenar por data
+    allTxns.sort((a,b) => (a.data_vencimento || '').localeCompare(b.data_vencimento || ''));
+
+    // Inserir linhas logo após mainRow
+    let afterRow = mainRow;
+    if (allTxns.length === 0) {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-drill-child', rowId);
+        tr.className = 'row-drill-empty';
+        tr.innerHTML = `<td class="cat" colspan="${colSpan}" style="padding-left:60px;color:#999;font-style:italic;">Sem lançamentos no período</td>`;
+        mainRow.after(tr);
+    } else {
+        allTxns.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-drill-child', rowId);
+            tr.className = 'row-drill';
+            const dt = t.data_vencimento ? t.data_vencimento.split('-').reverse().join('/') : '-';
+            tr.innerHTML = `
+                <td class="cat" style="padding-left:60px;color:#555;font-size:12px;">
+                    <span style="color:#999;margin-right:8px;">${dt}</span>${t.descricao}
+                </td>
+                <td class="val" colspan="${months.length + 2}" style="font-size:12px;color:#444;">${fmtN(t.valor)}</td>`;
+            afterRow.after(tr);
+            afterRow = tr;
+        });
+    }
+
+    toggleIcon.classList.remove('closed');
+    toggleIcon.classList.add('open');
+    toggleIcon.textContent = '▼';
 }
 
 // ══════════════════════════════════════════════
@@ -1148,7 +1132,8 @@ async function aplicar() {
 
     showMsg('Consultando Conta Azul...','loading');
     try {
-        const { pagar, receber } = await carregarDados(from, to);
+        const { pagar, receber, txnsPorCat } = await carregarDados(from, to);
+        window._dreTxns = txnsPorCat;
         const result = computeDRE(pagar, receber, months);
         renderDRE(result, months);
         clearMsg();
