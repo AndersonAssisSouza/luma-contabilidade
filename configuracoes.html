@@ -1221,22 +1221,51 @@
 
     // Sync Conta Azul
     document.getElementById('syncContaAzulBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('syncContaAzulBtn');
+      const originalText = btn.textContent;
       try {
         if (!currentTenant) {
           showError('Dados da empresa não carregados');
           return;
         }
-        showWarning('Iniciando sincronização com Conta Azul... Isso pode levar alguns minutos.');
+        btn.disabled = true;
+        btn.textContent = '⏳ Sincronizando...';
+        showWarning('Sincronizando todos os dados da Conta Azul (categorias, pessoas, contas a pagar/receber, produtos, vendas). Isso atualiza registros existentes e adiciona novos. Pode levar alguns minutos.');
+
         const { data, error } = await contaAzulSync(currentTenant.id, 'full');
         if (error) throw error;
-        if (data && data.status) {
-          showSuccess('Sincronização iniciada! Status: ' + data.status);
-        } else {
-          showSuccess('Sincronização solicitada com sucesso');
+
+        // Limpar cache do perfil e sessionStorage para evitar dados antigos
+        try {
+          sessionStorage.removeItem('profile_cache');
+          sessionStorage.clear();
+        } catch(e) {}
+
+        // Montar resumo dos resultados
+        let resumo = '✓ Sincronização concluída com sucesso!\n\n';
+        if (data && data.results) {
+          for (const [entidade, res] of Object.entries(data.results)) {
+            if (res.status === 'ok') {
+              resumo += `${entidade}: ${res.registros} registros atualizados\n`;
+            } else {
+              resumo += `${entidade}: ERRO - ${res.error}\n`;
+            }
+          }
         }
+        showSuccess(resumo);
+
+        // Recarregar a página após 2s para refletir mudanças
+        setTimeout(() => {
+          if (confirm('Sincronização concluída! Recarregar a página para ver os dados atualizados?')) {
+            location.reload();
+          }
+        }, 1500);
       } catch (error) {
         console.error('Erro ao sincronizar:', error);
         showError('Erro na sincronização: ' + (error.message || 'Erro desconhecido'));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
       }
     });
 
