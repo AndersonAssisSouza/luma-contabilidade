@@ -1122,7 +1122,7 @@
     document.getElementById('companyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       try {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('tenants')
           .update({
             nome: document.getElementById('tenantName').value,
@@ -1135,13 +1135,18 @@
             endereco_cep: document.getElementById('tenantZip').value,
             config: Object.assign({}, (currentTenant.config || {}), { website: document.getElementById('tenantWebsite').value }),
           })
-          .eq('id', currentTenant.id);
+          .eq('id', currentTenant.id)
+          .select();
 
         if (error) throw error;
+        // Detectar UPDATE silencioso (RLS bloqueando sem retornar erro)
+        if (!data || data.length === 0) {
+          throw new Error('Nenhuma linha foi atualizada. Você pode não ter permissão para editar este tenant (verifique a role do usuário).');
+        }
         showSuccess('Dados da empresa atualizados com sucesso!');
       } catch (error) {
         console.error('Erro ao salvar:', error);
-        showError('Erro ao salvar dados da empresa');
+        showError('Erro ao salvar: ' + (error.message || 'erro desconhecido'));
       }
     });
 
