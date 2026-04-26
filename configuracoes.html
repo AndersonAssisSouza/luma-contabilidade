@@ -1337,18 +1337,48 @@
     });
 
     // Users
+    // NOTA: a criação real de usuários deve ser feita por uma Edge Function
+    // com service_role para usar supabase.auth.admin.inviteUserByEmail().
+    // Aqui usamos signUp + chamada à RPC fix_auth_user_null_tokens() para
+    // garantir que campos NULL em auth.users sejam preenchidos com '' (corrige
+    // bug do GoTrue que retorna 500 'Database error querying schema').
     document.getElementById('inviteBtn').addEventListener('click', async () => {
-      const email = document.getElementById('inviteEmail').value;
+      const email = document.getElementById('inviteEmail').value.trim();
       if (!email) {
         showError('Digite um email');
         return;
       }
       try {
-        // In production: implement invitation logic
-        showSuccess(`Convite enviado para ${email}`);
+        // Senha temporária aleatória — usuário deve trocar no primeiro acesso
+        const tempPwd = 'Tmp@' + Math.random().toString(36).slice(2, 10) + 'A1';
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password: tempPwd,
+          options: { emailRedirectTo: window.location.origin + '/login.html' }
+        });
+        if (error) throw error;
+
+        // Garantir que campos auth.users não fiquem NULL (workaround GoTrue)
+        try { await supabase.rpc('fix_auth_user_null_tokens'); } catch(e) { console.warn('fix_auth_user_null_tokens', e); }
+
+        // Criar profile vinculado ao tenant atual com role visualizador (default)
+        if (data?.user?.id && currentTenant?.id) {
+          await supabase.from('profiles').insert({
+            id: data.user.id,
+            tenant_id: currentTenant.id,
+            nome: email.split('@')[0],
+            email,
+            role: 'visualizador',
+            status: 'ATIVO'
+          });
+        }
+
+        showSuccess(`Convite enviado para ${email}. Senha temporária: ${tempPwd} (envie ao usuário em canal seguro).`);
         document.getElementById('inviteEmail').value = '';
+        if (typeof loadUsers === 'function') loadUsers();
       } catch (error) {
-        showError('Erro ao enviar convite');
+        console.error('Erro ao convidar:', error);
+        showError('Erro ao convidar usuário: ' + (error.message || 'erro desconhecido'));
       }
     });
 
